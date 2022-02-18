@@ -1,0 +1,36 @@
+﻿<ContentDialog
+    x:Class="Media_Downloader_App.Dialogs.QualitySelectDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Media_Downloader_App.Dialogs"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Select Video Quality"
+    PrimaryButtonText="Select"
+    SecondaryButtonText="Cancel"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    SecondaryButtonClick="ContentDialog_SecondaryButtonClick"
+    IsPrimaryButtonEnabled="False">
+
+    <Grid>
+        <StackPanel Spacing="24">
+            <StackPanel Opacity="0.37" Orientation="Horizontal" Spacing="4">
+                <TextBlock>Selected:</TextBlock>
+                <TextBlock x:Name="CurrentlySelectedTextBlock" Text=""/>
+            </StackPanel>
+            <ListView SelectionChanged="StreamInfosListView_SelectionChanged" HorizontalAlignment="Center" Height="240" x:Name="StreamInfosListView">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock FontSize="16" Margin="0,16,0,16" Text="{Binding StreamInfoDisplay}"/>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackPanel>
+    </Grid>
+</ContentDialog>

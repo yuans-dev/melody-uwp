@@ -1,0 +1,31 @@
+﻿<Page
+    x:Class="Media_Downloader_App.SubPages.YouTubePreviewPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Media_Downloader_App.SubPages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid x:Name="MainGrid">
+        <MediaPlayerElement
+            Margin="0,64,0,0"
+            Stretch="Uniform"
+            x:Name="Player" 
+            AreTransportControlsEnabled="True">
+            <MediaPlayerElement.TransportControls>
+                <MediaTransportControls IsCompact="True"/>
+            </MediaPlayerElement.TransportControls>
+        </MediaPlayerElement>
+        <StackPanel x:Name="LabelStackPanel" Padding="0,0,6,0" CornerRadius="0,8,8,0" VerticalAlignment="Top" HorizontalAlignment="Left" Spacing="6" Orientation="Horizontal" Margin="0,32,12,0">
+            <Button Background="Transparent" VerticalAlignment="Top" Click="BackButton_Click">
+                <FontIcon Glyph="&#xE72B;" FontSize="16"/>
+            </Button>
+            <TextBlock
+                    Margin="0,6,0,0"
+                       TextWrapping="Wrap" 
+                       Text="{x:Bind Path=PreviewSource.Title}" FontSize="16" FontFamily="Segoe UI Light"/>
+        </StackPanel>
+    </Grid>
+</Page>

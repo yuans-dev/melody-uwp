@@ -1,0 +1,36 @@
+﻿<ContentDialog
+    x:Class="Media_Downloader_App.Dialogs.EditTagsDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Media_Downloader_App.Dialogs"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Edit tags"
+    PrimaryButtonText="Download"
+    SecondaryButtonText="Cancel"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    SecondaryButtonClick="ContentDialog_SecondaryButtonClick">
+
+    <Grid>
+        <Grid MaxWidth="360">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32"/>
+                <RowDefinition Height="24"/>
+                <RowDefinition Height="32"/>
+                <RowDefinition Height="24"/>
+                <RowDefinition Height="32"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="64"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="1" Grid.Row="0" x:Name="TitleTextBox" PlaceholderText="Title..."></TextBox>
+            <TextBlock FontSize="16" Grid.Row="0">Title:</TextBlock>
+            <TextBox Grid.Column="1" Grid.Row="2" x:Name="ArtistTextBox" PlaceholderText="Artist(s)... Separate with comma"></TextBox>
+            <TextBlock FontSize="16" Grid.Row="2">Artist(s):</TextBlock>
+            <TextBox Grid.Column="1" Grid.Row="4" x:Name="AlbumTextBox" PlaceholderText="Album"></TextBox>
+            <TextBlock FontSize="16" Grid.Row="4">Album:</TextBlock>
+        </Grid>
+    </Grid>
+</ContentDialog>

@@ -1,0 +1,45 @@
+﻿<ContentDialog
+    x:Class="Media_Downloader_App.Dialogs.MediaFolderDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Media_Downloader_App.Dialogs"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Choose Media folder"
+    CloseButtonText="Close"
+    CloseButtonClick="Close_Click">
+
+    <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                </Style>
+            </ResourceDictionary>
+        </Grid.Resources>
+        <ScrollViewer>
+            <StackPanel Spacing="10">
+                <Button x:Name="AddFolderButton" 
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Stretch" 
+                Padding="0,20,0,20"
+                Opacity="0.9">
+                    <SymbolIcon Symbol="Add"/>
+                </Button>
+                <ListView x:Name="FolderPathsListView" CharacterSpacing="10">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Button x:Name="MediaFolderButton" 
+                                HorizontalAlignment="Stretch" 
+                                VerticalAlignment="Stretch" 
+                                Padding="0,20,0,20"
+                                Margin="0,10,0,10"
+                                Opacity="0.9" Content="{Binding FolderPath}"/>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</ContentDialog>

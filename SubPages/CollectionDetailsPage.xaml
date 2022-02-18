@@ -1,0 +1,74 @@
+﻿<Page
+    x:Class="Media_Downloader_App.SubPages.CollectionDetailsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Media_Downloader_App.SubPages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:m="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid Margin="0,32,0,0">
+        <Grid.RowDefinitions>
+            <RowDefinition MinHeight="172" MaxHeight="200" Height="4*"/>
+            <RowDefinition Height="7*"/>
+        </Grid.RowDefinitions>
+        <RelativePanel Background="{ThemeResource SystemControlAcrylicElementBrush}" Margin="0,32,0,0" x:Name="CollectionStackPanel" Grid.Row="0">
+            <Image x:Name="CollectionImage" Margin="12,12,0,12" HorizontalAlignment="Left" VerticalAlignment="Top" Source="{x:Bind Collection.Bitmap}"/>
+            <TextBlock Margin="18,12,0,0" FontWeight="SemiBold" FontSize="12" RelativePanel.RightOf="CollectionImage" x:Name="CollectionLabel"/>
+            <TextBlock Margin="17,24,0,36" TextWrapping="WrapWholeWords" TextTrimming="CharacterEllipsis" FontWeight="Bold" FontSize="36" RelativePanel.RightOf="CollectionImage" Text="{x:Bind Collection.Title}"/>
+            
+            <TextBlock x:Name="AuthorTextBlock" Margin="18,0,0,54" 
+                       Opacity="0.37" FontSize="14" RelativePanel.RightOf="CollectionImage" 
+                       RelativePanel.AlignBottomWithPanel="True" Text="Made by"/>
+            <TextBlock Margin="2,0,0,54" Opacity="0.37" 
+                       FontSize="14" RelativePanel.RightOf="AuthorTextBlock" 
+                       RelativePanel.AlignBottomWithPanel="True" Text="{x:Bind Collection.Author}"/>
+            
+            <TextBlock Margin="2,0,0,32" Opacity="0.37" FontSize="14" RelativePanel.RightOf="MediaCountTextBlock" RelativePanel.AlignBottomWithPanel="True" Text="songs"/>
+            <TextBlock x:Name="MediaCountTextBlock" Margin="18,0,0,32" Opacity="0.37" FontSize="14" RelativePanel.RightOf="CollectionImage" RelativePanel.AlignBottomWithPanel="True" Text="{x:Bind Collection.MediaCount}"/>
+        </RelativePanel>
+        <ListView SelectionChanged="MediaListView_SelectionChanged" Margin="48,0,24,0" Grid.Row="1" x:Name="MediaListView">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid ColumnSpacing="18" Height="48" Margin="0,12,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="48"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="42"/>
+                            <ColumnDefinition Width="42"/>
+                            <ColumnDefinition Width="4*"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Column="0" Source="{Binding Bitmap}"/>
+                        <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,0,18" Grid.Column="1" Text="{Binding Title}"/>
+                        <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Opacity="0.37" Margin="0,18,0,0" Grid.Column="1"  Text="{Binding PrintedAuthors}"/>
+                        <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Grid.Column="4" Text="{Binding Album}"/>
+                        <TextBlock VerticalAlignment="Center" Grid.Column="5" Text="{Binding Year}"/>
+                        <Button Click="PlayButton_Click" Opacity="{Binding Opacity}" IsHitTestVisible="{Binding IsPreviewAvailable}" ToolTipService.ToolTip="Play Preview" Background="Transparent" Grid.Column="2">
+                            <SymbolIcon Symbol="Play"/>
+                        </Button>
+                        <Button Click="DownloadButton_Click" ToolTipService.ToolTip="Download Audio" DataContext="{Binding}" Background="Transparent" Grid.Column="3">
+                            <SymbolIcon Symbol="Download"/>
+                        </Button>
+                        <MediaElement 
+                            Volume="0.12" Height="120" 
+                            HorizontalAlignment="Stretch" Visibility="Collapsed" 
+                            AutoPlay="False" Source="{Binding PreviewURL}"
+                            IsLooping="True" AudioCategory="BackgroundCapableMedia"/>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <Button Click="BackButton_Click" VerticalAlignment="Top" Background="Transparent">
+            <FontIcon Glyph="&#xE72B;" FontSize="16"/>
+        </Button>
+        <m:InAppNotification Grid.RowSpan="2" VerticalAlignment="Bottom" CornerRadius="16,16,16,16" Width="AUTO" x:Name="InAppNotif" x:FieldModifier="public"/>
+    </Grid>
+</Page>
