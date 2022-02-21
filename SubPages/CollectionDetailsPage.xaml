@@ -40,19 +40,21 @@
                     <Grid ColumnSpacing="18" Height="48" Margin="0,12,0,12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="48"/>
-                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition MaxWidth="172" Width="2*"/>
                             <ColumnDefinition Width="42"/>
                             <ColumnDefinition Width="42"/>
-                            <ColumnDefinition Width="4*"/>
-                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition MaxWidth="172" Width="2*"/>
+                            <ColumnDefinition MaxWidth="172" Width="2*"/>
+                            <ColumnDefinition Width="64"/>
                         </Grid.ColumnDefinitions>
                         <Image Grid.Column="0" Source="{Binding Bitmap}"/>
                         <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,0,18" Grid.Column="1" Text="{Binding Title}"/>
                         <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Opacity="0.37" Margin="0,18,0,0" Grid.Column="1"  Text="{Binding PrintedAuthors}"/>
                         <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Grid.Column="4" Text="{Binding Album}"/>
                         <TextBlock VerticalAlignment="Center" Grid.Column="5" Text="{Binding Year}"/>
-                        <Button Click="PlayButton_Click" Opacity="{Binding Opacity}" IsHitTestVisible="{Binding IsPreviewAvailable}" ToolTipService.ToolTip="Play Preview" Background="Transparent" Grid.Column="2">
-                            <SymbolIcon Symbol="Play"/>
+                        <TextBlock Opacity="0.37" VerticalAlignment="Center" Grid.Column="6" Text="{Binding DurationAsTimeSpan}"/>
+                        <Button Click="PlayButton_Click" DataContext="{Binding}" Opacity="{Binding Opacity}" IsHitTestVisible="{Binding IsPreviewAvailable}" ToolTipService.ToolTip="Play Preview" Background="Transparent" Grid.Column="2">
+                            <SymbolIcon Symbol="{Binding Symbol}"/>
                         </Button>
                         <Button Click="DownloadButton_Click" ToolTipService.ToolTip="Download Audio" DataContext="{Binding}" Background="Transparent" Grid.Column="3">
                             <SymbolIcon Symbol="Download"/>

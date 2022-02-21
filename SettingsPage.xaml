@@ -28,9 +28,6 @@
                     Margin="0, 0, 0, 15" Content="Authorize Spotify" VerticalAlignment="Top"/>
                 </StackPanel>
 
-                <TextBlock FontSize="24" FontFamily="Segoe UI Light" Margin="0, 15, 0, 10"><Run Text="Your library"/></TextBlock>
-                <Button x:Name="MediaFolderButton" FontSize="14" FontFamily="Segoe UI Light" Opacity="0.9" 
-                    Margin="0, 0, 0, 15" Click="MediaFolderButton_Click" Content="Choose where we look for music"/>
                 <TextBlock FontSize="24" FontFamily="Segoe UI Light" Margin="0, 15, 0, 10"><Run Text="Your downloads"/></TextBlock>
                 <Button 
                 x:Name ="DownloadsFolderButton" 

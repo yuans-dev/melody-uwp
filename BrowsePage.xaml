@@ -1,13 +1,21 @@
-﻿<Page xmlns:my="using:Microsoft.UI.Xaml.Controls" 
-    x:Class="Media_Downloader_App.BrowsePage"
+﻿<Page xmlns:my="using:Microsoft.UI.Xaml.Controls"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Media_Downloader_App"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:Custom="using:Microsoft.Toolkit.Uwp.UI.Converters" 
+    x:Class="Media_Downloader_App.BrowsePage"
     mc:Ignorable="d"
     NavigationCacheMode="Enabled"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    >
+
+    <Page.Resources>
+        <Custom:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </Page.Resources>
+    <Page.Background>
+        <ThemeResource ResourceKey="ApplicationPageBackgroundThemeBrush"/>
+    </Page.Background>
 
     <Grid Margin="40,40,0,0">
         <Grid.RowDefinitions>
@@ -87,7 +95,7 @@
                             VerticalAlignment="Center"
                             FontSize="24"
                             Opacity="0.37"
-                            Visibility="Collapsed">There is nothing here...</TextBlock>
+                            Visibility="Collapsed"><Run Text="There is nothing here..."/></TextBlock>
 
                         <TextBlock Grid.Row="2" Margin="0,20,0,20"  FontSize="24" Text="Albums"/>
 
@@ -139,7 +147,7 @@
                             VerticalAlignment="Center"
                             FontSize="24"
                             Opacity="0.37"
-                            Visibility="Collapsed">Nothing to see here...</TextBlock>
+                            Visibility="Collapsed"><Run Text="Nothing to see here..."/></TextBlock>
 
 
                         <TextBlock Grid.Row="4" Margin="0,20,0,20"  FontSize="24" Text="Tracks"/>
@@ -166,6 +174,15 @@
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
                                             <Image Stretch="UniformToFill" Grid.Column="0" Source="{Binding Bitmap}"/>
+                                            <Grid VerticalAlignment="Bottom" HorizontalAlignment="Right" Opacity="0.8" CornerRadius="9,0,0,0" Height="22" Width="40" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Grid.Column="0">
+                                                <TextBlock 
+                                                    HorizontalAlignment="Center"
+                                                    Margin="4,2,4,2"
+                                                    FontSize="14" 
+                                                    FontWeight="Light" 
+                                                    TextWrapping="WrapWholeWords"
+                                                    Text="{Binding DurationAsTimeSpan}"/>
+                                            </Grid>
                                             <Grid Margin="0,10,0,48" Grid.Column="1">
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="24"/>
@@ -196,12 +213,11 @@
                                             </Grid>
                                             <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Spacing="16" Margin="0,12,0,0"  Orientation="Horizontal">
                                                 <Button Background="Transparent" Opacity="{Binding Opacity}" IsHitTestVisible="{Binding IsPreviewAvailable}" DataContext="{Binding}" Click="ST_Play_Click" ToolTipService.ToolTip="Play Preview">
-                                                    <SymbolIcon Symbol="Play"/>
+                                                    <SymbolIcon Symbol="{Binding Symbol, Mode=OneWay}"/>
                                                 </Button>
                                                 <Button Background="Transparent" DataContext="{Binding}" Click="ST_Download_Click" ToolTipService.ToolTip="Download Audio">
                                                     <SymbolIcon Symbol="Download"/>
                                                 </Button>
-                                                <TextBlock FontSize="16"  Text="Now playing" Visibility="Collapsed"></TextBlock>
                                             </StackPanel>
                                         </Grid>
                                         <MediaElement 
@@ -209,7 +225,7 @@
                                             Height="120" 
                                             HorizontalAlignment="Stretch" 
                                             Visibility="Collapsed" 
-                                            AutoPlay="False" 
+                                            AutoPlay="False"
                                             Source="{Binding PreviewURL}"
                                             IsLooping="True"
                                             AudioCategory="BackgroundCapableMedia"/>
@@ -223,7 +239,7 @@
                             FontSize="24"
                             HorizontalAlignment="Center"
                             Opacity="0.37"
-                            Visibility="Collapsed">Nothing here...</TextBlock>
+                            Visibility="Collapsed"><Run Text="Nothing here..."/></TextBlock>
 
                     </Grid>
                 </PivotItem>
@@ -291,7 +307,6 @@
                                                 <SymbolIcon Symbol="Play"/>
                                             </Button>
                                             <Button Background="Transparent" ToolTipService.ToolTip="Download">
-                                                <SymbolIcon Symbol="Download"/>
                                                 <Button.Flyout>
                                                     <MenuFlyout>
                                                         <MenuFlyoutItem DataContext="{Binding}" Click="YT_DownloadAudio_Click" Text="Audio">
@@ -312,6 +327,7 @@
                                                         </MenuFlyoutItem>
                                                     </MenuFlyout>
                                                 </Button.Flyout>
+                                                <SymbolIcon Symbol="Download"/>
                                             </Button>
                                             <AppBarSeparator/>
                                             <Button Opacity="0.7" Background="Transparent" DataContext="{Binding}" Click="YT_OpenInWeb_Click" ToolTipService.ToolTip="Open in Web">

@@ -111,7 +111,6 @@ namespace MP3DL.Media
 
         public double Duration { get; private set; }
         public TimeSpan DurationAsTimeSpan { get; private set; }
-
         public string ID { get; private set; }
 
         public string Year { get; private set; }

@@ -21,5 +21,13 @@ namespace Media_Downloader_App.Statics
             }
             return child;
         }
+        public static DependencyObject RecursiveGetFirstChild(DependencyObject parent, int iterations)
+        {
+            for (int i = 0; i < iterations; i++)
+            {
+                parent = VisualTreeHelper.GetChild(parent,0);
+            }
+            return parent;
+        }
     }
 }

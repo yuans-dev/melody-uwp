@@ -2,6 +2,7 @@
 using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -10,11 +11,13 @@ using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace MP3DL.Media
 {
-    public class SpotifyTrack : IMedia
+    public class SpotifyTrack : IMedia, INotifyPropertyChanged
     {
         public SpotifyTrack(FullTrack Track, FullAlbum Album)
         {
@@ -125,6 +128,14 @@ namespace MP3DL.Media
         public string ID { get; private set; }
         public string PreviewURL { get; private set; }
         public double Duration { get; private set; }
+        public string DurationAsTimeSpan
+        {
+            get
+            {
+                var timespan = TimeSpan.FromMilliseconds(Duration);
+                return timespan.ToString(@"m\:ss");
+            }
+        }
         public bool IsVideo { get; private set; } = false;
         public bool IsPreviewAvailable
         {
@@ -138,6 +149,17 @@ namespace MP3DL.Media
                 {
                     return true;
                 }
+            }
+        }
+        private Symbol _Symbol { get; set; } = Symbol.Play;
+        public bool IsPlayingPreview { get; set; } = false;
+        public Symbol Symbol
+        {
+            get { return _Symbol; }
+            set
+            {
+                _Symbol = value;
+                OnPropertyChanged("Symbol");
             }
         }
         public double Opacity
@@ -154,6 +176,13 @@ namespace MP3DL.Media
                 }
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string PropertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+        }
+
         public async void SetTagsAsync(StorageFile file)
         {
             StorageFileAbstraction taglibfile = new StorageFileAbstraction(file);
@@ -248,7 +277,6 @@ namespace MP3DL.Media
         {
             return Name;
         }
-
         public bool Equals(IMedia other)
         {
             if (other == null)

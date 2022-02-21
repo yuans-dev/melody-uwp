@@ -134,9 +134,6 @@
     <Compile Include="Dialogs\EditTagsDialog.xaml.cs">
       <DependentUpon>EditTagsDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\MediaFolderDialog.xaml.cs">
-      <DependentUpon>MediaFolderDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Dialogs\QualitySelectDialog.xaml.cs">
       <DependentUpon>QualitySelectDialog.xaml</DependentUpon>
     </Compile>
@@ -257,10 +254,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\EditTagsDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Dialogs\MediaFolderDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

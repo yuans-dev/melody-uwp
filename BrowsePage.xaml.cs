@@ -72,16 +72,19 @@ namespace Media_Downloader_App
         {
             try
             {
-                if (Settings.SpotifyClient.Authd)
+                if (Settings.SpotifyClient.Authd && (Settings.OutputFolder != "Downloads" && !string.IsNullOrWhiteSpace(Settings.OutputFolder)))
                 {
                     if (!string.IsNullOrWhiteSpace(BrowseTextbox.Text))
                     {
                         await GetResults(BrowseTextbox.Text);
                     }
                 }
-                else
+                else if(!Settings.SpotifyClient.Authd)
                 {
                     InfoHelper.ShowInAppNotification("You are not authorized! Please go to the Settings tab and \"Authorize Spotify\"");
+                }else if (string.IsNullOrWhiteSpace(Settings.OutputFolder) || Settings.OutputFolder == "Downloads")
+                {
+                    InfoHelper.ShowInAppNotification("You have not set a Downloads folder! Please go to the Settings tab and choose a folder");
                 }
             }
             catch
@@ -94,6 +97,7 @@ namespace Media_Downloader_App
             var p = new PagingOptions(Settings.SpotifyClient, Settings.YouTubeClient, Query, 25, 0);
             BrowseProgressBar.Visibility = Visibility.Visible;
 
+            ST_ClearAllPlaying();
             ClearResults();
             if (Utils.IsSpotifyLink(Query))
             {
@@ -120,13 +124,12 @@ namespace Media_Downloader_App
                 }
                 GettingSpotifyResultsFinished();
                 SpotifyResultGrid.Visibility = Visibility.Visible;
-
-                YouTubeResults.Clear();
-                foreach(var result in YouTubeSearchResult)
-                {
-                    YouTubeResults.Add(await p.YouTubeClient.GetVideo(result.Url));
-                    YouTubeResultGrid.Visibility = Visibility.Visible;
-                }
+            }
+            YouTubeResults.Clear();
+            foreach (var result in YouTubeSearchResult)
+            {
+                YouTubeResults.Add(await p.YouTubeClient.GetVideo(result.Url));
+                YouTubeResultGrid.Visibility = Visibility.Visible;
             }
             BrowseProgressBar.Visibility = Visibility.Collapsed;
         }
@@ -231,28 +234,41 @@ namespace Media_Downloader_App
 
 
         }
-
         private void ST_Play_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
-            var icon = VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(button, 0), 0) as SymbolIcon;
-            var mediaplayer = VisualTreeHelper.GetChild(DependencyObjectHelper.RecursiveGetParent(button, 3), 1) as MediaElement;
-            var textblock = VisualTreeHelper.GetChild(VisualTreeHelper.GetParent(button), 2) as TextBlock;
+            var item = button.DataContext as SpotifyTrack;
+            var mediaplayer = VisualTreeHelper.GetChild(DependencyObjectHelper.RecursiveGetParent(button,3),1) as MediaElement;
 
-            if (icon.Symbol == Symbol.Play)
+            if (item.Symbol == Symbol.Play)
             {
-                textblock.Visibility = Visibility.Visible;
+                ST_ClearAllPlaying();
+                item.IsPlayingPreview = true;
                 mediaplayer.Play();
-                icon.Symbol = Symbol.Pause;
+                item.Symbol = Symbol.Pause;
             }
             else
             {
-                textblock.Visibility = Visibility.Collapsed;
-                mediaplayer.Pause();
-                icon.Symbol = Symbol.Play;
+                item.IsPlayingPreview = false;
+                mediaplayer.Stop();
+                item.Symbol = Symbol.Play;
             }
         }
+        private void ST_ClearAllPlaying()
+        {
+            foreach(var item in SpotifyTrackResults)
+            {
+                if (item.IsPlayingPreview)
+                {
+                    var container = ST_ResultsListView.ContainerFromItem(item);
+                    var mediaplayer = VisualTreeHelper.GetChild(DependencyObjectHelper.RecursiveGetFirstChild(container, 2), 1) as MediaElement;
 
+                    mediaplayer?.Stop();
+                    item.IsPlayingPreview = false;
+                    item.Symbol = Symbol.Play;
+                }
+            }
+        }
         private void ST_Download_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
@@ -290,7 +306,6 @@ namespace Media_Downloader_App
                 ST_Nothing_TextBlock.Visibility = Visibility.Collapsed;
             }
         }
-
         private void SP_ResultsFlipView_ItemClick(object sender, ItemClickEventArgs e)
         {
             var collection = e.ClickedItem as SpotifyPlaylist;

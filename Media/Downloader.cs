@@ -312,18 +312,22 @@ namespace MP3DL.Media
         {
             var SearchResult = await Task.Run(() => Search(Track.Name, Track.FirstAuthor, Track.Duration, 1500));
             Debug.WriteLine("[Downloader] Searching | First attempt");
+            Status = "Searching attempt #1";
             if (string.IsNullOrWhiteSpace(SearchResult))
             {
-                SearchResult = await Task.Run(() => Search(Track.Name + " Audio", Track.FirstAuthor, Track.Duration, 2500));
+                SearchResult = await Task.Run(() => Search(Track.Name + " Audio", Track.FirstAuthor, Track.Duration, 3000));
                 Debug.WriteLine("[Downloader] Searching | Second attempt");
+                Status = "Searching attempt #2";
                 if (string.IsNullOrWhiteSpace(SearchResult))
                 {
-                    SearchResult = await Task.Run(() => Search(Track.Title + " Audio", Track.FirstAuthor, Track.Duration, 2500));
+                    SearchResult = await Task.Run(() => Search(Track.Title + " Audio", Track.FirstAuthor, Track.Duration, 4000));
                     Debug.WriteLine("[Downloader] Searching | Third attempt");
+                    Status = "Searching attempt #3";
                     if (string.IsNullOrWhiteSpace(SearchResult))
                     {
-                        SearchResult = await Task.Run(() => Search(Track.Name, Track.FirstAuthor, Track.Duration, 2500));
+                        SearchResult = await Task.Run(() => Search(Track.Name, Track.FirstAuthor, Track.Duration, 30000));
                         Debug.WriteLine("[Downloader] Searching | Last attempt");
+                        Status = "Searching attempt #4";
                         if (string.IsNullOrWhiteSpace(SearchResult))
                         {
                             return "";
@@ -335,7 +339,7 @@ namespace MP3DL.Media
         }
         private async Task<string> Search(string SearchQuery, string Keyword, double Duration, double MarginOfError)
         {
-            int Results = 5;
+            int Results = 8;
             VideoSearchResult Result;
             var TempClient = new YoutubeClient();
             string URL = "";

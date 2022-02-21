@@ -146,24 +146,24 @@ namespace Media_Downloader_App.ViewModels
             switch (e.Result)
             {
                 case Result.Success:
-                    Status = "Completed";
+                    Status = "Completed.";
                     StatusGlyph = Glyphs.CheckGlyph;
                     OutputFile = e.OutputFile;
                     break;
                 case Result.FailedRequest:
-                    Status = "No response from the server! Please try again";
+                    Status = "No response from the server! Please try again.";
                     StatusGlyph = Glyphs.RetryGlyph;
                     break;
                 case Result.NoMediaFound:
-                    Status = "No corresponding media found";
+                    Status = "We didn't find any matching YouTube video for this song. Please try downloading from YouTube.";
                     StatusGlyph = Glyphs.RetryGlyph;
                     break;
                 case Result.NotDetermined:
-                    Status = $"An unknown error occured: {e.ExceptionMessage}";
+                    Status = $"An unknown error occured: {e.ExceptionMessage}.";
                     StatusGlyph = Glyphs.RetryGlyph;
                     break;
                 case Result.Cancelled:
-                    Status = "Cancelled";
+                    Status = "Cancelled.";
                     StatusGlyph = Glyphs.RetryGlyph;
                     break;
                 default:
@@ -172,11 +172,11 @@ namespace Media_Downloader_App.ViewModels
                     break;
             }
             
-            if (WillSendNotifs || e.Result == Result.Success)
+            if (WillSendNotifs && e.Result == Result.Success)
             {
                 InfoHelper.ShowNotification($"You have successfully finished downloading \"{Media.Name}\"", "Download completed", Bitmap.UriSource);
             }
-            else if(WillSendNotifs || e.Result != Result.Success)
+            else if(WillSendNotifs && e.Result != Result.Success)
             {
                 InfoHelper.ShowNotification($"An error occured while downloading \"{Media.Name}\"", "Download error", Bitmap.UriSource);
             }

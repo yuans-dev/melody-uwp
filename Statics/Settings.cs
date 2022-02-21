@@ -59,19 +59,26 @@ namespace Media_Downloader_App
         }
         public async static void Load()
         {
-            SerializableSettings settings = JsonSerializer.Deserialize<SerializableSettings>(
-                (string)Local.Values["Settings"]);
-
-            Theme = settings.Theme;
-            SpotifyClient.Details = new ClientDetails { ID = settings.ID, Secret = settings.Secret };
-            OutputFolder = settings.OutputFolder;
             try
             {
-                await SpotifyClient.Auth();
+                SerializableSettings settings = JsonSerializer.Deserialize<SerializableSettings>(
+                (string)Local.Values["Settings"]);
+
+                Theme = settings.Theme;
+                SpotifyClient.Details = new ClientDetails { ID = settings.ID, Secret = settings.Secret };
+                OutputFolder = settings.OutputFolder;
+                try
+                {
+                    await SpotifyClient.Auth();
+                }
+                catch
+                {
+
+                }
             }
             catch
             {
-               
+
             }
         }
         protected static void OnThemeChanged()

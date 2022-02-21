@@ -72,21 +72,38 @@ namespace Media_Downloader_App.SubPages
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
-            var icon = VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(button, 0), 0) as SymbolIcon;
-            var mediaplayer = VisualTreeHelper.GetChild(VisualTreeHelper.GetParent(button), 7) as MediaElement;
+            var item = button.DataContext as SpotifyTrack;
+            var mediaplayer = VisualTreeHelper.GetChild(VisualTreeHelper.GetParent(button), 8) as MediaElement;
 
-            if (icon.Symbol == Symbol.Play)
+            if (item.Symbol == Symbol.Play)
             {
-                mediaplayer.Play();
-                icon.Symbol = Symbol.Pause;
+                ClearAllPlaying();
+                mediaplayer?.Play();
+                item.IsPlayingPreview = true;
+                item.Symbol = Symbol.Pause;
             }
             else
             {
-                mediaplayer.Pause();
-                icon.Symbol = Symbol.Play;
+                mediaplayer?.Stop();
+                item.IsPlayingPreview = false;
+                item.Symbol = Symbol.Play;
             }
         }
+        private void ClearAllPlaying()
+        {
+            foreach (SpotifyTrack item in MediaListView.Items)
+            {
+                if (item.IsPlayingPreview)
+                {
+                    var container = MediaListView.ContainerFromItem(item);
+                    var mediaplayer = VisualTreeHelper.GetChild(DependencyObjectHelper.RecursiveGetFirstChild(container, 2), 8) as MediaElement;
 
+                    mediaplayer?.Stop();
+                    item.IsPlayingPreview = false;
+                    item.Symbol = Symbol.Play;
+                }
+            }
+        }
         private void DownloadButton_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;

@@ -180,7 +180,7 @@ namespace Media_Downloader_App.ViewModels
             int c = 0;
             foreach(var item in MediaItems)
             {
-                if(item.Status != "Completed")
+                if(item.Status != "Completed.")
                 {
                     f++;
                 }
@@ -191,13 +191,13 @@ namespace Media_Downloader_App.ViewModels
             }
             if (f == 0)
             {
-                Status = "Completed";
+                Status = "Completed.";
                 StatusGlyph = Glyphs.CheckGlyph;
                 InfoHelper.ShowNotification($"You have successfully finished downloading \"{Collection.Title}\"", "Download completed", Bitmap.UriSource);
             }
             else
             {
-                Status = $"{f} item(s) failed to download";
+                Status = $"{f} item(s) failed to download.";
                 StatusGlyph = Glyphs.RetryGlyph;
                 InfoHelper.ShowNotification($"{f} item(s) failed to download in \"{Collection.Title}\"", "Download incomplete", Bitmap.UriSource);
             }

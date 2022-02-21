@@ -104,16 +104,6 @@ namespace Media_Downloader_App
 
             }
         }
-        private async void MediaFolderButton_Click(object sender, RoutedEventArgs e)
-        {
-            MediaFolderDialog dialog =
-                new MediaFolderDialog 
-                { 
-                    RequestedTheme = Settings.Theme 
-                };
-
-            await dialog.ShowAsync();
-        }
         private void Dialog_AuthorizationAttempted(object sender, AuthorizedEventArgs e)
         {
             if (e.SpotifyClient.Authd)
