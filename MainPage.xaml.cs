@@ -126,5 +126,17 @@ namespace Media_Downloader_App
                 }
             }
         }
+
+        private void MainNavView_DisplayModeChanged(NavigationView sender, NavigationViewDisplayModeChangedEventArgs args)
+        {
+            if (sender.DisplayMode != NavigationViewDisplayMode.Minimal)
+            {
+                sender.HeaderTemplate = DefaultHeader;
+            }
+            else
+            {
+                sender.HeaderTemplate = MinimalHeader;
+            }
+        }
     }
 }

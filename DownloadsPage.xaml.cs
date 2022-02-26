@@ -1,4 +1,5 @@
-﻿using Media_Downloader_App.Statics;
+﻿using Media_Downloader_App.Classes;
+using Media_Downloader_App.Statics;
 using Media_Downloader_App.ViewModels;
 using MP3DL.Media;
 using System;
@@ -26,7 +27,7 @@ namespace Media_Downloader_App
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class DownloadsPage : Page
+    public sealed partial class DownloadsPage : BasePage
     {
         public DownloadsPage()
         {
@@ -42,6 +43,8 @@ namespace Media_Downloader_App
 
             Settings.ThemeChanged += Settings_ThemeChanged;
         }
+        public override string Header => "Downloads";
+        public override string MinimalHeader => "DOWNLOADS";
         public static DownloadsPage Current;
         public ObservableCollection<IDownloadItem> Downloads { get; private set; }
         private void Settings_ThemeChanged(object sender, EventArgs e)

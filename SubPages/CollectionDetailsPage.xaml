@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:m="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:brushes="using:Microsoft.Toolkit.Uwp.UI.Media"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -14,7 +15,13 @@
             <RowDefinition MinHeight="172" MaxHeight="200" Height="4*"/>
             <RowDefinition Height="7*"/>
         </Grid.RowDefinitions>
-        <RelativePanel Background="{ThemeResource SystemControlAcrylicElementBrush}" Margin="0,32,0,0" x:Name="CollectionStackPanel" Grid.Row="0">
+        <RelativePanel Margin="0,-32,0,0" x:Name="CollectionStackPanel" Grid.Row="0">
+            <RelativePanel.Background>
+                <brushes:AcrylicBrush BackgroundSource="HostBackdrop"
+                                      TintColor="Black"
+                                      TintOpacity="0.4"
+                                      BlurAmount="8"/>
+            </RelativePanel.Background>
             <Image x:Name="CollectionImage" Margin="12,12,0,12" HorizontalAlignment="Left" VerticalAlignment="Top" Source="{x:Bind Collection.Bitmap}"/>
             <TextBlock Margin="18,12,0,0" FontWeight="SemiBold" FontSize="12" RelativePanel.RightOf="CollectionImage" x:Name="CollectionLabel"/>
             <TextBlock Margin="17,24,0,36" TextWrapping="WrapWholeWords" TextTrimming="CharacterEllipsis" FontWeight="Bold" FontSize="36" RelativePanel.RightOf="CollectionImage" Text="{x:Bind Collection.Title}"/>
@@ -48,8 +55,8 @@
                             <ColumnDefinition Width="64"/>
                         </Grid.ColumnDefinitions>
                         <Image Grid.Column="0" Source="{Binding Bitmap}"/>
-                        <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,0,18" Grid.Column="1" Text="{Binding Title}"/>
-                        <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Opacity="0.37" Margin="0,18,0,0" Grid.Column="1"  Text="{Binding PrintedAuthors}"/>
+                        <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,0,18" Grid.Column="1" ToolTipService.ToolTip="{Binding Title}" Text="{Binding Title}"/>
+                        <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Opacity="0.37" Margin="0,18,0,0" Grid.Column="1" ToolTipService.ToolTip="{Binding PrintedAuthors}"  Text="{Binding PrintedAuthors}"/>
                         <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Grid.Column="4" Text="{Binding Album}"/>
                         <TextBlock VerticalAlignment="Center" Grid.Column="5" Text="{Binding Year}"/>
                         <TextBlock Opacity="0.37" VerticalAlignment="Center" Grid.Column="6" Text="{Binding DurationAsTimeSpan}"/>

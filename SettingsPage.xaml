@@ -1,23 +1,23 @@
-﻿<Page
+﻿<classes:BasePage
     x:Class="Media_Downloader_App.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Media_Downloader_App"
+    xmlns:classes="using:Media_Downloader_App.Classes"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <ScrollViewer>
-        <Grid Margin="40,40,40,20">
-            <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Settings" VerticalAlignment="Top" FontSize="36" FontFamily="Segoe UI Light" FontWeight="Normal"/>
-            <StackPanel Margin="0,60,0,0">
+        <Grid Margin="36,0,36,16">
+            <StackPanel Margin="0,0,0,0">
 
-                <StackPanel x:Name="AuthorizationControls" Visibility="Visible">
+                <StackPanel Margin="0, 0, 0, 24" x:Name="AuthorizationControls" Visibility="Visible">
                     <TextBlock 
                     FontSize="24" 
                     FontFamily="Segoe UI Light" 
-                    Margin="0, 15, 0, 10" 
+                    Margin="0, 0, 0, 12" 
                     Text="User authorization"/>
                     <Button 
                     x:Name ="AuthorizeButton" 
@@ -25,10 +25,10 @@
                     FontFamily="Segoe UI Light" 
                     Opacity="0.9" 
                     Click="AuthorizeSpotify_Click" 
-                    Margin="0, 0, 0, 15" Content="Authorize Spotify" VerticalAlignment="Top"/>
+                    Content="Authorize Spotify" VerticalAlignment="Top"/>
                 </StackPanel>
 
-                <TextBlock FontSize="24" FontFamily="Segoe UI Light" Margin="0, 15, 0, 10"><Run Text="Your downloads"/></TextBlock>
+                <TextBlock FontSize="24" FontFamily="Segoe UI Light" Margin="0, 0, 0, 12"><Run Text="Your downloads"/></TextBlock>
                 <Button 
                 x:Name ="DownloadsFolderButton" 
                 FontSize="14" 
@@ -37,13 +37,13 @@
                 Margin="0, 0, 0, 15" 
                 Click="DownloadsFolderButton_Click" 
                 Content="Choose where to put your downloads"/>
-                <TextBlock x:Name="OutputFolderTextBlock" Opacity="0.37" Margin="20,0,0,0" Text="{x:Bind Output}"/>
+                <TextBlock x:Name="OutputFolderTextBlock" Opacity="0.37" Margin="16,0,0,0" Text="{x:Bind Output}"/>
 
-                <TextBlock FontSize="24" FontFamily="Segoe UI Light" Margin="0, 20, 0, 10"><Run Text="Theme"/></TextBlock>
+                <TextBlock FontSize="24" FontFamily="Segoe UI Light" Margin="0, 24, 0, 8"><Run Text="Theme"/></TextBlock>
                 <RadioButton x:Name="LightTheme" Content="Light" FontFamily="Segoe UI Light" FontSize="14" Checked="LightTheme_Checked"/>
                 <RadioButton x:Name="DarkTheme" Content="Dark" FontFamily="Segoe UI Light" FontSize="14" Checked="DarkTheme_Checked"/>
                 <RadioButton x:Name="DefaultTheme" Content="System default" FontFamily="Segoe UI Light" FontSize="14" Checked="DefaultTheme_Checked"/>
             </StackPanel>
         </Grid>
     </ScrollViewer>
-</Page>
+</classes:BasePage>

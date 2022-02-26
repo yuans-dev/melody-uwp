@@ -1,4 +1,5 @@
-﻿using Media_Downloader_App.Dialogs;
+﻿using Media_Downloader_App.Classes;
+using Media_Downloader_App.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,7 +24,7 @@ namespace Media_Downloader_App
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class SettingsPage : Page
+    public sealed partial class SettingsPage : BasePage
     {
         public SettingsPage()
         {
@@ -48,6 +49,8 @@ namespace Media_Downloader_App
             Settings.ThemeChanged += Settings_ThemeChanged;
             Settings.OutputChanged += Settings_OutputChanged;
         }
+        public override string Header => "Settings";
+        public override string MinimalHeader => "SETTINGS";
         public string Output { get; set; } = Settings.OutputFolder;
         private void Settings_ThemeChanged(object sender, EventArgs e)
         {

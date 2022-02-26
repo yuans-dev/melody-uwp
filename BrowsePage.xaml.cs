@@ -1,4 +1,5 @@
-﻿using Media_Downloader_App.Dialogs;
+﻿using Media_Downloader_App.Classes;
+using Media_Downloader_App.Dialogs;
 using Media_Downloader_App.Statics;
 using Media_Downloader_App.SubPages;
 using Microsoft.Toolkit.Uwp;
@@ -34,7 +35,7 @@ namespace Media_Downloader_App
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class BrowsePage : Page
+    public sealed partial class BrowsePage : BasePage
     {
         public BrowsePage()
         {
@@ -57,6 +58,8 @@ namespace Media_Downloader_App
 
             Settings.ThemeChanged += Settings_ThemeChanged;
         }
+        public override string Header => "Browse";
+        public override string MinimalHeader => "BROWSE";
         public ObservableCollection<SpotifyTrack> SpotifyTrackResults { get; set; }
         public ObservableCollection<SpotifyPlaylist> SpotifyPlaylistResults { get; set; }
         public ObservableCollection<SpotifyAlbum> SpotifyAlbumResults { get; set; }
@@ -95,7 +98,7 @@ namespace Media_Downloader_App
         private async Task GetResults(string Query)
         {
             var p = new PagingOptions(Settings.SpotifyClient, Settings.YouTubeClient, Query, 25, 0);
-            BrowseProgressBar.Visibility = Visibility.Visible;
+            LoadingControl.IsLoading = true;
 
             ST_ClearAllPlaying();
             ClearResults();
@@ -125,13 +128,14 @@ namespace Media_Downloader_App
                 GettingSpotifyResultsFinished();
                 SpotifyResultGrid.Visibility = Visibility.Visible;
             }
+
             YouTubeResults.Clear();
             foreach (var result in YouTubeSearchResult)
             {
                 YouTubeResults.Add(await p.YouTubeClient.GetVideo(result.Url));
                 YouTubeResultGrid.Visibility = Visibility.Visible;
+                LoadingControl.IsLoading = false;
             }
-            BrowseProgressBar.Visibility = Visibility.Collapsed;
         }
         private void ClearResults()
         {
@@ -329,33 +333,30 @@ namespace Media_Downloader_App
             SP_ResultsFlipView.SelectedItem = null;
         }
 
-        private void SP_Download_Click(object sender, RoutedEventArgs e)
+        private void Collections_Download_Click(object sender, RoutedEventArgs e)
         {
-            var collection = (sender as MenuFlyoutItem).DataContext as SpotifyPlaylist;
-
-            InfoHelper.ShowInAppNotification($"Successfully added \"{collection.Title}\" to Downloads");
-            MainPage.Current.AddToDownloads(collection, false);
+            if ((sender as MenuFlyoutItem).DataContext is SpotifyPlaylist playlist)
+            {
+                InfoHelper.ShowInAppNotification($"Successfully added \"{playlist.Title}\" to Downloads");
+                MainPage.Current.AddToDownloads(playlist, false);
+            }
+            else if ((sender as MenuFlyoutItem).DataContext is SpotifyAlbum album)
+            {
+                InfoHelper.ShowInAppNotification($"Successfully added \"{album.Title}\" to Downloads");
+                MainPage.Current.AddToDownloads(album, false);
+            }
         }
-        private void SP_BgDownload_Click(object sender, RoutedEventArgs e)
+        private void Collections_BgDownload_Click(object sender, RoutedEventArgs e)
         {
-            var collection = (sender as MenuFlyoutItem).DataContext as SpotifyPlaylist;
-
-            InfoHelper.ShowInAppNotification($"Successfully added \"{collection.Title}\" to Downloads");
-            MainPage.Current.AddToDownloads(collection,true);
-        }
-        private void SA_Download_Click(object sender, RoutedEventArgs e)
-        {
-            var collection = (sender as MenuFlyoutItem).DataContext as SpotifyAlbum;
-
-            InfoHelper.ShowInAppNotification($"Successfully added \"{collection.Title}\" to Downloads");
-            MainPage.Current.AddToDownloads(collection, false);
-        }
-        private void SA_BgDownload_Click(object sender, RoutedEventArgs e)
-        {
-            var collection = (sender as MenuFlyoutItem).DataContext as SpotifyAlbum;
-
-            InfoHelper.ShowInAppNotification($"Successfully added \"{collection.Title}\" to Downloads");
-            MainPage.Current.AddToDownloads(collection, true);
+            if((sender as MenuFlyoutItem).DataContext is SpotifyPlaylist playlist)
+            {
+                InfoHelper.ShowInAppNotification($"Successfully added \"{playlist.Title}\" to Downloads");
+                MainPage.Current.AddToDownloads(playlist, true);
+            }else if((sender as MenuFlyoutItem).DataContext is SpotifyAlbum album)
+            {
+                InfoHelper.ShowInAppNotification($"Successfully added \"{album.Title}\" to Downloads");
+                MainPage.Current.AddToDownloads(album, true);
+            }
         }
     }
 }
