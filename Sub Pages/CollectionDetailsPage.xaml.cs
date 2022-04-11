@@ -31,9 +31,11 @@ namespace Media_Downloader_App.SubPages
             RequestedTheme = Settings.Theme;
         }
         public IMediaCollection Collection { get; set; }
+        private SpotifyTrack PreviouslyPlayed { get; set; }
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if(e.Parameter is SpotifyPlaylist playlist)
+            LoadingControl.IsLoading = true;
+            if (e.Parameter is SpotifyPlaylist playlist)
             {
                 CollectionLabel.Text = "PLAYLIST";
                 Collection = playlist;
@@ -45,7 +47,8 @@ namespace Media_Downloader_App.SubPages
                 {
                     System.Diagnostics.Debug.WriteLine($"[CollectionDetailsPage] {ex.Message}");
                 }
-            }else if(e.Parameter is SpotifyAlbum album)
+            }
+            else if (e.Parameter is SpotifyAlbum album)
             {
                 CollectionLabel.Text = "ALBUM";
                 Collection = album;
@@ -58,6 +61,7 @@ namespace Media_Downloader_App.SubPages
                     System.Diagnostics.Debug.WriteLine($"[CollectionDetailsPage] {ex.Message}");
                 }
             }
+            LoadingControl.IsLoading = false;
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
@@ -77,10 +81,19 @@ namespace Media_Downloader_App.SubPages
 
             if (item.Symbol == Symbol.Play)
             {
-                ClearAllPlaying();
+                try
+                {
+                    ClearPreviouslyPlayed();
+                }
+                catch
+                {
+
+                }
                 mediaplayer?.Play();
                 item.IsPlayingPreview = true;
                 item.Symbol = Symbol.Pause;
+
+                PreviouslyPlayed = item;
             }
             else
             {
@@ -102,6 +115,18 @@ namespace Media_Downloader_App.SubPages
                     item.IsPlayingPreview = false;
                     item.Symbol = Symbol.Play;
                 }
+            }
+        }
+        private void ClearPreviouslyPlayed()
+        {
+            if(PreviouslyPlayed != null)
+            {
+                var container = MediaListView.ContainerFromItem(PreviouslyPlayed);
+                var mediaplayer = VisualTreeHelper.GetChild(DependencyObjectHelper.RecursiveGetFirstChild(container, 2), 8) as MediaElement;
+
+                mediaplayer?.Stop();
+                PreviouslyPlayed.IsPlayingPreview = false;
+                PreviouslyPlayed.Symbol = Symbol.Play;
             }
         }
         private void DownloadButton_Click(object sender, RoutedEventArgs e)

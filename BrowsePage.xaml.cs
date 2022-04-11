@@ -15,6 +15,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.System;
@@ -54,8 +55,6 @@ namespace Media_Downloader_App
             SA_ResultsFlipView.ItemsSource = SpotifyAlbumResults;
             YT_ResultsListView.ItemsSource = YouTubeResults;
 
-            TokenSource = new CancellationTokenSource();
-
             Settings.ThemeChanged += Settings_ThemeChanged;
         }
         public override string Header => "Browse";
@@ -64,8 +63,8 @@ namespace Media_Downloader_App
         public ObservableCollection<SpotifyPlaylist> SpotifyPlaylistResults { get; set; }
         public ObservableCollection<SpotifyAlbum> SpotifyAlbumResults { get; set; }
         public ObservableCollection<YouTubeVideo> YouTubeResults { get; set; }
+        private IMedia PreviouslyPlayed { get; set; } 
         private List<VideoSearchResult> YouTubeSearchResult { get; set; }
-        private CancellationTokenSource TokenSource { get; set; }
 
         private void Settings_ThemeChanged(object sender, EventArgs e)
         {
@@ -100,7 +99,7 @@ namespace Media_Downloader_App
             var p = new PagingOptions(Settings.SpotifyClient, Settings.YouTubeClient, Query, 25, 0);
             LoadingControl.IsLoading = true;
 
-            ST_ClearAllPlaying();
+            ST_ClearPreviouslyPlayed();
             ClearResults();
             if (Utils.IsSpotifyLink(Query))
             {
@@ -112,7 +111,6 @@ namespace Media_Downloader_App
                 var playlistresults = await p.SpotifyClient.BrowseSpotifyPlaylist(p.Query, p.Results, p.Offset);
                 var albumresults = await p.SpotifyClient.BrowseSpotifyAlbum(p.Query, p.Results, p.Offset);
                 var trackresults = await p.SpotifyClient.BrowseSpotifyTracks(p.Query, p.Results, p.Offset);
-                YouTubeSearchResult = (await p.YouTubeClient.GetVideoSearchResult(p.Query, p.Results, p.Offset)).ToList();
                 foreach (var playlist in playlistresults)
                 {
                     SpotifyPlaylistResults.Add(playlist);
@@ -128,13 +126,17 @@ namespace Media_Downloader_App
                 GettingSpotifyResultsFinished();
                 SpotifyResultGrid.Visibility = Visibility.Visible;
             }
-
+            YouTubeSearchResult = (await p.YouTubeClient.GetVideoSearchResult(p.Query, p.Results, p.Offset)).ToList();
             YouTubeResults.Clear();
+            LoadingControl.IsLoading = false;
             foreach (var result in YouTubeSearchResult)
             {
-                YouTubeResults.Add(await p.YouTubeClient.GetVideo(result.Url));
-                YouTubeResultGrid.Visibility = Visibility.Visible;
-                LoadingControl.IsLoading = false;
+                var video = await p.YouTubeClient.GetVideo(result.Url);
+                if (video.DurationAsTimeSpan != TimeSpan.Zero)
+                {
+                    YouTubeResults.Add(video);
+                    YouTubeResultGrid.Visibility = Visibility.Visible;
+                }
             }
         }
         private void ClearResults()
@@ -234,9 +236,21 @@ namespace Media_Downloader_App
             var mediaURL = "https://www.youtube.com/watch?v=" + (button.DataContext as YouTubeVideo).ID;
             var mediaUri = new Uri(mediaURL, UriKind.Absolute);
 
-            var IsSuccess = await Launcher.LaunchUriAsync(mediaUri, new LauncherOptions { FallbackUri = new Uri(@"https://www.youtube.com", UriKind.Absolute) });
-
-
+            await Launcher.LaunchUriAsync(mediaUri, new LauncherOptions { FallbackUri = new Uri(@"https://www.youtube.com", UriKind.Absolute) });
+        }
+        private void YT_CopyLink_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var Links = (button.DataContext as YouTubeVideo).Link;
+            ClipboardExtensions.CopyToClipboard(Links.Web);
+        }
+        private void SpotifyPivotItem_Unloaded(object sender, RoutedEventArgs e)
+        {
+            ST_ClearPreviouslyPlayed();
+        }
+        private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ST_ClearPreviouslyPlayed();
         }
         private void ST_Play_Click(object sender, RoutedEventArgs e)
         {
@@ -246,10 +260,12 @@ namespace Media_Downloader_App
 
             if (item.Symbol == Symbol.Play)
             {
-                ST_ClearAllPlaying();
+                ST_ClearPreviouslyPlayed();
                 item.IsPlayingPreview = true;
                 mediaplayer.Play();
                 item.Symbol = Symbol.Pause;
+
+                PreviouslyPlayed = item;
             }
             else
             {
@@ -258,19 +274,23 @@ namespace Media_Downloader_App
                 item.Symbol = Symbol.Play;
             }
         }
-        private void ST_ClearAllPlaying()
+        private void ST_ClearPreviouslyPlayed()
         {
-            foreach(var item in SpotifyTrackResults)
+            try
             {
-                if (item.IsPlayingPreview)
+                if (PreviouslyPlayed is SpotifyTrack track)
                 {
-                    var container = ST_ResultsListView.ContainerFromItem(item);
+                    var container = ST_ResultsListView.ContainerFromItem(track);
                     var mediaplayer = VisualTreeHelper.GetChild(DependencyObjectHelper.RecursiveGetFirstChild(container, 2), 1) as MediaElement;
 
                     mediaplayer?.Stop();
-                    item.IsPlayingPreview = false;
-                    item.Symbol = Symbol.Play;
+                    track.IsPlayingPreview = false;
+                    track.Symbol = Symbol.Play;
                 }
+            }
+            catch
+            {
+
             }
         }
         private void ST_Download_Click(object sender, RoutedEventArgs e)
@@ -280,6 +300,37 @@ namespace Media_Downloader_App
 
             InfoHelper.ShowInAppNotification($"Successfully added \"{media.Name}\" to Downloads");
             MainPage.Current.AddToDownloads(media);
+        }
+        private async void ST_OpenInWeb_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var track = (button.DataContext as SpotifyTrack);
+
+            ContentDialog dialog = new ContentDialog()
+            {
+                Title = "Opening...",
+                Content = "Would you like to open it in the app?",
+                PrimaryButtonText = "Open in app",
+                SecondaryButtonText = "Open in web",
+                CloseButtonText = "Cancel"
+            };
+            switch(await dialog.ShowAsync())
+            {
+                case ContentDialogResult.Primary:
+                    await Launcher.LaunchUriAsync(new Uri(track.Link.App, UriKind.Absolute), new LauncherOptions { FallbackUri = new Uri(@"https://www.spotify.com/us/download/", UriKind.Absolute) });
+                    break;
+                case ContentDialogResult.Secondary:
+                    await Launcher.LaunchUriAsync(new Uri(track.Link.Web, UriKind.Absolute), new LauncherOptions { FallbackUri = new Uri(@"https://www.spotify.com/us/", UriKind.Absolute) });
+                    break;
+                default:
+                    break;
+            }
+        }
+        private void ST_CopyLink_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var mediaLinks = (button.DataContext as SpotifyTrack).Link;
+            ClipboardExtensions.CopyToClipboard(mediaLinks.Web);
         }
         private void GettingSpotifyResultsFinished()
         {
@@ -357,6 +408,12 @@ namespace Media_Downloader_App
                 InfoHelper.ShowInAppNotification($"Successfully added \"{album.Title}\" to Downloads");
                 MainPage.Current.AddToDownloads(album, true);
             }
+        }
+
+        private void Collections_CopyLink(object sender, RoutedEventArgs e)
+        {
+            var collection = (sender as MenuFlyoutItem).DataContext as IMediaCollection;
+            ClipboardExtensions.CopyToClipboard(collection.Link.Web);
         }
     }
 }

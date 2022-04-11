@@ -11,6 +11,8 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage;
+using Windows.UI;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -46,8 +48,10 @@ namespace Media_Downloader_App
 
         private void Settings_ThemeChanged(object sender, EventArgs e)
         {
+            ApplicationViewTitleBar formattableTitleBar = ApplicationView.GetForCurrentView().TitleBar;
             MainNavView.RequestedTheme = Settings.Theme;
             RequestedTheme = Settings.Theme;
+            formattableTitleBar.ButtonForegroundColor = DefaultThemeBrush.Color;
         }
         
         public async void AddToDownloads(IMedia Media)
@@ -124,18 +128,6 @@ namespace Media_Downloader_App
                         MainNavView.SelectedItem = MainNavView.SettingsItem;
                         break;
                 }
-            }
-        }
-
-        private void MainNavView_DisplayModeChanged(NavigationView sender, NavigationViewDisplayModeChangedEventArgs args)
-        {
-            if (sender.DisplayMode != NavigationViewDisplayMode.Minimal)
-            {
-                sender.HeaderTemplate = DefaultHeader;
-            }
-            else
-            {
-                sender.HeaderTemplate = MinimalHeader;
             }
         }
     }

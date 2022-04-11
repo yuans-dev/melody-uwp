@@ -25,15 +25,13 @@ namespace MP3DL.Media
             Authors = ((IEnumerable<SimpleArtist>)Track.Artists).Select(p => p.Name).ToArray();
             PrintedAuthors = PrintAuthors();
             _Album = Album;
-
             this.Album = Track.Album.Name;
             Number = (uint)Track.TrackNumber;
             Year = GetReleaseYear(Track.Album.ReleaseDate);
-
             PreviewURL = Track.PreviewUrl;
             Duration = Track.DurationMs;
             ID = Track.Id;
-
+            Link = new MediaLink(Track.Uri, "https://open.spotify.com/track/" + Track.Id + "?");
             Bitmap = new BitmapImage(new Uri(Album.Images[0].Url, UriKind.Absolute));
         }
         public SpotifyTrack(SimpleTrack Track, FullAlbum Album)
@@ -42,15 +40,13 @@ namespace MP3DL.Media
             Authors = ((IEnumerable<SimpleArtist>)Track.Artists).Select(p => p.Name).ToArray();
             PrintedAuthors = PrintAuthors();
             _Album = Album;
-
             this.Album = Album.Name;
             Number = (uint)Track.TrackNumber;
             Year = GetReleaseYear(Album.ReleaseDate);
-
             PreviewURL = Track.PreviewUrl;
             Duration = Track.DurationMs;
             ID = Track.Id;
-
+            Link = new MediaLink(Track.Uri, "https://open.spotify.com/track/" + Track.Id + "?");
             Bitmap = new BitmapImage(new Uri(Album.Images[0].Url, UriKind.Absolute));
         }
         public SpotifyTrack(SimpleTrack Track, SimpleAlbum Album)
@@ -59,15 +55,13 @@ namespace MP3DL.Media
             Authors = ((IEnumerable<SimpleArtist>)Track.Artists).Select(p => p.Name).ToArray();
             PrintedAuthors = PrintAuthors();
             _SimpleAlbum = Album;
-
             this.Album = Album.Name;
             Number = (uint)Track.TrackNumber;
             Year = GetReleaseYear(Album.ReleaseDate);
-
             PreviewURL = Track.PreviewUrl;
             Duration = Track.DurationMs;
             ID = Track.Id;
-
+            Link = new MediaLink(Track.Uri, "https://open.spotify.com/track/" + Track.Id + "?");
             Bitmap = new BitmapImage(new Uri(Album.Images[0].Url, UriKind.Absolute));
         }
         public SpotifyTrack(FullTrack Track, SimpleAlbum Album)
@@ -76,15 +70,13 @@ namespace MP3DL.Media
             Authors = ((IEnumerable<SimpleArtist>)Track.Artists).Select(p => p.Name).ToArray();
             PrintedAuthors = PrintAuthors();
             _SimpleAlbum = Album;
-
             this.Album = Track.Album.Name;
             Number = (uint)Track.TrackNumber;
             Year = GetReleaseYear(Track.Album.ReleaseDate);
-
             PreviewURL = Track.PreviewUrl;
             Duration = Track.DurationMs;
             ID = Track.Id;
-
+            Link = new MediaLink(Track.Uri, "https://open.spotify.com/track/" + Track.Id + "?");
             Bitmap = new BitmapImage(new Uri(Album.Images[0].Url, UriKind.Absolute));
         }
         public SpotifyTrack(SpotifyTrack Track)
@@ -93,15 +85,13 @@ namespace MP3DL.Media
             Authors = Track.Authors;
             PrintedAuthors = Track.PrintedAuthors;
             _Album = Track._Album;
-
             this.Album = Track.Album;
             Number = Track.Number;
             Year = Track.Year;
-
             PreviewURL = Track.PreviewURL;
             Duration = Track.Duration;
             ID = Track.ID;
-
+            Link = Track.Link;
             Bitmap = Track.Bitmap;
         }
         public System.Drawing.Image Art { get; set; }
@@ -126,6 +116,7 @@ namespace MP3DL.Media
         public uint Number { get; private set; }
         public string Year { get; private set; }
         public string ID { get; private set; }
+        public MediaLink Link { get; private set; }
         public string PreviewURL { get; private set; }
         public double Duration { get; private set; }
         public string DurationAsTimeSpan
@@ -182,7 +173,6 @@ namespace MP3DL.Media
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
-
         public async void SetTagsAsync(StorageFile file)
         {
             StorageFileAbstraction taglibfile = new StorageFileAbstraction(file);
@@ -222,7 +212,7 @@ namespace MP3DL.Media
             {
                 print = $"{print}, {author}";
             }
-            return print.Substring(2, print.Trim().Length - 2);
+            return print.Substring(1, print.Length - 1).Trim();
         }
         private string[] PrintedAuthorsToArray()
         {
@@ -233,7 +223,7 @@ namespace MP3DL.Media
 
             if (!tempprintedauthors.EndsWith(","))
             {
-                tempprintedauthors = tempprintedauthors + ",";
+                tempprintedauthors += ",";
             }
             while (tempprintedauthors.Contains(","))
             {
@@ -263,14 +253,21 @@ namespace MP3DL.Media
         }
         private string GetReleaseYear(string fulldate)
         {
-            if (fulldate.Contains('-'))
+            try
             {
-                int x = fulldate.IndexOf('-');
-                return fulldate.Substring(0,x);
+                if (fulldate.Contains('-'))
+                {
+                    int x = fulldate.IndexOf('-');
+                    return fulldate.Substring(0, x);
+                }
+                else
+                {
+                    return fulldate;
+                }
             }
-            else
+            catch
             {
-                return fulldate;
+                return "0000";
             }
         }
         public override string ToString()

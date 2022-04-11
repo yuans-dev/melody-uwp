@@ -149,6 +149,8 @@
     </Compile>
     <Compile Include="Media\IMediaCollection.cs" />
     <Compile Include="Classes\PagingOptions.cs" />
+    <Compile Include="Media\MediaLink.cs" />
+    <Compile Include="Statics\ClipboardExtensions.cs" />
     <Compile Include="Statics\FileScanner.cs" />
     <Compile Include="Statics\DependencyObjectHelper.cs" />
     <Compile Include="Statics\Glyphs.cs" />
@@ -170,10 +172,10 @@
     <Compile Include="SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SubPages\CollectionDetailsPage.xaml.cs">
+    <Compile Include="Sub Pages\CollectionDetailsPage.xaml.cs">
       <DependentUpon>CollectionDetailsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SubPages\YouTubePreviewPage.xaml.cs">
+    <Compile Include="Sub Pages\YouTubePreviewPage.xaml.cs">
       <DependentUpon>YouTubePreviewPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\IDownloadItem.cs" />
@@ -262,6 +264,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Dictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="DownloadsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -278,11 +284,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SubPages\CollectionDetailsPage.xaml">
+    <Page Include="Sub Pages\CollectionDetailsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SubPages\YouTubePreviewPage.xaml">
+    <Page Include="Sub Pages\YouTubePreviewPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

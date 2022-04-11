@@ -12,38 +12,38 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
-        <DataTemplate x:Name="DefaultHeader" x:Key="DefaultHeader">
-            <TextBlock FontSize="32" Margin="24,0,0,0" Text="{Binding Path=Content.Header, ElementName=ContentFrame}"/>
-        </DataTemplate>
-        <DataTemplate x:Name="MinimalHeader" x:Key="MinimalHeader">
-            <TextBlock Margin="0,2,0,0" FontSize="18" FontWeight="SemiBold" Text="{Binding Path=Content.MinimalHeader, ElementName=ContentFrame}"/>
-        </DataTemplate>
-        <brushes:AcrylicBrush x:Key="NavigationViewDefaultPaneBackground" BackgroundSource="HostBackdrop"
-                                      TintColor="Black"
-                                      TintOpacity="0.6"
-                                      BlurAmount="10"/>
-        <brushes:AcrylicBrush x:Key="NavigationViewExpandedPaneBackground" BackgroundSource="HostBackdrop"
-                                      TintColor="Black"
-                                      TintOpacity="0.6"
-                                      BlurAmount="10"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Dictionary.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <DataTemplate x:Name="DefaultHeader" x:Key="DefaultHeader">
+                <TextBlock FontSize="32" Margin="24,0,0,0" Text="{Binding Path=Content.Header, ElementName=ContentFrame}"/>
+            </DataTemplate>
+            <brushes:AcrylicBrush x:Key="NavigationViewTopPaneBackground" BackgroundSource="HostBackdrop"
+                              TintColor="{ThemeResource DefaultBackgroundColor}"
+                              TintOpacity="0.6"
+                              BlurAmount="10"/>
+            <SolidColorBrush x:FieldModifier="public" x:Name="DefaultThemeBrush" x:Key="DefaultThemeBrush" Color="{ThemeResource DefaultForegroundColor}"/>
+        </ResourceDictionary>
     </Page.Resources>
     <Grid>
         <NavigationView 
-            DisplayModeChanged="MainNavView_DisplayModeChanged"
             Header="lol"
+            PaneDisplayMode="Top"
             x:Name="MainNavView" 
             HeaderTemplate="{StaticResource DefaultHeader}"
             ItemInvoked="MainNavView_ItemInvoked"
             BackRequested="MainNavView_BackRequested"
+            Background="Transparent"
             FontSize="14"
             x:FieldModifier="public" IsBackEnabled="{x:Bind ContentFrame.CanGoBack, Mode=OneWay}">
-            
+
             <NavigationView.MenuItems>
                 <NavigationViewItem x:Name="BrowseItem" Icon="Audio" Content="Browse" FontSize="14" Tag="BrowsePage"/>
                 <NavigationViewItemSeparator/>
                 <NavigationViewItem x:Name="DownloadsItem" Icon="Download" Content="Downloads" FontSize="14" Tag="DownloadsPage"/>
             </NavigationView.MenuItems>
-
 
             <Frame x:Name="ContentFrame" x:FieldModifier="public"/>
         </NavigationView>

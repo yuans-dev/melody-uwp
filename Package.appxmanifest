@@ -10,7 +10,7 @@
   <Identity
     Name="ba1ba48e-7b94-45ba-a6d8-bd3693313cae"
     Publisher="CN=Verchiel"
-    Version="1.0.4.0" />
+    Version="1.1.5.0" />
 
   <mp:PhoneIdentity PhoneProductId="ba1ba48e-7b94-45ba-a6d8-bd3693313cae" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -33,7 +33,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="Media_Downloader_App.App">
       <uap:VisualElements
-        DisplayName="Media Downloader"
+        DisplayName="Media Pirate"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
         Description="Media Downloader App"
@@ -50,7 +50,7 @@
 
   <Capabilities>
     <Capability Name="internetClient" />
-    <uap3:Capability Name="backgroundMediaPlayback"/>
     <uap:Capability Name="userAccountInformation"/>
+    <uap3:Capability Name="backgroundMediaPlayback"/>
   </Capabilities>
 </Package>

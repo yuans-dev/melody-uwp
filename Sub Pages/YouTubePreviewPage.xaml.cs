@@ -1,4 +1,5 @@
-﻿using MP3DL.Media;
+﻿using Media_Downloader_App.Statics;
+using MP3DL.Media;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -43,13 +44,19 @@ namespace Media_Downloader_App.SubPages
         private async void PreviewAsync()
         {
             var youtube = new YoutubeClient();
-            var streamManifest = await youtube.Videos.Streams.GetManifestAsync(PreviewSource.ID);
+            try
+            {
+                var streamManifest = await youtube.Videos.Streams.GetManifestAsync(PreviewSource.ID);
+                var streamInfo = streamManifest.GetMuxedStreams().GetWithHighestVideoQuality();
 
-            var streamInfo = streamManifest.GetMuxedStreams().GetWithHighestVideoQuality();
-
-            Player.Source = MediaSource.CreateFromUri(new Uri(streamInfo.Url));
-            Player.AutoPlay = true;
-            Player.MediaPlayer.Volume = 0.25;
+                Player.Source = MediaSource.CreateFromUri(new Uri(streamInfo.Url));
+                Player.AutoPlay = true;
+                Player.MediaPlayer.Volume = 0.25;
+            }
+            catch
+            {
+                OnError();
+            }
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
@@ -60,6 +67,13 @@ namespace Media_Downloader_App.SubPages
             Frame rootFrame = Window.Current.Content as Frame;
             rootFrame.GoBack();
             button.IsEnabled = false;
+        }
+        private void OnError()
+        {
+            Frame rootFrame = Window.Current.Content as Frame;
+            rootFrame.GoBack();
+
+            InfoHelper.ShowInAppNotification("Cannot play video!");
         }
     }
 }

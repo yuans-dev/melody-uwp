@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:m="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls" 
     xmlns:brushes="using:Microsoft.Toolkit.Uwp.UI.Media"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -75,6 +76,13 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+        <controls:Loading Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" 
+                          Opacity="1" Grid.Row ="1"  x:Name="LoadingControl">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <ProgressRing Height="24" Width="24" IsActive="True"/>
+                <TextBlock FontWeight="SemiBold" FontSize="16">SEARCHING...</TextBlock>
+            </StackPanel>
+        </controls:Loading>
         <Button Click="BackButton_Click" VerticalAlignment="Top" Background="Transparent">
             <FontIcon Glyph="&#xE72B;" FontSize="16"/>
         </Button>

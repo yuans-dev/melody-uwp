@@ -14,42 +14,57 @@
     >
 
     <Page.Resources>
-        <Custom:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <DataTemplate x:Key="CollectionsDataTemplate">
-            <Grid ColumnSpacing="12" Height="80">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="80"/>
-                    <ColumnDefinition Width="160"/>
-                </Grid.ColumnDefinitions>
-                <Grid.ContextFlyout>
-                    <MenuFlyout>
-                        <MenuFlyoutItem DataContext="{Binding}" Click="Collections_Download_Click" Text="Download"/>
-                        <MenuFlyoutItem DataContext="{Binding}" Click="Collections_BgDownload_Click" Text="Download in background" ToolTipService.ToolTip="A slower but less CPU-intensive download"/>
-                    </MenuFlyout>
-                </Grid.ContextFlyout>
-                <Image Grid.Column="0" Stretch="UniformToFill" Source="{Binding Bitmap}"/>
-                <Grid Grid.Column="1" RowSpacing="4">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1*"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock 
-                                                Grid.Row="0"
-                                                TextWrapping="WrapWholeWords" 
-                                                VerticalAlignment="Bottom"
-                                                TextTrimming="CharacterEllipsis"
-                                                FontSize="16" FontWeight="SemiBold" 
-                                                Text="{Binding Title}"/>
-                    <TextBlock 
-                                                Grid.Row="1"
-                                                TextWrapping="WrapWholeWords"
-                                                VerticalAlignment="Top"
-                                                FontSize="12"
-                                                Opacity="0.37"
-                                                Text="{Binding Author}"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Dictionary.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Custom:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <DataTemplate x:Key="CollectionsDataTemplate">
+                <Grid ColumnSpacing="12" Height="100">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="60"/>
+                    </Grid.ColumnDefinitions>
+                    <Image Grid.Column="0" Stretch="UniformToFill" Source="{Binding Bitmap}"/>
+                    <Grid Grid.Column="1" RowSpacing="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="1*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock 
+                        Grid.Row="0"
+                        TextWrapping="WrapWholeWords" 
+                        VerticalAlignment="Bottom"
+                        TextTrimming="CharacterEllipsis"
+                        FontSize="16" FontWeight="SemiBold" 
+                        Text="{Binding Title}"
+                        ToolTipService.ToolTip="{Binding Title}"/>
+                        <TextBlock 
+                        Grid.Row="1"
+                        TextWrapping="WrapWholeWords"
+                        VerticalAlignment="Top"
+                        FontSize="12"
+                        Opacity="0.37"
+                        Text="{Binding Author}"
+                        ToolTipService.ToolTip="{Binding Author}"/>
+                    </Grid>
+                    <Button Grid.Column="2" Background="Transparent" Margin="0,0,6,0" Opacity="0.7">
+                        <SymbolIcon Symbol="More" Rotation="1"/>
+                        <Button.Flyout>
+                            <MenuFlyout>
+                                <MenuFlyoutSubItem Icon="Download" Text="Download">
+                                    <MenuFlyoutItem Icon="Download" DataContext="{Binding}" Click="Collections_Download_Click" Text="Dedicated download" ToolTipService.ToolTip="Uses the maximum amount of resources for your downloads. Good for smaller playlists"/>
+                                    <MenuFlyoutItem Icon="Download" DataContext="{Binding}" Click="Collections_BgDownload_Click" Text="Safe download" ToolTipService.ToolTip="Good for larger playlists if you often find it getting interrupted"/>
+                                </MenuFlyoutSubItem>
+                                <MenuFlyoutSeparator/>
+                                <MenuFlyoutItem Icon="Link" DataContext="{Binding}" Click="Collections_CopyLink" Text="Copy link"/>
+                            </MenuFlyout>
+                        </Button.Flyout>
+                    </Button>
                 </Grid>
-            </Grid>
-        </DataTemplate>
+            </DataTemplate>
+        </ResourceDictionary>
     </Page.Resources>
     <Page.Background>
         <ThemeResource ResourceKey="ApplicationPageBackgroundThemeBrush"/>
@@ -60,10 +75,9 @@
             <RowDefinition MaxHeight="32" Height="*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <AutoSuggestBox Grid.Row="0" Margin="36,0,36,0" IsTabStop="True" x:Name="BrowseTextbox" PlaceholderText="Search for media..." QueryIcon="Find" FontSize="14" QuerySubmitted="BrowseTextBox_QuerySubmitted"/>
         <ScrollViewer Grid.Row="1" Margin="60,0,0,0">
-            <Pivot FontSize="12" Title="RESULTS">
-                <PivotItem Header="Spotify">
+            <Pivot SelectionChanged="Pivot_SelectionChanged" FontSize="12" Title="RESULTS">
+                <PivotItem Header="Spotify" Unloaded="SpotifyPivotItem_Unloaded">
                     <Grid x:Name="SpotifyResultGrid" Margin="20,0,94,0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*"/>
@@ -76,11 +90,16 @@
 
                         <TextBlock Grid.Row="0" Margin="0,20,0,20"  FontSize="24" Text="Playlists"/>
 
-                        <GridView 
+                        <controls:AdaptiveGridView 
                             SelectionChanged="SP_ResultsFlipView_SelectionChanged"
                             Grid.Row="1" 
                             CornerRadius="16,16,16,16" 
-                            Margin="20,0,20,0"  Height="240" 
+                            StretchContentForSingleRow="False"
+                            OneRowModeEnabled="False"
+                            ItemHeight="100"
+                            DesiredWidth="320"
+                            SelectionMode="Single"
+                            Margin="20,0,20,0"  Height="320" 
                             x:Name="SP_ResultsFlipView" 
                             ItemTemplate="{StaticResource CollectionsDataTemplate}"
                             IsItemClickEnabled="True" ItemClick="SP_ResultsFlipView_ItemClick"/>
@@ -95,11 +114,17 @@
 
                         <TextBlock Grid.Row="2" Margin="0,20,0,20"  FontSize="24" Text="Albums"/>
 
-                        <GridView SelectionChanged="SA_ResultsFlipView_SelectionChanged" 
-                                  Grid.Row="3" CornerRadius="16,16,16,16" 
-                                  Margin="20,0,20,0"  Height="240" x:Name="SA_ResultsFlipView"
-                                  IsItemClickEnabled="True" 
-                                  ItemTemplate="{StaticResource CollectionsDataTemplate}" ItemClick="SA_ResultsFlipView_ItemClick"/>
+                        <controls:AdaptiveGridView 
+                            SelectionChanged="SA_ResultsFlipView_SelectionChanged" 
+                            Grid.Row="3" CornerRadius="16,16,16,16" 
+                            StretchContentForSingleRow="False"
+                            OneRowModeEnabled="False"
+                            ItemHeight="100"
+                            DesiredWidth="320"
+                            SelectionMode="Single"
+                            Margin="20,0,20,0"  Height="320" x:Name="SA_ResultsFlipView"
+                            IsItemClickEnabled="True" 
+                            ItemTemplate="{StaticResource CollectionsDataTemplate}" ItemClick="SA_ResultsFlipView_ItemClick"/>
                         <TextBlock Grid.Row="3"
                             x:Name="SA_Nothing_TextBlock"
                             HorizontalAlignment="Center"
@@ -118,11 +143,6 @@
                             Margin="20,0,20,0"
                             x:Name="ST_ResultsListView" 
                             SelectionChanged="ST_ListView_SelectionChanged">
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <Grid>
@@ -154,12 +174,14 @@
                                                     TextWrapping="WrapWholeWords"
                                                     Text="{Binding Title}"
                                                     TextTrimming="CharacterEllipsis"
+                                                    IsTextSelectionEnabled="True"
                                                     ToolTipService.ToolTip="{Binding Title}"/>
                                                 <TextBlock 
                                                     Grid.Row="1"
                                                     FontSize="14" 
                                                     Text="{Binding PrintedAuthors}"
                                                     TextTrimming="CharacterEllipsis"
+                                                    IsTextSelectionEnabled="True"
                                                     TextWrapping="WrapWholeWords"
                                                     Opacity="0.37"/>
                                                 <TextBlock 
@@ -167,6 +189,7 @@
                                                     FontSize="14" 
                                                     Text="{Binding Year}"
                                                     TextWrapping="WrapWholeWords"
+                                                    IsTextSelectionEnabled="True"
                                                     Opacity="0.37"/>
                                             </Grid>
                                             <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Spacing="16" Margin="0,12,0,0"  Orientation="Horizontal">
@@ -175,6 +198,13 @@
                                                 </Button>
                                                 <Button Background="Transparent" DataContext="{Binding}" Click="ST_Download_Click" ToolTipService.ToolTip="Download Audio">
                                                     <SymbolIcon Symbol="Download"/>
+                                                </Button>
+                                                <AppBarSeparator/>
+                                                <Button Background="Transparent" Opacity="0.7" DataContext="{Binding}" Click="ST_OpenInWeb_Click" ToolTipService.ToolTip="Open in web">
+                                                    <SymbolIcon Symbol="Globe"/> 
+                                                </Button>
+                                                <Button Background="Transparent" Opacity="0.7" DataContext="{Binding}" Click="ST_CopyLink_Click" ToolTipService.ToolTip="Copy link">
+                                                    <SymbolIcon Symbol="Link"/>
                                                 </Button>
                                             </StackPanel>
                                         </Grid>
@@ -213,11 +243,6 @@
                             CornerRadius="16,16,16,16" 
                             x:Name="YT_ResultsListView" 
                             SelectionChanged="YT_ListView_SelectionChanged">
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <Grid ColumnSpacing="16" CornerRadius="16,16,16,16" Margin="20,10,20,10" Height="140">
@@ -247,16 +272,19 @@
                                                 TextTrimming="CharacterEllipsis"
                                                 TextWrapping="WrapWholeWords"
                                                 Text="{Binding Title}"
+                                                IsTextSelectionEnabled="True"
                                                 ToolTipService.ToolTip="{Binding Title}"/>
                                             <TextBlock 
                                                 FontSize="14" 
                                                 Text="{Binding PrintedAuthors}"
                                                 TextTrimming="CharacterEllipsis"
+                                                IsTextSelectionEnabled="True"
                                                 TextWrapping="WrapWholeWords"
                                                 Opacity="0.37"/>
                                             <TextBlock 
                                                 FontSize="14" 
                                                 Text="{Binding Year}"
+                                                IsTextSelectionEnabled="True"
                                                 TextWrapping="WrapWholeWords"
                                                 Opacity="0.37"/>
                                         </StackPanel>
@@ -267,29 +295,20 @@
                                             <Button Background="Transparent" ToolTipService.ToolTip="Download">
                                                 <Button.Flyout>
                                                     <MenuFlyout>
-                                                        <MenuFlyoutItem DataContext="{Binding}" Click="YT_DownloadAudio_Click" Text="Audio">
-                                                            <MenuFlyoutItem.Icon>
-                                                                <SymbolIcon Symbol="Audio"/>
-                                                            </MenuFlyoutItem.Icon>
-                                                        </MenuFlyoutItem>
-                                                        <MenuFlyoutItem DataContext="{Binding}" Click="YT_DownloadVideo_Click" Text="Video">
-                                                            <MenuFlyoutItem.Icon>
-                                                                <SymbolIcon Symbol="Video"/>
-                                                            </MenuFlyoutItem.Icon>
-                                                        </MenuFlyoutItem>
+                                                        <MenuFlyoutItem Icon="Audio" DataContext="{Binding}" Click="YT_DownloadAudio_Click" Text="Audio"/>
+                                                        <MenuFlyoutItem Icon="Video" DataContext="{Binding}" Click="YT_DownloadVideo_Click" Text="Video"/>
                                                         <MenuFlyoutSeparator/>
-                                                        <MenuFlyoutItem DataContext="{Binding}" Click="YT_EditDownload_Click" Text="Edit and Download Audio">
-                                                            <MenuFlyoutItem.Icon>
-                                                                <SymbolIcon Symbol="Edit"/>
-                                                            </MenuFlyoutItem.Icon>
-                                                        </MenuFlyoutItem>
+                                                        <MenuFlyoutItem Icon="Edit" DataContext="{Binding}" Click="YT_EditDownload_Click" Text="Edit and Download Audio"/>
                                                     </MenuFlyout>
                                                 </Button.Flyout>
                                                 <SymbolIcon Symbol="Download"/>
                                             </Button>
                                             <AppBarSeparator/>
-                                            <Button Opacity="0.7" Background="Transparent" DataContext="{Binding}" Click="YT_OpenInWeb_Click" ToolTipService.ToolTip="Open in Web">
+                                            <Button Opacity="0.7" Background="Transparent" DataContext="{Binding}" Click="YT_OpenInWeb_Click" ToolTipService.ToolTip="Open in web">
                                                 <SymbolIcon Symbol="Globe"/>
+                                            </Button>
+                                            <Button Background="Transparent" Opacity="0.7" DataContext="{Binding}" Click="YT_CopyLink_Click" ToolTipService.ToolTip="Copy link">
+                                                <SymbolIcon Symbol="Link"/>
                                             </Button>
                                         </StackPanel>
                                     </Grid>
@@ -300,18 +319,14 @@
                 </PivotItem>
             </Pivot>
         </ScrollViewer>
-        <controls:Loading Margin="0,-64,0,0" Grid.RowSpan="2" x:Name="LoadingControl">
+        <controls:Loading Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" 
+                          Opacity="1" Grid.RowSpan="2" x:Name="LoadingControl">
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <ProgressRing Height="24" Width="24" IsActive="True"/>
                 <TextBlock FontWeight="SemiBold" FontSize="16">SEARCHING...</TextBlock>
             </StackPanel>
-            <controls:Loading.Background>
-                <brushes:AcrylicBrush BackgroundSource="Backdrop"
-                              TintColor="Black"
-                              TintOpacity="0.4"
-                              BlurAmount="8"/>
-            </controls:Loading.Background>
         </controls:Loading>
+        <AutoSuggestBox Grid.Row="0" Margin="36,0,36,0" IsTabStop="True" x:Name="BrowseTextbox" PlaceholderText="Search for media..." QueryIcon="Find" FontSize="14" QuerySubmitted="BrowseTextBox_QuerySubmitted"/>
     </Grid>
     
 </classes:BasePage>

@@ -20,6 +20,7 @@ namespace MP3DL.Media
         string Year { get; }
         double Duration { get; }
         string ID { get; }
+        MediaLink Link { get; }
         bool IsVideo { get; }
         bool IsPreviewAvailable { get; }
         void SetTagsAsync(StorageFile file);

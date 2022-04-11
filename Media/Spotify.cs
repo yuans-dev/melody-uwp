@@ -221,11 +221,15 @@ namespace MP3DL.Media
                         try
                         {
                             temp.Add(new SpotifyTrack(track, track.Album));
-                            Debug.WriteLine($"[SPOTIFY CLIENT] Added {track.Name}");
+                            Debug.WriteLine($"[SPOTIFY CLIENT] Added {track.Name} | Loop {i + 1}");
                         }
                         catch(System.ArgumentNullException ex)
                         {
-                            Debug.WriteLine($"[SPOTIFY CLIENT] Null item error ({ex.Message})");
+                            Debug.WriteLine($"[SPOTIFY CLIENT] Null item error ({ex.Message}) | Source: {ex.Source} from {ex.TargetSite}");
+                        }
+                        catch (System.ArgumentOutOfRangeException e)
+                        {
+                            Debug.WriteLine($"[SPOTIFY CLIENT] Out of range error ({e.Message}) | Source: {e.Source} from {e.TargetSite}");
                         }
                     }
                     finished++;
@@ -255,11 +259,15 @@ namespace MP3DL.Media
                     try
                     {
                         temp.Add(new SpotifyTrack(item, fullalbum));
-                        Debug.WriteLine($"[SPOTIFY CLIENT] Added {item.Name}");
+                        Debug.WriteLine($"[SPOTIFY CLIENT] Added {item.Name} | Loop {i+1}");
                     }
                     catch (System.ArgumentNullException ex)
                     {
-                        Debug.WriteLine($"[SPOTIFY CLIENT] Null item error ({ex.Message})");
+                        Debug.WriteLine($"[SPOTIFY CLIENT] Null item error ({ex.Message}) | Source: {ex.Source} from {ex.TargetSite}");
+                    }
+                    catch (System.ArgumentOutOfRangeException e)
+                    {
+                        Debug.WriteLine($"[SPOTIFY CLIENT] Out of range error ({e.Message}) | Source: {e.Source} from {e.TargetSite}");
                     }
                     finished++;
                     OnPlaylistFetchingProgressChanged(finished, total);

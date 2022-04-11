@@ -1,4 +1,5 @@
-﻿using Media_Downloader_App.ViewModels;
+﻿using Media_Downloader_App.Statics;
+using Media_Downloader_App.ViewModels;
 using MP3DL.Media;
 using System;
 using System.Collections.Generic;
@@ -41,24 +42,30 @@ namespace Media_Downloader_App.Dialogs
         private ObservableCollection<StreamInfoViewModel> StreamInfosList { get; set; }
         public async void GetStreamInfos()
         {
-            var manifest = await Client.Videos.Streams.GetManifestAsync(Video.ID);
-            var streaminfos =  manifest.GetVideoStreams();
-
-            foreach(var streaminfo in streaminfos)
+            try
             {
-                string type;
-                if (streaminfo.ToString().Contains("Muxed"))
-                {
-                    type = "Video and Audio";
-                }
-                else
-                {
-                    type = "Video-only";
-                }
-                string format = $"{streaminfo.Container}";
-                string quality = $"{streaminfo.VideoQuality.MaxHeight}p@{streaminfo.VideoQuality.Framerate}fps";
+                var manifest = await Client.Videos.Streams.GetManifestAsync(Video.ID);
+                var streaminfos = manifest.GetVideoStreams();
 
-                StreamInfosList.Add(new StreamInfoViewModel { StreamInfo=streaminfo, StreamInfoDisplay=$"{type} ({format}) | {quality}"});
+                foreach (var streaminfo in streaminfos)
+                {
+                    string type;
+                    if (streaminfo.ToString().Contains("Muxed"))
+                    {
+                        type = "Video and Audio";
+                    }
+                    else
+                    {
+                        type = "Video-only";
+                    }
+                    string format = $"{streaminfo.Container}";
+                    string quality = $"{streaminfo.VideoQuality.MaxHeight}p@{streaminfo.VideoQuality.Framerate}fps";
+
+                    StreamInfosList.Add(new StreamInfoViewModel { StreamInfo = streaminfo, StreamInfoDisplay = $"{type} ({format}) | {quality}" });
+                }
+            }
+            catch
+            {
             }
         }
 

@@ -26,10 +26,8 @@ namespace MP3DL.Media
             Title = Video.Title;
             Authors = new string[1] { Video.Author.Title };
             PrintedAuthors = PrintAuthors();
-
             Number = 1;
             Year = Video.UploadDate.Year.ToString();
-
             Duration = Video.Duration.Value.TotalMilliseconds;
             if(Video.Duration != null)
             {
@@ -39,10 +37,9 @@ namespace MP3DL.Media
             {
                 DurationAsTimeSpan = TimeSpan.Zero;
             }
-            
             ID = Video.Id;
             this.IsVideo = IsVideo;
-
+            Link = new MediaLink(Video.Url);
             Bitmap = new BitmapImage(new Uri(Video.Thumbnails[0].Url, UriKind.Absolute));
             JpgBitmap = new BitmapImage(new Uri(Utils.IsolateJPG(Video.Thumbnails[0].Url), UriKind.Absolute));
         }
@@ -52,10 +49,8 @@ namespace MP3DL.Media
             Title = Video.Title;
             Authors = new string[1] { Video.Author.Title };
             PrintedAuthors = PrintAuthors();
-
             Number = 1;
             Year = Video.UploadDate.Year.ToString();
-
             Duration = Video.Duration.Value.TotalMilliseconds;
             if (Video.Duration != null)
             {
@@ -65,10 +60,9 @@ namespace MP3DL.Media
             {
                 DurationAsTimeSpan = TimeSpan.Zero;
             }
-
             ID = Video.Id;
             this.IsVideo = IsVideo;
-
+            Link = new MediaLink(Video.Url);
             Bitmap = new BitmapImage(new Uri(ThumnbailUrl, UriKind.Absolute));
             JpgBitmap = new BitmapImage(new Uri(Utils.IsolateJPG(Video.Thumbnails[0].Url), UriKind.Absolute));
         }
@@ -78,15 +72,13 @@ namespace MP3DL.Media
             Title = Video.Title;
             Authors = Video.Authors;
             PrintedAuthors = Video.PrintedAuthors;
-
             Number = Video.Number;
             Year = Video.Year;
-
             Duration = Video.Duration;
             DurationAsTimeSpan = Video.DurationAsTimeSpan;
             ID = Video.ID;
             IsVideo = Video.IsVideo;
-
+            Link = Video.Link;
             Bitmap = Video.Bitmap;
             JpgBitmap = Video.JpgBitmap;
         }
@@ -112,7 +104,7 @@ namespace MP3DL.Media
         public double Duration { get; private set; }
         public TimeSpan DurationAsTimeSpan { get; private set; }
         public string ID { get; private set; }
-
+        public MediaLink Link { get; private set; }
         public string Year { get; private set; }
 
         public string PrintedAuthors { get; set; }
@@ -188,7 +180,7 @@ namespace MP3DL.Media
             {
                 print = $"{print}, {author}";
             }
-            return print.Substring(2, print.Length - 2);
+            return print.Substring(1, print.Length - 1).Trim();
         }
         private string[] PrintedAuthorsToArray()
         {

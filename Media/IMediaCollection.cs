@@ -12,6 +12,7 @@ namespace MP3DL.Media
         string Title { get; }
         string Author { get;  }
         string ID { get;  }
+        MediaLink Link { get; }
         uint MediaCount { get;}
         BitmapImage Bitmap { get; }
     }

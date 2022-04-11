@@ -5,11 +5,19 @@
     xmlns:local="using:Media_Downloader_App"
     xmlns:classes="using:Media_Downloader_App.Classes"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:brushes="using:Microsoft.Toolkit.Uwp.UI.Media"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Margin="36,0,40,0">
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Dictionary.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
+    
+    <Grid Margin="36,0,0,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="36"/>
             <RowDefinition Height="*"/>
@@ -18,7 +26,7 @@
             Grid.Row="0" Opacity="0.48" Margin="18,0,36,0" FontSize="16">Here's where you will find your downloads:
         </TextBlock>
         <ScrollViewer Grid.Row="1">
-            <ListView IsItemClickEnabled="True" ItemClick="DownloadsListView_ItemClick" CornerRadius="12,12,12,12" SelectionChanged="DownloadsListView_SelectionChanged" x:Name="DownloadsListView" Margin="42,24,24,0">
+            <ListView IsItemClickEnabled="True" ItemClick="DownloadsListView_ItemClick" CornerRadius="12,12,12,12" SelectionChanged="DownloadsListView_SelectionChanged" x:Name="DownloadsListView" Margin="42,24,60,0">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -39,10 +47,21 @@
                             </Grid.ContextFlyout>
                             <Grid Grid.Row="0" Height="128" CornerRadius="8,8,8,8" Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                 <Grid ColumnSpacing="8">
+                                    <Grid.Background>
+                                        <ImageBrush ImageSource="{Binding Bitmap}" Stretch="UniformToFill"/>
+                                    </Grid.Background>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="128"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
+                                    <Rectangle Grid.ColumnSpan="2">
+                                        <Rectangle.Fill>
+                                            <brushes:AcrylicBrush BackgroundSource="Backdrop"
+                                                                  TintColor="{ThemeResource DefaultBackgroundColor}"
+                                                                  TintOpacity="0.87"
+                                                                  BlurAmount="24"/>
+                                        </Rectangle.Fill>
+                                    </Rectangle>
                                     <Image Grid.Column="0" HorizontalAlignment="Center" Stretch="UniformToFill" Source="{Binding Bitmap}"/>
                                     <Grid Grid.Column="1" Margin="0,12,12,12">
                                         <Grid.RowDefinitions>
