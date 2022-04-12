@@ -1,13 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.IO;
-using System.Threading.Tasks;
-using Windows.Graphics.Imaging;
-using Windows.Storage;
-using Windows.Storage.Streams;
-using Windows.UI.Xaml.Media.Imaging;
-
-namespace MP3DL.Media
+﻿namespace MP3DL.Media
 {
     internal class Utils
     {
@@ -59,13 +50,15 @@ namespace MP3DL.Media
                 Link = Link,
                 ID = IsolateID(Link)
             };
-            if (Link.Contains("/track/")) 
+            if (Link.Contains("/track/"))
             {
                 temp.Type = 0;
-            }else if (Link.Contains("/playlist/"))
+            }
+            else if (Link.Contains("/playlist/"))
             {
                 temp.Type = 1;
-            }else if (Link.Contains("/album/"))
+            }
+            else if (Link.Contains("/album/"))
             {
                 temp.Type = 2;
             }
@@ -80,6 +73,7 @@ namespace MP3DL.Media
             //https://open.spotify.com/playlist/37i9dQZF1EIUn3pmwSRorE?si=4f9ec77d3dc04759
             var start = Link.LastIndexOf('/') + 1;
             var end = Link.LastIndexOf('?');
+            if(end < 0) { end = Link.Length; }
             return Link.Substring(start, end - start);
         }
     }

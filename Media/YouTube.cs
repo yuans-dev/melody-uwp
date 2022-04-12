@@ -42,9 +42,9 @@ namespace MP3DL.Media
         {
             List<YouTubeVideo> temp = new List<YouTubeVideo>();
             var TempClient = new YoutubeClient();
-            var Videos = await TempClient.Search.GetVideosAsync(BrowseQuery).CollectAsync(Results+Offset);
+            var Videos = await TempClient.Search.GetVideosAsync(BrowseQuery).CollectAsync(Results + Offset);
 
-            if(Videos.Count >= Results)
+            if (Videos.Count >= Results)
             {
                 for (int i = 0; i < Results; i++)
                 {

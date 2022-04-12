@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Storage;
-using Windows.UI.Xaml;
+﻿using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 
 namespace Media_Downloader_App.Statics
@@ -25,7 +17,7 @@ namespace Media_Downloader_App.Statics
         {
             for (int i = 0; i < iterations; i++)
             {
-                parent = VisualTreeHelper.GetChild(parent,0);
+                parent = VisualTreeHelper.GetChild(parent, 0);
             }
             return parent;
         }

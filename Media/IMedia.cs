@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using Windows.Storage;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace MP3DL.Media

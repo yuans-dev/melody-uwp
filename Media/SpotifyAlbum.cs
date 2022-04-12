@@ -1,7 +1,5 @@
 ﻿using SpotifyAPI.Web;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace MP3DL.Media
@@ -16,7 +14,7 @@ namespace MP3DL.Media
             Link = new MediaLink(Album.Uri, "https://open.spotify.com/album/" + Album.Id);
             MediaCount = (uint)Album.Tracks.Total;
             Medias = Album.Tracks.Items;
-            Bitmap = new BitmapImage(new System.Uri(Album.Images[0].Url,System.UriKind.Absolute));
+            Bitmap = new BitmapImage(new System.Uri(Album.Images[0].Url, System.UriKind.Absolute));
         }
         public SpotifyAlbum(SimpleAlbum Album)
         {

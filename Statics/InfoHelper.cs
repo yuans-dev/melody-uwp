@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.UI.Popups;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Microsoft.Toolkit.Uwp.Notifications;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Toolkit.Uwp.UI.Controls;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Text;
-using MP3DL.Media;
+using System;
+using Windows.UI.Xaml.Controls;
 
 namespace Media_Downloader_App.Statics
 {

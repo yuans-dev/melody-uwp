@@ -103,7 +103,7 @@
                                 </Grid>
                                 <ProgressBar Margin="128,0,0,0" VerticalAlignment="Bottom" Foreground="{ThemeResource AppBarItemForegroundThemeBrush}" HorizontalAlignment="Stretch" Value="{Binding ProgressValue,Mode=OneWay}" IsIndeterminate="{Binding HasNotStarted,Mode=OneWay}"></ProgressBar>
                             </Grid>
-                            <ListView SelectionChanged="ListView_SelectionChanged" Margin="12,0,12,0" Grid.Row="1" ItemsSource="{Binding MediaItems}">
+                            <ListView SelectionChanged="ListView_SelectionChanged" Margin="12,0,12,0" Grid.Row="1" MaxHeight="240" ItemsSource="{Binding MediaItems}">
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
                                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>

@@ -137,7 +137,7 @@ namespace MP3DL.Media
             SearchResponse search = await Client.Search.Item(new SearchRequest(SearchRequest.Types.Playlist, BrowseQuery));
             List<SpotifyPlaylist> temp = new List<SpotifyPlaylist>();
 
-            if(Results == 0)
+            if (Results == 0)
             {
                 for (int i = 0; i < search.Playlists.Items.Count; i++)
                 {
@@ -223,7 +223,7 @@ namespace MP3DL.Media
                             temp.Add(new SpotifyTrack(track, track.Album));
                             Debug.WriteLine($"[SPOTIFY CLIENT] Added {track.Name} | Loop {i + 1}");
                         }
-                        catch(System.ArgumentNullException ex)
+                        catch (System.ArgumentNullException ex)
                         {
                             Debug.WriteLine($"[SPOTIFY CLIENT] Null item error ({ex.Message}) | Source: {ex.Source} from {ex.TargetSite}");
                         }
@@ -259,7 +259,7 @@ namespace MP3DL.Media
                     try
                     {
                         temp.Add(new SpotifyTrack(item, fullalbum));
-                        Debug.WriteLine($"[SPOTIFY CLIENT] Added {item.Name} | Loop {i+1}");
+                        Debug.WriteLine($"[SPOTIFY CLIENT] Added {item.Name} | Loop {i + 1}");
                     }
                     catch (System.ArgumentNullException ex)
                     {

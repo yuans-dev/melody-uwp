@@ -1,17 +1,8 @@
 ﻿using Media_Downloader_App.Statics;
 using MP3DL.Media;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
@@ -77,7 +68,7 @@ namespace Media_Downloader_App.SubPages
         {
             var button = sender as Button;
             var item = button.DataContext as SpotifyTrack;
-            var mediaplayer = VisualTreeHelper.GetChild(VisualTreeHelper.GetParent(button), 8) as MediaElement;
+            var mediaplayer = VisualTreeHelper.GetChild(VisualTreeHelper.GetParent(button), 9) as MediaElement;
 
             if (item.Symbol == Symbol.Play)
             {
@@ -102,27 +93,12 @@ namespace Media_Downloader_App.SubPages
                 item.Symbol = Symbol.Play;
             }
         }
-        private void ClearAllPlaying()
-        {
-            foreach (SpotifyTrack item in MediaListView.Items)
-            {
-                if (item.IsPlayingPreview)
-                {
-                    var container = MediaListView.ContainerFromItem(item);
-                    var mediaplayer = VisualTreeHelper.GetChild(DependencyObjectHelper.RecursiveGetFirstChild(container, 2), 8) as MediaElement;
-
-                    mediaplayer?.Stop();
-                    item.IsPlayingPreview = false;
-                    item.Symbol = Symbol.Play;
-                }
-            }
-        }
         private void ClearPreviouslyPlayed()
         {
-            if(PreviouslyPlayed != null)
+            if (PreviouslyPlayed != null)
             {
                 var container = MediaListView.ContainerFromItem(PreviouslyPlayed);
-                var mediaplayer = VisualTreeHelper.GetChild(DependencyObjectHelper.RecursiveGetFirstChild(container, 2), 8) as MediaElement;
+                var mediaplayer = VisualTreeHelper.GetChild(DependencyObjectHelper.RecursiveGetFirstChild(container, 2), 9) as MediaElement;
 
                 mediaplayer?.Stop();
                 PreviouslyPlayed.IsPlayingPreview = false;

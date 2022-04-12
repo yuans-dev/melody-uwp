@@ -11,6 +11,14 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Dictionary.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
+
     <Grid Margin="0,32,0,0">
         <Grid.RowDefinitions>
             <RowDefinition MinHeight="172" MaxHeight="200" Height="4*"/>
@@ -51,9 +59,10 @@
                             <ColumnDefinition MaxWidth="172" Width="2*"/>
                             <ColumnDefinition Width="42"/>
                             <ColumnDefinition Width="42"/>
-                            <ColumnDefinition MaxWidth="172" Width="2*"/>
-                            <ColumnDefinition MaxWidth="172" Width="2*"/>
+                            <ColumnDefinition MaxWidth="128" Width="2*"/>
+                            <ColumnDefinition MaxWidth="128" Width="1*"/>
                             <ColumnDefinition Width="64"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Image Grid.Column="0" Source="{Binding Bitmap}"/>
                         <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,0,18" Grid.Column="1" ToolTipService.ToolTip="{Binding Title}" Text="{Binding Title}"/>
@@ -67,6 +76,7 @@
                         <Button Click="DownloadButton_Click" ToolTipService.ToolTip="Download Audio" DataContext="{Binding}" Background="Transparent" Grid.Column="3">
                             <SymbolIcon Symbol="Download"/>
                         </Button>
+                        <ProgressBar Grid.Column="7" Foreground="{ThemeResource DefaultForeground}" ToolTipService.ToolTip="Popularity" HorizontalAlignment="Stretch" MaxWidth="160" Maximum="100" Value="{Binding Popularity}"/>
                         <MediaElement 
                             Volume="0.12" Height="120" 
                             HorizontalAlignment="Stretch" Visibility="Collapsed" 

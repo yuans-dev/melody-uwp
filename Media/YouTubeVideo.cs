@@ -1,13 +1,9 @@
-﻿using Media_Downloader_App;
-using Media_Downloader_App.Abstractions;
+﻿using Media_Downloader_App.Abstractions;
 using Media_Downloader_App.Statics;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Net;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading.Tasks;
 using TagLib;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
@@ -29,7 +25,7 @@ namespace MP3DL.Media
             Number = 1;
             Year = Video.UploadDate.Year.ToString();
             Duration = Video.Duration.Value.TotalMilliseconds;
-            if(Video.Duration != null)
+            if (Video.Duration != null)
             {
                 DurationAsTimeSpan = (TimeSpan)Video.Duration;
             }
@@ -147,8 +143,8 @@ namespace MP3DL.Media
                     var dec = await BitmapDecoder.CreateAsync(stream);
                     var square = Math.Min(dec.PixelHeight, dec.PixelWidth) - 100;
 
-                    
-                    var p = new Point((int)((dec.PixelWidth / 2)-(square / 2) ), (int)((dec.PixelHeight / 2)-(square/2)));
+
+                    var p = new Point((int)((dec.PixelWidth / 2) - (square / 2)), (int)((dec.PixelHeight / 2) - (square / 2)));
                     var size = new Size((int)square, (int)square);
 
                     System.Diagnostics.Debug.WriteLine($"Dimensions: Width = {dec.PixelWidth} Height = {dec.PixelHeight} | Point: x = {p.X},y = {p.Y}, Square = {square}");
@@ -215,11 +211,11 @@ namespace MP3DL.Media
                 printedauthors += ",";
             }
             int x = printedauthors.IndexOf(",");
-            string temp = printedauthors.Substring(0,x);
+            string temp = printedauthors.Substring(0, x);
 
             if (temp.StartsWith(" "))
             {
-                temp = temp.Substring(1,temp.Length-1);
+                temp = temp.Substring(1, temp.Length - 1);
             }
             return temp;
         }

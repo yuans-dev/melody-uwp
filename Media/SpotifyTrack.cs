@@ -5,13 +5,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Net;
 using TagLib;
-using Windows.Graphics.Imaging;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 using Windows.Storage.Streams;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -31,6 +27,7 @@ namespace MP3DL.Media
             PreviewURL = Track.PreviewUrl;
             Duration = Track.DurationMs;
             ID = Track.Id;
+            Popularity = Track.Popularity;
             Link = new MediaLink(Track.Uri, "https://open.spotify.com/track/" + Track.Id + "?");
             Bitmap = new BitmapImage(new Uri(Album.Images[0].Url, UriKind.Absolute));
         }
@@ -46,6 +43,7 @@ namespace MP3DL.Media
             PreviewURL = Track.PreviewUrl;
             Duration = Track.DurationMs;
             ID = Track.Id;
+            Popularity = 0;
             Link = new MediaLink(Track.Uri, "https://open.spotify.com/track/" + Track.Id + "?");
             Bitmap = new BitmapImage(new Uri(Album.Images[0].Url, UriKind.Absolute));
         }
@@ -61,6 +59,7 @@ namespace MP3DL.Media
             PreviewURL = Track.PreviewUrl;
             Duration = Track.DurationMs;
             ID = Track.Id;
+            Popularity = 0;
             Link = new MediaLink(Track.Uri, "https://open.spotify.com/track/" + Track.Id + "?");
             Bitmap = new BitmapImage(new Uri(Album.Images[0].Url, UriKind.Absolute));
         }
@@ -76,6 +75,7 @@ namespace MP3DL.Media
             PreviewURL = Track.PreviewUrl;
             Duration = Track.DurationMs;
             ID = Track.Id;
+            Popularity = Track.Popularity;
             Link = new MediaLink(Track.Uri, "https://open.spotify.com/track/" + Track.Id + "?");
             Bitmap = new BitmapImage(new Uri(Album.Images[0].Url, UriKind.Absolute));
         }
@@ -91,6 +91,7 @@ namespace MP3DL.Media
             PreviewURL = Track.PreviewURL;
             Duration = Track.Duration;
             ID = Track.ID;
+            Popularity = Track.Popularity;
             Link = Track.Link;
             Bitmap = Track.Bitmap;
         }
@@ -115,6 +116,7 @@ namespace MP3DL.Media
         public string Album { get; set; }
         public uint Number { get; private set; }
         public string Year { get; private set; }
+        public int Popularity { get; private set; }
         public string ID { get; private set; }
         public MediaLink Link { get; private set; }
         public string PreviewURL { get; private set; }
@@ -185,21 +187,29 @@ namespace MP3DL.Media
                 tagFile.Tag.Track = Number;
                 tagFile.Tag.Year = (uint)Int32.Parse(Year);
 
-                //Set cover art
-                RandomAccessStreamReference random = RandomAccessStreamReference.CreateFromUri(Bitmap.UriSour‌​ce);
-
-                using (IRandomAccessStream stream = await random.OpenReadAsync())
+                try
                 {
-                    using (var TempStream = stream.AsStream())
-                    {
-                        TempStream.Position = 0;
-                        TagLib.Picture pic = new TagLib.Picture();
-                        pic.Data = ByteVector.FromStream(TempStream);
-                        pic.Type = PictureType.FrontCover;
+                    //Set cover art
+                    RandomAccessStreamReference random = RandomAccessStreamReference.CreateFromUri(Bitmap.UriSour‌​ce);
 
-                        tagFile.Tag.Pictures = new IPicture[] { pic };
+                    using (IRandomAccessStream stream = await random.OpenReadAsync())
+                    {
+                        using (var TempStream = stream.AsStream())
+                        {
+                            TempStream.Position = 0;
+                            TagLib.Picture pic = new TagLib.Picture();
+                            pic.Data = ByteVector.FromStream(TempStream);
+                            pic.Type = PictureType.FrontCover;
+
+                            tagFile.Tag.Pictures = new IPicture[] { pic };
+                        }
                     }
                 }
+                catch
+                {
+
+                }
+                
                 //Save and dispose
                 tagFile.Save();
                 tagFile.Dispose();
@@ -247,7 +257,7 @@ namespace MP3DL.Media
                 printedauthors += ",";
             }
             int x = printedauthors.IndexOf(",");
-            string temp = printedauthors.Substring(0,x);
+            string temp = printedauthors.Substring(0, x);
 
             return temp.Trim();
         }

@@ -1,22 +1,12 @@
 ﻿using Media_Downloader_App.Classes;
 using Media_Downloader_App.Statics;
 using Media_Downloader_App.ViewModels;
-using MP3DL.Media;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Storage;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
@@ -61,7 +51,7 @@ namespace Media_Downloader_App
         {
             var button = sender as Button;
             var listview = VisualTreeHelper.GetChild(DependencyObjectHelper.RecursiveGetParent(button, 4), 1) as ListView;
-            if(listview.Visibility == Visibility.Collapsed)
+            if (listview.Visibility == Visibility.Collapsed)
             {
                 listview.Visibility = Visibility.Visible;
             }
@@ -73,7 +63,7 @@ namespace Media_Downloader_App
 
         private async void Cancel_Click(object sender, RoutedEventArgs e)
         {
-            if((sender as Button).DataContext is DownloadItemViewModel item)
+            if ((sender as Button).DataContext is DownloadItemViewModel item)
             {
                 var fonticon = VisualTreeHelper.GetChild(VisualTreeHelper.GetChild((sender as Button), 0), 0) as FontIcon;
 
@@ -89,7 +79,8 @@ namespace Media_Downloader_App
                 {
 
                 }
-            }else if((sender as Button).DataContext is DownloadCollectionItemViewModel collection)
+            }
+            else if ((sender as Button).DataContext is DownloadCollectionItemViewModel collection)
             {
                 var fonticon = VisualTreeHelper.GetChild(VisualTreeHelper.GetChild((sender as Button), 0), 0) as FontIcon;
 
@@ -127,7 +118,7 @@ namespace Media_Downloader_App
         private async void DeleteFile_Click(object sender, RoutedEventArgs e)
         {
             var item = (sender as MenuFlyoutItem).DataContext as DownloadItemViewModel;
-            if(item.OutputFile != null || File.Exists(item.OutputFile.Path))
+            if (item.OutputFile != null || File.Exists(item.OutputFile.Path))
             {
                 await item.OutputFile.DeleteAsync();
                 Downloads.Remove(item);

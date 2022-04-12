@@ -1,20 +1,15 @@
 ﻿using Media_Downloader_App.Statics;
-using Microsoft.Toolkit.Uwp.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Foundation;
 using Windows.Media.MediaProperties;
 using Windows.Media.Transcoding;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
 using YoutubeExplode;
 using YoutubeExplode.Common;
-using YoutubeExplode.Converter;
 using YoutubeExplode.Search;
 using YoutubeExplode.Videos.Streams;
 
@@ -103,10 +98,10 @@ namespace MP3DL.Media
 
                 var stream = await Client.Videos.Streams.GetAsync(streaminfo, CancelToken);
 
-                var Progress = new Progress<long>(p => this.Progress = (double)p / (double) stream.Length);
+                var Progress = new Progress<long>(p => this.Progress = (double)p / (double)stream.Length);
                 var filestream = await OutputFile.OpenStreamForWriteAsync();
                 filestream.Seek(0, SeekOrigin.Begin);
-                await stream.CopyToAsync(filestream, 81920, Progress,CancelToken);
+                await stream.CopyToAsync(filestream, 81920, Progress, CancelToken);
 
 
                 stream.Dispose();
@@ -269,7 +264,7 @@ namespace MP3DL.Media
                 Debug.WriteLine($"[DOWNLOADER] Downloading {streaminfo.Url}");
 
                 BackgroundDownloader downloader = new BackgroundDownloader();
-                DownloadOperation operation = downloader.CreateDownload(new Uri(streaminfo.Url,UriKind.Absolute), OutputFile);
+                DownloadOperation operation = downloader.CreateDownload(new Uri(streaminfo.Url, UriKind.Absolute), OutputFile);
 
                 await operation.StartAsync().AsTask(CancelToken, Progress);
             }
@@ -375,7 +370,7 @@ namespace MP3DL.Media
             Status = "Converting";
             Progress = 0;
             //Creates new file with .mp3
-            StorageFile NewFile = await (await OutputFile.GetParentAsync()).CreateFileAsync($"{OutputFile.DisplayName}.mp3",CreationCollisionOption.ReplaceExisting);
+            StorageFile NewFile = await (await OutputFile.GetParentAsync()).CreateFileAsync($"{OutputFile.DisplayName}.mp3", CreationCollisionOption.ReplaceExisting);
 
             Progress = 0.1;
             System.Diagnostics.Debug.WriteLine($"[DOWNLOADER] Created {NewFile.Path}");
@@ -394,16 +389,20 @@ namespace MP3DL.Media
                 Progress = 0.6;
                 System.Diagnostics.Debug.WriteLine($"[DOWNLOADER] Transcoding {NewFile.Path}");
                 await prepareOp.TranscodeAsync();
-            }
-            
-            //Deletes raw file\
-            Progress = 0.8;
-            System.Diagnostics.Debug.WriteLine($"[DOWNLOADER] Deleting {OutputFile.Path}");
-            await OutputFile.DeleteAsync();
-            Progress = 0.9;
-            System.Diagnostics.Debug.WriteLine($"[DOWNLOADER] Deleted {OutputFile.Path}");
 
-            return NewFile;
+                //Deletes raw file\
+                Progress = 0.8;
+                System.Diagnostics.Debug.WriteLine($"[DOWNLOADER] Deleting {OutputFile.Path}");
+                await OutputFile.DeleteAsync();
+                Progress = 0.9;
+                System.Diagnostics.Debug.WriteLine($"[DOWNLOADER] Deleted {OutputFile.Path}");
+
+                return NewFile;
+            }
+            else
+            {
+                return OutputFile;
+            }
         }
         protected virtual void OnProgressChanged()
         {

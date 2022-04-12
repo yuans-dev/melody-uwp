@@ -1,7 +1,4 @@
 ﻿using SpotifyAPI.Web;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace MP3DL.Media
@@ -26,7 +23,7 @@ namespace MP3DL.Media
             Author = Playlist.Owner.DisplayName;
 
             ID = Playlist.Id;
-            Link = new MediaLink(Playlist.Uri, "https://open.spotify.com/playlist/" +Playlist.Id);
+            Link = new MediaLink(Playlist.Uri, "https://open.spotify.com/playlist/" + Playlist.Id);
             MediaCount = (uint)Playlist.Tracks.Total;
             Media = Playlist.Tracks;
 

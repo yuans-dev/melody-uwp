@@ -1,11 +1,8 @@
 ﻿using Media_Downloader_App.Statics;
 using MP3DL.Media;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
@@ -13,7 +10,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace Media_Downloader_App.ViewModels
 {
-    public class DownloadCollectionItemViewModel:INotifyPropertyChanged, IDownloadItem
+    public class DownloadCollectionItemViewModel : INotifyPropertyChanged, IDownloadItem
     {
         public DownloadCollectionItemViewModel(SpotifyPlaylist Playlist)
         {
@@ -89,7 +86,7 @@ namespace Media_Downloader_App.ViewModels
         public async Task<List<DownloadItemViewModel>> GetMediaItems(SpotifyPlaylist Playlist)
         {
             List<DownloadItemViewModel> temp = new List<DownloadItemViewModel>();
-            foreach(var track in await Settings.SpotifyClient.GetPlaylistTracks(Playlist))
+            foreach (var track in await Settings.SpotifyClient.GetPlaylistTracks(Playlist))
             {
                 temp.Add(new DownloadItemViewModel(track, false));
             }
@@ -108,7 +105,7 @@ namespace Media_Downloader_App.ViewModels
         public async Task InitDownloader(SpotifyAlbum Album)
         {
             MediaItems = new ObservableCollection<DownloadItemViewModel>();
-            foreach(var item in await GetMediaItems(Album))
+            foreach (var item in await GetMediaItems(Album))
             {
                 MediaItems.Add(item);
             }
@@ -124,24 +121,24 @@ namespace Media_Downloader_App.ViewModels
         public async void StartDownload(bool IsBackground)
         {
             this.IsBackground = IsBackground;
-            if(Collection is SpotifyPlaylist playlist)
+            if (Collection is SpotifyPlaylist playlist)
             {
                 await InitDownloader(playlist);
             }
-            else if(Collection is SpotifyAlbum album)
+            else if (Collection is SpotifyAlbum album)
             {
                 await InitDownloader(album);
             }
-            
+
             StatusGlyph = Glyphs.CancelGlyph;
             ProgressValue = 0;
             HasNotStarted = false;
             System.Diagnostics.Debug.WriteLine($"{MediaItems.Count}");
             for (int i = 0; i < MediaItems.Count; i++)
             {
-                if (TokenSource.IsCancellationRequested) 
+                if (TokenSource.IsCancellationRequested)
                 {
-                    continue; 
+                    continue;
                 }
                 System.Diagnostics.Debug.WriteLine($"[DownloadCollectionItemViewModel] Item {i + 1}");
                 Status = $"Downloading {MediaItems[i].Media.Title}...";
@@ -178,9 +175,9 @@ namespace Media_Downloader_App.ViewModels
         {
             int f = 0;
             int c = 0;
-            foreach(var item in MediaItems)
+            foreach (var item in MediaItems)
             {
-                if(item.Status != "Completed.")
+                if (item.Status != "Completed.")
                 {
                     f++;
                 }
@@ -201,8 +198,8 @@ namespace Media_Downloader_App.ViewModels
                 StatusGlyph = Glyphs.RetryGlyph;
                 InfoHelper.ShowNotification($"{f} item(s) failed to download in \"{Collection.Title}\"", "Download incomplete", Bitmap.UriSource);
             }
-            
-            
+
+
             TokenSource = new CancellationTokenSource();
         }
         public event PropertyChangedEventHandler PropertyChanged;

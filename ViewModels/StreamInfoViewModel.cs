@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using YoutubeExplode.Videos.Streams;
+﻿using YoutubeExplode.Videos.Streams;
 
 namespace Media_Downloader_App.ViewModels
 {

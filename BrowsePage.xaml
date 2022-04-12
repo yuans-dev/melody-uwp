@@ -64,6 +64,10 @@
                     </Button>
                 </Grid>
             </DataTemplate>
+            <Style TargetType="Button" x:Name="ButtonTransparentBackground">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Opacity" Value="0.7"/>
+            </Style>
         </ResourceDictionary>
     </Page.Resources>
     <Page.Background>
@@ -75,7 +79,7 @@
             <RowDefinition MaxHeight="32" Height="*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <ScrollViewer Grid.Row="1" Margin="60,0,0,0">
+        <ScrollViewer IsVerticalScrollChainingEnabled="True" Grid.Row="1" Margin="60,0,0,0">
             <Pivot SelectionChanged="Pivot_SelectionChanged" FontSize="12" Title="RESULTS">
                 <PivotItem Header="Spotify" Unloaded="SpotifyPivotItem_Unloaded">
                     <Grid x:Name="SpotifyResultGrid" Margin="20,0,94,0">
@@ -99,7 +103,8 @@
                             ItemHeight="100"
                             DesiredWidth="320"
                             SelectionMode="Single"
-                            Margin="20,0,20,0"  Height="320" 
+                            ScrollViewer.IsVerticalScrollChainingEnabled="True"
+                            Margin="20,0,20,0"  Height="300" 
                             x:Name="SP_ResultsFlipView" 
                             ItemTemplate="{StaticResource CollectionsDataTemplate}"
                             IsItemClickEnabled="True" ItemClick="SP_ResultsFlipView_ItemClick"/>
@@ -122,7 +127,8 @@
                             ItemHeight="100"
                             DesiredWidth="320"
                             SelectionMode="Single"
-                            Margin="20,0,20,0"  Height="320" x:Name="SA_ResultsFlipView"
+                            ScrollViewer.IsVerticalScrollChainingEnabled="True"
+                            Margin="20,0,20,0"  Height="300" x:Name="SA_ResultsFlipView"
                             IsItemClickEnabled="True" 
                             ItemTemplate="{StaticResource CollectionsDataTemplate}" ItemClick="SA_ResultsFlipView_ItemClick"/>
                         <TextBlock Grid.Row="3"
@@ -206,6 +212,8 @@
                                                 <Button Background="Transparent" Opacity="0.7" DataContext="{Binding}" Click="ST_CopyLink_Click" ToolTipService.ToolTip="Copy link">
                                                     <SymbolIcon Symbol="Link"/>
                                                 </Button>
+                                                <AppBarSeparator/>
+                                                <ProgressBar Foreground="{ThemeResource DefaultForeground}" ToolTipService.ToolTip="Popularity" Width="160" Maximum="100" Value="{Binding Popularity}"/>
                                             </StackPanel>
                                         </Grid>
                                         <MediaElement 

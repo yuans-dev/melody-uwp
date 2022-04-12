@@ -2,31 +2,18 @@
 using Media_Downloader_App.Dialogs;
 using Media_Downloader_App.Statics;
 using Media_Downloader_App.SubPages;
-using Microsoft.Toolkit.Uwp;
 using MP3DL.Media;
-using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.DataTransfer;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
-using Windows.UI.Xaml.Navigation;
 using YoutubeExplode.Search;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
@@ -63,7 +50,7 @@ namespace Media_Downloader_App
         public ObservableCollection<SpotifyPlaylist> SpotifyPlaylistResults { get; set; }
         public ObservableCollection<SpotifyAlbum> SpotifyAlbumResults { get; set; }
         public ObservableCollection<YouTubeVideo> YouTubeResults { get; set; }
-        private IMedia PreviouslyPlayed { get; set; } 
+        private IMedia PreviouslyPlayed { get; set; }
         private List<VideoSearchResult> YouTubeSearchResult { get; set; }
 
         private void Settings_ThemeChanged(object sender, EventArgs e)
@@ -81,10 +68,11 @@ namespace Media_Downloader_App
                         await GetResults(BrowseTextbox.Text);
                     }
                 }
-                else if(!Settings.SpotifyClient.Authd)
+                else if (!Settings.SpotifyClient.Authd)
                 {
                     InfoHelper.ShowInAppNotification("You are not authorized! Please go to the Settings tab and \"Authorize Spotify\"");
-                }else if (string.IsNullOrWhiteSpace(Settings.OutputFolder) || Settings.OutputFolder == "Downloads")
+                }
+                else if (string.IsNullOrWhiteSpace(Settings.OutputFolder) || Settings.OutputFolder == "Downloads")
                 {
                     InfoHelper.ShowInAppNotification("You have not set a Downloads folder! Please go to the Settings tab and choose a folder");
                 }
@@ -233,7 +221,7 @@ namespace Media_Downloader_App
         private async void YT_OpenInWeb_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
-            var mediaURL = "https://www.youtube.com/watch?v=" + (button.DataContext as YouTubeVideo).ID;
+            var mediaURL = (button.DataContext as YouTubeVideo).Link.Web;
             var mediaUri = new Uri(mediaURL, UriKind.Absolute);
 
             await Launcher.LaunchUriAsync(mediaUri, new LauncherOptions { FallbackUri = new Uri(@"https://www.youtube.com", UriKind.Absolute) });
@@ -256,7 +244,7 @@ namespace Media_Downloader_App
         {
             var button = sender as Button;
             var item = button.DataContext as SpotifyTrack;
-            var mediaplayer = VisualTreeHelper.GetChild(DependencyObjectHelper.RecursiveGetParent(button,3),1) as MediaElement;
+            var mediaplayer = VisualTreeHelper.GetChild(DependencyObjectHelper.RecursiveGetParent(button, 3), 1) as MediaElement;
 
             if (item.Symbol == Symbol.Play)
             {
@@ -312,9 +300,12 @@ namespace Media_Downloader_App
                 Content = "Would you like to open it in the app?",
                 PrimaryButtonText = "Open in app",
                 SecondaryButtonText = "Open in web",
-                CloseButtonText = "Cancel"
+                SecondaryButtonStyle = ButtonTransparentBackground,
+                CloseButtonStyle = ButtonTransparentBackground,
+                CloseButtonText = "Cancel",
+                RequestedTheme = Settings.Theme
             };
-            switch(await dialog.ShowAsync())
+            switch (await dialog.ShowAsync())
             {
                 case ContentDialogResult.Primary:
                     await Launcher.LaunchUriAsync(new Uri(track.Link.App, UriKind.Absolute), new LauncherOptions { FallbackUri = new Uri(@"https://www.spotify.com/us/download/", UriKind.Absolute) });
@@ -399,11 +390,12 @@ namespace Media_Downloader_App
         }
         private void Collections_BgDownload_Click(object sender, RoutedEventArgs e)
         {
-            if((sender as MenuFlyoutItem).DataContext is SpotifyPlaylist playlist)
+            if ((sender as MenuFlyoutItem).DataContext is SpotifyPlaylist playlist)
             {
                 InfoHelper.ShowInAppNotification($"Successfully added \"{playlist.Title}\" to Downloads");
                 MainPage.Current.AddToDownloads(playlist, true);
-            }else if((sender as MenuFlyoutItem).DataContext is SpotifyAlbum album)
+            }
+            else if ((sender as MenuFlyoutItem).DataContext is SpotifyAlbum album)
             {
                 InfoHelper.ShowInAppNotification($"Successfully added \"{album.Title}\" to Downloads");
                 MainPage.Current.AddToDownloads(album, true);

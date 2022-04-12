@@ -1,14 +1,8 @@
 ﻿using MP3DL.Media;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 
 namespace Media_Downloader_App
 {
@@ -18,10 +12,11 @@ namespace Media_Downloader_App
         public static event EventHandler ThemeChanged;
         public static event EventHandler OutputChanged;
         private static ElementTheme _Theme { get; set; } = ElementTheme.Default;
-        public static ElementTheme Theme { 
+        public static ElementTheme Theme
+        {
             get { return _Theme; }
-            set 
-            { 
+            set
+            {
                 _Theme = value;
                 OnThemeChanged();
             }
@@ -29,7 +24,7 @@ namespace Media_Downloader_App
         public static Spotify SpotifyClient = new Spotify();
         public static YouTube YouTubeClient = new YouTube();
         public static string _OutputFolder { get; set; } = String.Empty;
-        public static string OutputFolder 
+        public static string OutputFolder
         {
             get { return _OutputFolder; }
             set
@@ -45,9 +40,9 @@ namespace Media_Downloader_App
                 OutputFolder = "Downloads";
             }
             string JsonString = JsonSerializer.Serialize
-                (new SerializableSettings 
-                { 
-                    Theme = Theme, 
+                (new SerializableSettings
+                {
+                    Theme = Theme,
                     ID = SpotifyClient.Details.ID,
                     Secret = SpotifyClient.Details.Secret,
                     Authorized = SpotifyClient.Authd,

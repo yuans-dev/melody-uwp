@@ -1,10 +1,7 @@
 ﻿using Media_Downloader_App.Statics;
 using MP3DL.Media;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -47,8 +44,8 @@ namespace Media_Downloader_App.ViewModels
         public int ProgressValue
         {
             get { return _ProgressValue; }
-            set 
-            { 
+            set
+            {
                 _ProgressValue = value;
                 OnPropertyChanged("ProgressValue");
             }
@@ -77,9 +74,9 @@ namespace Media_Downloader_App.ViewModels
         private bool _HasNotStarted { get; set; }
         public bool HasNotStarted
         {
-            get { return _HasNotStarted;}
-            set 
-            { 
+            get { return _HasNotStarted; }
+            set
+            {
                 _HasNotStarted = value;
                 OnPropertyChanged("HasNotStarted");
             }
@@ -117,7 +114,7 @@ namespace Media_Downloader_App.ViewModels
             StatusGlyph = Glyphs.CancelGlyph;
             try
             {
-                if(Media is SpotifyTrack Track)
+                if (Media is SpotifyTrack Track)
                 {
                     await Downloader.BackgroundDownloadMedia(Track);
                 }
@@ -171,19 +168,19 @@ namespace Media_Downloader_App.ViewModels
                     StatusGlyph = Glyphs.RetryGlyph;
                     break;
             }
-            
+
             if (WillSendNotifs && e.Result == Result.Success)
             {
                 InfoHelper.ShowNotification($"You have successfully finished downloading \"{Media.Name}\"", "Download completed", Bitmap.UriSource);
             }
-            else if(WillSendNotifs && e.Result != Result.Success)
+            else if (WillSendNotifs && e.Result != Result.Success)
             {
                 InfoHelper.ShowNotification($"An error occured while downloading \"{Media.Name}\"", "Download error", Bitmap.UriSource);
             }
         }
         public override string ToString()
         {
-            if(Media is YouTubeVideo)
+            if (Media is YouTubeVideo)
             {
                 if (Media.IsVideo)
                 {
@@ -193,7 +190,8 @@ namespace Media_Downloader_App.ViewModels
                 {
                     return "AUDIO ONLY";
                 }
-            }else if(Media is SpotifyTrack)
+            }
+            else if (Media is SpotifyTrack)
             {
                 return "TRACK";
             }

@@ -1,20 +1,15 @@
-﻿using MP3DL.Media;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 using Windows.Storage;
 
 namespace MP3DL
 {
     public class FileScanner
     {
-        public static List<StorageFile> Scan(List<StorageFolder> directories,string FileExtension)
+        public static List<StorageFile> Scan(List<StorageFolder> directories, string FileExtension)
         {
             var tmp = new ConcurrentBag<StorageFile>();
 

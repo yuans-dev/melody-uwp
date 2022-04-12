@@ -10,7 +10,7 @@
   <Identity
     Name="ba1ba48e-7b94-45ba-a6d8-bd3693313cae"
     Publisher="CN=Verchiel"
-    Version="1.1.5.0" />
+    Version="1.1.6.0" />
 
   <mp:PhoneIdentity PhoneProductId="ba1ba48e-7b94-45ba-a6d8-bd3693313cae" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
