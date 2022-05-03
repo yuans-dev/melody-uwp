@@ -226,6 +226,8 @@ namespace Media_Downloader_App
             var button = sender as Button;
             var Links = (button.DataContext as YouTubeVideo).Link;
             ClipboardExtensions.CopyToClipboard(Links.Web);
+
+            InfoHelper.ShowInAppNotification("Copied to clipboard!");
         }
         private void SpotifyPivotItem_Unloaded(object sender, RoutedEventArgs e)
         {
