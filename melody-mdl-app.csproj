@@ -248,7 +248,39 @@
     <Content Include="Assets\Wide310x150Logo.scale-125.png" />
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />
     <Content Include="Assets\Wide310x150Logo.scale-400.png" />
+    <Content Include="docs\components\article-card.css" />
+    <Content Include="docs\components\article-card.html" />
+    <Content Include="docs\components\counter.css" />
+    <Content Include="docs\components\counter.html" />
+    <Content Include="docs\components\footer.css" />
+    <Content Include="docs\components\footer.html" />
+    <Content Include="docs\components\header.css" />
+    <Content Include="docs\components\header.html" />
+    <Content Include="docs\components\label.css" />
+    <Content Include="docs\components\label.html" />
+    <Content Include="docs\components\member-details.css" />
+    <Content Include="docs\components\member-details.html" />
+    <Content Include="docs\components\post-reaction.css" />
+    <Content Include="docs\components\post-reaction.html" />
+    <Content Include="docs\components\primary-button.css" />
+    <Content Include="docs\components\primary-button.html" />
+    <Content Include="docs\components\secondary-button.css" />
+    <Content Include="docs\components\secondary-button.html" />
+    <Content Include="docs\components\service-card.css" />
+    <Content Include="docs\components\service-card.html" />
+    <Content Include="docs\components\user-details.css" />
+    <Content Include="docs\components\user-details.html" />
+    <Content Include="docs\home.css" />
     <Content Include="docs\index.html" />
+    <Content Include="docs\public\playground_assets\blue_wave.svg" />
+    <Content Include="docs\public\playground_assets\city-1-1400w.jpg" />
+    <Content Include="docs\public\playground_assets\gray-vector.svg" />
+    <Content Include="docs\public\playground_assets\team1-200h.jpg" />
+    <Content Include="docs\public\playground_assets\team2-200h.jpg" />
+    <Content Include="docs\public\playground_assets\team4-200h.png" />
+    <Content Include="docs\public\playground_assets\team6-200h.jpg" />
+    <Content Include="docs\public\playground_assets\white-vector.svg" />
+    <Content Include="docs\style.css" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -353,6 +385,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="docs\package.json" />
     <None Include="Media Downloader App_TemporaryKey.pfx" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
