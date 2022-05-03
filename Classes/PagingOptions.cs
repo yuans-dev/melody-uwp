@@ -1,15 +1,9 @@
-﻿using MP3DL.Media;
+﻿using Media_Downloader_App.Core;
 
-namespace Media_Downloader_App
+namespace Media_Downloader_App.Classes
 {
     public class PagingOptions
     {
-        public PagingOptions(string Query, int Results, int Offset)
-        {
-            this.Query = Query;
-            this.Results = Results;
-            this.Offset = Offset;
-        }
         public PagingOptions(Spotify SpotifyClient, YouTube YouTubeClient, string Query, int Results, int Offset)
         {
             this.SpotifyClient = SpotifyClient;

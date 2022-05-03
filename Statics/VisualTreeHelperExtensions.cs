@@ -3,7 +3,7 @@ using Windows.UI.Xaml.Media;
 
 namespace Media_Downloader_App.Statics
 {
-    public class DependencyObjectHelper
+    public class VisualTreeHelperExtensions
     {
         public static DependencyObject RecursiveGetParent(DependencyObject child, int iterations)
         {

@@ -5,7 +5,7 @@ using YoutubeExplode;
 using YoutubeExplode.Common;
 using YoutubeExplode.Search;
 
-namespace MP3DL.Media
+namespace Media_Downloader_App.Core
 {
     public class YouTube
     {

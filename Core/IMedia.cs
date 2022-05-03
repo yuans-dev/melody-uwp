@@ -3,7 +3,7 @@ using System.Drawing;
 using Windows.Storage;
 using Windows.UI.Xaml.Media.Imaging;
 
-namespace MP3DL.Media
+namespace Media_Downloader_App.Core
 {
     public interface IMedia : IEquatable<IMedia>
     {
@@ -22,6 +22,6 @@ namespace MP3DL.Media
         MediaLink Link { get; }
         bool IsVideo { get; }
         bool IsPreviewAvailable { get; }
-        void SetTagsAsync(StorageFile file);
+        void SetMetadataAsync(StorageFile file);
     }
 }

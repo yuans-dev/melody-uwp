@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace MP3DL.Media
+namespace Media_Downloader_App.Core
 {
     public class Spotify
     {
@@ -20,6 +20,7 @@ namespace MP3DL.Media
         public SpotifyClient Client;
         public event EventHandler<CollectionProgressEventArgs> CollectionFetchingProgressChanged;
         public event EventHandler CollectionFetchingDone;
+        public event EventHandler<CollectionProgressEventArgs> SpotifyTracksFromLastFMProgressChanged;
         public async Task Auth()
         {
             try
@@ -308,6 +309,29 @@ namespace MP3DL.Media
                 new AlbumTracksRequest { Offset = offset });
 
         }
+        public async Task<TrackAudioFeatures> GetAudioFeatures(string TrackID)
+        {
+            var x = await Client.Tracks.GetAudioFeatures(TrackID);
+            return x;
+        }
+        public async Task<List<SpotifyTrack>> GetSpotifyTracksFromLastFM(List<Hqub.Lastfm.Entities.Track> LastFMSimilarTracks)
+        {
+            var list = new List<SpotifyTrack>();
+            for(int i=0;i<LastFMSimilarTracks.Count;i++)
+            {
+                var track = LastFMSimilarTracks[i];
+                try
+                {
+                    list.Add((await Settings.SpotifyClient.BrowseSpotifyTracks($"{track.Name} {track.Artist.Name}", 1, 0))[0]);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SPOTIFY CLIENT] Error - {ex.Message}");
+                }
+                OnSpotifyTracksFromLastFMProgressChanged(i+1, LastFMSimilarTracks.Count);
+            }
+            return list;
+        }
         protected virtual void OnPlaylistFetchingProgressChanged(int Finished, int Total)
         {
             CollectionFetchingProgressChanged?.Invoke(this,
@@ -315,6 +339,15 @@ namespace MP3DL.Media
                 {
                     Total = Total,
                     Finished = Finished,
+                });
+        }
+        protected virtual void OnSpotifyTracksFromLastFMProgressChanged(int Finished, int Total)
+        {
+            SpotifyTracksFromLastFMProgressChanged?.Invoke(this,
+                new CollectionProgressEventArgs()
+                {
+                    Total = Total,
+                    Finished = Finished
                 });
         }
         protected virtual void OnCollectionFetchingDone()

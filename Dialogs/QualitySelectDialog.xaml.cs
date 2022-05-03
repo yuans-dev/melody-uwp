@@ -1,5 +1,5 @@
 ﻿using Media_Downloader_App.ViewModels;
-using MP3DL.Media;
+using Media_Downloader_App.Core;
 using System.Collections.ObjectModel;
 using Windows.UI.Xaml.Controls;
 using YoutubeExplode;

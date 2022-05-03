@@ -10,8 +10,6 @@ namespace Media_Downloader_App.Statics
             dataPackage.RequestedOperation = DataPackageOperation.Copy;
             dataPackage.SetText(Text);
             Clipboard.SetContent(dataPackage);
-
-            InfoHelper.ShowInAppNotification("Copied to clipboard!");
         }
     }
 }

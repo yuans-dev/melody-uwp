@@ -12,7 +12,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using YoutubeExplode.Videos;
 using YoutubeExplode.Videos.Streams;
 
-namespace MP3DL.Media
+namespace Media_Downloader_App.Core
 {
     public class YouTubeVideo : IMedia
     {
@@ -123,7 +123,7 @@ namespace MP3DL.Media
                 return false;
         }
 
-        public async void SetTagsAsync(StorageFile file)
+        public async void SetMetadataAsync(StorageFile file)
         {
             StorageFileAbstraction taglibfile = new StorageFileAbstraction(file);
             using (var tagFile = TagLib.File.Create(taglibfile, ReadStyle.Average))

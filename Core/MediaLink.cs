@@ -1,4 +1,4 @@
-﻿namespace MP3DL.Media
+﻿namespace Media_Downloader_App.Core
 {
     public struct MediaLink
     {

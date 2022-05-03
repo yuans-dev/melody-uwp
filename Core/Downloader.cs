@@ -13,7 +13,7 @@ using YoutubeExplode.Common;
 using YoutubeExplode.Search;
 using YoutubeExplode.Videos.Streams;
 
-namespace MP3DL.Media
+namespace Media_Downloader_App.Core
 {
     public enum Result
     {
@@ -136,7 +136,7 @@ namespace MP3DL.Media
                 return;
             }
             var newfile = await ConvertToMP3(OutputFile);
-            Track.SetTagsAsync(newfile);
+            Track.SetMetadataAsync(newfile);
 
             Debug.WriteLine("[DOWNLOADER] Finished");
 
@@ -223,7 +223,7 @@ namespace MP3DL.Media
             if (!Video.IsVideo)
             {
                 var newfile = await ConvertToMP3(OutputFile);
-                Video.SetTagsAsync(newfile);
+                Video.SetMetadataAsync(newfile);
                 OnDownloadCompleted(Result.Success, newfile);
             }
             else
@@ -297,7 +297,7 @@ namespace MP3DL.Media
                 return;
             }
             var newfile = await ConvertToMP3(OutputFile);
-            Track.SetTagsAsync(newfile);
+            Track.SetMetadataAsync(newfile);
 
             OnDownloadCompleted(Result.Success, newfile);
             Debug.WriteLine("[DOWNLOADER] Finished");

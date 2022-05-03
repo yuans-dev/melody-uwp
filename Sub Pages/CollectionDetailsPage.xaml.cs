@@ -1,10 +1,11 @@
 ﻿using Media_Downloader_App.Statics;
-using MP3DL.Media;
+using Media_Downloader_App.Core;
 using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Media_Downloader_App.Classes;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -13,7 +14,7 @@ namespace Media_Downloader_App.SubPages
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class CollectionDetailsPage : Page
+    public sealed partial class CollectionDetailsPage : BasePage
     {
         public CollectionDetailsPage()
         {
@@ -25,7 +26,7 @@ namespace Media_Downloader_App.SubPages
         private SpotifyTrack PreviouslyPlayed { get; set; }
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            LoadingControl.IsLoading = true;
+            IsLoading = true;
             if (e.Parameter is SpotifyPlaylist playlist)
             {
                 CollectionLabel.Text = "PLAYLIST";
@@ -52,7 +53,7 @@ namespace Media_Downloader_App.SubPages
                     System.Diagnostics.Debug.WriteLine($"[CollectionDetailsPage] {ex.Message}");
                 }
             }
-            LoadingControl.IsLoading = false;
+            IsLoading = false;
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
@@ -70,7 +71,7 @@ namespace Media_Downloader_App.SubPages
             var item = button.DataContext as SpotifyTrack;
             var mediaplayer = VisualTreeHelper.GetChild(VisualTreeHelper.GetParent(button), 9) as MediaElement;
 
-            if (item.Symbol == Symbol.Play)
+            if (!item.IsPlayingPreview)
             {
                 try
                 {
@@ -82,7 +83,6 @@ namespace Media_Downloader_App.SubPages
                 }
                 mediaplayer?.Play();
                 item.IsPlayingPreview = true;
-                item.Symbol = Symbol.Pause;
 
                 PreviouslyPlayed = item;
             }
@@ -90,7 +90,6 @@ namespace Media_Downloader_App.SubPages
             {
                 mediaplayer?.Stop();
                 item.IsPlayingPreview = false;
-                item.Symbol = Symbol.Play;
             }
         }
         private void ClearPreviouslyPlayed()
@@ -98,11 +97,10 @@ namespace Media_Downloader_App.SubPages
             if (PreviouslyPlayed != null)
             {
                 var container = MediaListView.ContainerFromItem(PreviouslyPlayed);
-                var mediaplayer = VisualTreeHelper.GetChild(DependencyObjectHelper.RecursiveGetFirstChild(container, 2), 9) as MediaElement;
+                var mediaplayer = VisualTreeHelper.GetChild(VisualTreeHelperExtensions.RecursiveGetFirstChild(container, 2), 9) as MediaElement;
 
                 mediaplayer?.Stop();
                 PreviouslyPlayed.IsPlayingPreview = false;
-                PreviouslyPlayed.Symbol = Symbol.Play;
             }
         }
         private void DownloadButton_Click(object sender, RoutedEventArgs e)

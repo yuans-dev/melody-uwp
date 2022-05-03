@@ -2,7 +2,7 @@
 using Media_Downloader_App.Dialogs;
 using Media_Downloader_App.Statics;
 using Media_Downloader_App.SubPages;
-using MP3DL.Media;
+using Media_Downloader_App.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -37,15 +37,11 @@ namespace Media_Downloader_App
             SpotifyAlbumResults = new ObservableCollection<SpotifyAlbum>();
             YouTubeResults = new ObservableCollection<YouTubeVideo>();
 
-            ST_ResultsListView.ItemsSource = SpotifyTrackResults;
-            SP_ResultsFlipView.ItemsSource = SpotifyPlaylistResults;
-            SA_ResultsFlipView.ItemsSource = SpotifyAlbumResults;
-            YT_ResultsListView.ItemsSource = YouTubeResults;
-
             Settings.ThemeChanged += Settings_ThemeChanged;
         }
         public override string Header => "Browse";
         public override string MinimalHeader => "BROWSE";
+        public override bool IsLoading => base.IsLoading;
         public ObservableCollection<SpotifyTrack> SpotifyTrackResults { get; set; }
         public ObservableCollection<SpotifyPlaylist> SpotifyPlaylistResults { get; set; }
         public ObservableCollection<SpotifyAlbum> SpotifyAlbumResults { get; set; }
@@ -61,12 +57,9 @@ namespace Media_Downloader_App
         {
             try
             {
-                if (Settings.SpotifyClient.Authd && (Settings.OutputFolder != "Downloads" && !string.IsNullOrWhiteSpace(Settings.OutputFolder)))
+                if (Settings.SpotifyClient.Authd && Settings.OutputFolder != "Downloads" && !string.IsNullOrWhiteSpace(Settings.OutputFolder) && !string.IsNullOrWhiteSpace(BrowseTextbox.Text))
                 {
-                    if (!string.IsNullOrWhiteSpace(BrowseTextbox.Text))
-                    {
-                        await GetResults(BrowseTextbox.Text);
-                    }
+                    await GetResults(BrowseTextbox.Text);
                 }
                 else if (!Settings.SpotifyClient.Authd)
                 {
@@ -85,13 +78,14 @@ namespace Media_Downloader_App
         private async Task GetResults(string Query)
         {
             var p = new PagingOptions(Settings.SpotifyClient, Settings.YouTubeClient, Query, 25, 0);
-            LoadingControl.IsLoading = true;
+            IsLoading = true;
 
             ST_ClearPreviouslyPlayed();
             ClearResults();
+
             if (Utils.IsSpotifyLink(Query))
             {
-                GetSpecifiedResult(Query);
+                GetSpecifiedSpotifyResult(Query);
             }
             else
             {
@@ -114,9 +108,10 @@ namespace Media_Downloader_App
                 GettingSpotifyResultsFinished();
                 SpotifyResultGrid.Visibility = Visibility.Visible;
             }
+
             YouTubeSearchResult = (await p.YouTubeClient.GetVideoSearchResult(p.Query, p.Results, p.Offset)).ToList();
             YouTubeResults.Clear();
-            LoadingControl.IsLoading = false;
+            IsLoading = false;
             foreach (var result in YouTubeSearchResult)
             {
                 var video = await p.YouTubeClient.GetVideo(result.Url);
@@ -127,14 +122,7 @@ namespace Media_Downloader_App
                 }
             }
         }
-        private void ClearResults()
-        {
-            YouTubeSearchResult?.Clear();
-            SpotifyPlaylistResults.Clear();
-            SpotifyAlbumResults.Clear();
-            SpotifyTrackResults.Clear();
-        }
-        private async void GetSpecifiedResult(string Query)
+        private async void GetSpecifiedSpotifyResult(string Query)
         {
             var Link = Utils.GetSpotifyLink(Query);
 
@@ -157,6 +145,13 @@ namespace Media_Downloader_App
             //Show Spotify esults
             SpotifyResultGrid.Visibility = Visibility.Visible;
             GettingSpotifyResultsFinished();
+        }
+        private void ClearResults()
+        {
+            YouTubeSearchResult?.Clear();
+            SpotifyPlaylistResults.Clear();
+            SpotifyAlbumResults.Clear();
+            SpotifyTrackResults.Clear();
         }
         private void ST_ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -244,14 +239,13 @@ namespace Media_Downloader_App
         {
             var button = sender as Button;
             var item = button.DataContext as SpotifyTrack;
-            var mediaplayer = VisualTreeHelper.GetChild(DependencyObjectHelper.RecursiveGetParent(button, 3), 1) as MediaElement;
+            var mediaplayer = VisualTreeHelper.GetChild(VisualTreeHelperExtensions.RecursiveGetParent(button, 3), 1) as MediaElement;
 
-            if (item.Symbol == Symbol.Play)
+            if (!item.IsPlayingPreview)
             {
                 ST_ClearPreviouslyPlayed();
                 item.IsPlayingPreview = true;
                 mediaplayer.Play();
-                item.Symbol = Symbol.Pause;
 
                 PreviouslyPlayed = item;
             }
@@ -259,7 +253,6 @@ namespace Media_Downloader_App
             {
                 item.IsPlayingPreview = false;
                 mediaplayer.Stop();
-                item.Symbol = Symbol.Play;
             }
         }
         private void ST_ClearPreviouslyPlayed()
@@ -269,11 +262,10 @@ namespace Media_Downloader_App
                 if (PreviouslyPlayed is SpotifyTrack track)
                 {
                     var container = ST_ResultsListView.ContainerFromItem(track);
-                    var mediaplayer = VisualTreeHelper.GetChild(DependencyObjectHelper.RecursiveGetFirstChild(container, 2), 1) as MediaElement;
+                    var mediaplayer = VisualTreeHelper.GetChild(VisualTreeHelperExtensions.RecursiveGetFirstChild(container, 2), 1) as MediaElement;
 
                     mediaplayer?.Stop();
                     track.IsPlayingPreview = false;
-                    track.Symbol = Symbol.Play;
                 }
             }
             catch
@@ -291,8 +283,8 @@ namespace Media_Downloader_App
         }
         private async void ST_OpenInWeb_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            var track = (button.DataContext as SpotifyTrack);
+            var flyoutitem = sender as MenuFlyoutItem;
+            var track = (flyoutitem.DataContext as SpotifyTrack);
 
             ContentDialog dialog = new ContentDialog()
             {
@@ -319,9 +311,23 @@ namespace Media_Downloader_App
         }
         private void ST_CopyLink_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            var mediaLinks = (button.DataContext as SpotifyTrack).Link;
+            var flyoutitem = sender as MenuFlyoutItem;
+            var mediaLinks = (flyoutitem.DataContext as SpotifyTrack).Link;
             ClipboardExtensions.CopyToClipboard(mediaLinks.Web);
+
+            InfoHelper.ShowInAppNotification("Copied to clipboard!");
+        }
+        private void ST_MoreLikeThis_Click(object sender, RoutedEventArgs e)
+        {
+            var item = (sender as MenuFlyoutItem).DataContext as SpotifyTrack;
+
+            App.SendToRootFrame(typeof(Sub_Pages.MoreLikeThisPage), item);
+        }
+        private void ST_Tag_Click(object sender, RoutedEventArgs e)
+        {
+            var item = (sender as Button).DataContext as string;
+
+            App.SendToRootFrame(typeof(Sub_Pages.PopularInTagPage), item);
         }
         private void GettingSpotifyResultsFinished()
         {
@@ -352,29 +358,26 @@ namespace Media_Downloader_App
                 ST_Nothing_TextBlock.Visibility = Visibility.Collapsed;
             }
         }
-        private void SP_ResultsFlipView_ItemClick(object sender, ItemClickEventArgs e)
+        private void SP_CollectionsView_ItemClick(object sender, ItemClickEventArgs e)
         {
             var collection = e.ClickedItem as SpotifyPlaylist;
 
             App.SendToRootFrame(typeof(CollectionDetailsPage), collection);
         }
-        private void SA_ResultsFlipView_ItemClick(object sender, ItemClickEventArgs e)
+        private void SA_CollectionsView_ItemClick(object sender, ItemClickEventArgs e)
         {
             var collection = e.ClickedItem as SpotifyAlbum;
 
             App.SendToRootFrame(typeof(CollectionDetailsPage), collection);
         }
-
-        private void SA_ResultsFlipView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void SA_CollectionsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            SA_ResultsFlipView.SelectedItem = null;
+            SA_CollectionsView.SelectedItem = null;
         }
-
-        private void SP_ResultsFlipView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void SP_CollectionsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            SP_ResultsFlipView.SelectedItem = null;
+            SP_CollectionsView.SelectedItem = null;
         }
-
         private void Collections_Download_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as MenuFlyoutItem).DataContext is SpotifyPlaylist playlist)
@@ -401,11 +404,36 @@ namespace Media_Downloader_App
                 MainPage.Current.AddToDownloads(album, true);
             }
         }
-
         private void Collections_CopyLink(object sender, RoutedEventArgs e)
         {
             var collection = (sender as MenuFlyoutItem).DataContext as IMediaCollection;
             ClipboardExtensions.CopyToClipboard(collection.Link.Web);
+        }
+        private void PlaylistSeeMore_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if(SP_CollectionsView.Height == 192)
+            {
+                SP_CollectionsView.Height = Double.NaN;
+                PlaylistSeeMore_TextBlock.Text = "COLLAPSE";
+            }
+            else
+            {
+                SP_CollectionsView.Height = 192;
+                PlaylistSeeMore_TextBlock.Text = "SEE MORE";
+            }
+        }
+        private void AlbumSeeMore_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (SA_CollectionsView.Height == 192)
+            {
+                SA_CollectionsView.Height = Double.NaN;
+                AlbumSeeMore_TextBlock.Text = "COLLAPSE";
+            }
+            else
+            {
+                SA_CollectionsView.Height = 192;
+                AlbumSeeMore_TextBlock.Text = "SEE MORE";
+            }
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿<ResourceDictionary
+    xmlns:my="using:Microsoft.UI.Xaml.Controls"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:converters="using:Media_Downloader_App.Converters"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="Light">
@@ -15,4 +17,8 @@
             <Color x:Key="DefaultForegroundColor">White</Color>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
+    <converters:BoolToPlaySymbolConverter x:Key="BoolToPlaySymbolConverter"/>
+    <converters:StringToUpperCaseConverter x:Key="StringToUpperCaseConverter"/>
+    <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
+    <my:StackLayout x:Key="HorizontalStackLayout" Orientation="Horizontal" Spacing="6"/>
 </ResourceDictionary>

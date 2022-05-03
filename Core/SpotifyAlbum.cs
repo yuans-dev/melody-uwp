@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Windows.UI.Xaml.Media.Imaging;
 
-namespace MP3DL.Media
+namespace Media_Downloader_App.Core
 {
     public class SpotifyAlbum : IMediaCollection
     {

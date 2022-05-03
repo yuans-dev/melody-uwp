@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
 
-namespace MP3DL
+namespace Media_Downloader_App
 {
     public class FileScanner
     {

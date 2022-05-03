@@ -41,7 +41,6 @@ namespace Media_Downloader_App
         {
             RequestedTheme = Settings.Theme;
         }
-
         private void DownloadsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DownloadsListView.SelectedItem = null;
@@ -50,7 +49,7 @@ namespace Media_Downloader_App
         private void ShowCollapseListButton_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
-            var listview = VisualTreeHelper.GetChild(DependencyObjectHelper.RecursiveGetParent(button, 4), 1) as ListView;
+            var listview = VisualTreeHelper.GetChild(VisualTreeHelperExtensions.RecursiveGetParent(button, 4), 1) as ListView;
             if (listview.Visibility == Visibility.Collapsed)
             {
                 listview.Visibility = Visibility.Visible;

@@ -1,4 +1,4 @@
-﻿using MP3DL.Media;
+﻿using Media_Downloader_App.Core;
 using Windows.UI.Xaml.Controls;
 
 // The Content Dialog item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238

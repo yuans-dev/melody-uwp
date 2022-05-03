@@ -1,8 +1,10 @@
-﻿using Media_Downloader_App.Abstractions;
+﻿using Media_Downloader_App;
+using Media_Downloader_App.Abstractions;
 using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using TagLib;
@@ -11,7 +13,7 @@ using Windows.Storage.Streams;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 
-namespace MP3DL.Media
+namespace Media_Downloader_App.Core
 {
     public class SpotifyTrack : IMedia, INotifyPropertyChanged
     {
@@ -30,6 +32,7 @@ namespace MP3DL.Media
             Popularity = Track.Popularity;
             Link = new MediaLink(Track.Uri, "https://open.spotify.com/track/" + Track.Id + "?");
             Bitmap = new BitmapImage(new Uri(Album.Images[0].Url, UriKind.Absolute));
+            SetTagsAsync();
         }
         public SpotifyTrack(SimpleTrack Track, FullAlbum Album)
         {
@@ -46,6 +49,7 @@ namespace MP3DL.Media
             Popularity = 0;
             Link = new MediaLink(Track.Uri, "https://open.spotify.com/track/" + Track.Id + "?");
             Bitmap = new BitmapImage(new Uri(Album.Images[0].Url, UriKind.Absolute));
+            SetTagsAsync();
         }
         public SpotifyTrack(SimpleTrack Track, SimpleAlbum Album)
         {
@@ -62,6 +66,7 @@ namespace MP3DL.Media
             Popularity = 0;
             Link = new MediaLink(Track.Uri, "https://open.spotify.com/track/" + Track.Id + "?");
             Bitmap = new BitmapImage(new Uri(Album.Images[0].Url, UriKind.Absolute));
+            SetTagsAsync();
         }
         public SpotifyTrack(FullTrack Track, SimpleAlbum Album)
         {
@@ -78,6 +83,7 @@ namespace MP3DL.Media
             Popularity = Track.Popularity;
             Link = new MediaLink(Track.Uri, "https://open.spotify.com/track/" + Track.Id + "?");
             Bitmap = new BitmapImage(new Uri(Album.Images[0].Url, UriKind.Absolute));
+            SetTagsAsync();
         }
         public SpotifyTrack(SpotifyTrack Track)
         {
@@ -94,6 +100,7 @@ namespace MP3DL.Media
             Popularity = Track.Popularity;
             Link = Track.Link;
             Bitmap = Track.Bitmap;
+            SetTagsAsync();
         }
         public System.Drawing.Image Art { get; set; }
         public BitmapImage Bitmap { get; set; }
@@ -116,6 +123,16 @@ namespace MP3DL.Media
         public string Album { get; set; }
         public uint Number { get; private set; }
         public string Year { get; private set; }
+        public List<string> _Tags = new List<string>();
+        public List<string> Tags
+        {
+            get { return _Tags; }
+            set
+            {
+                _Tags = value;
+                OnPropertyChanged("Tags");
+            }
+        }
         public int Popularity { get; private set; }
         public string ID { get; private set; }
         public MediaLink Link { get; private set; }
@@ -144,29 +161,14 @@ namespace MP3DL.Media
                 }
             }
         }
-        private Symbol _Symbol { get; set; } = Symbol.Play;
-        public bool IsPlayingPreview { get; set; } = false;
-        public Symbol Symbol
+        private bool _IsPlayingPreview { get; set; } = false;
+        public bool IsPlayingPreview
         {
-            get { return _Symbol; }
+            get { return _IsPlayingPreview; }
             set
             {
-                _Symbol = value;
-                OnPropertyChanged("Symbol");
-            }
-        }
-        public double Opacity
-        {
-            get
-            {
-                if (String.IsNullOrWhiteSpace(PreviewURL))
-                {
-                    return 0.14;
-                }
-                else
-                {
-                    return 1;
-                }
+                _IsPlayingPreview = value;
+                OnPropertyChanged("IsPlayingPreview");
             }
         }
 
@@ -175,7 +177,7 @@ namespace MP3DL.Media
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
-        public async void SetTagsAsync(StorageFile file)
+        public async void SetMetadataAsync(StorageFile file)
         {
             StorageFileAbstraction taglibfile = new StorageFileAbstraction(file);
             using (var tagFile = TagLib.File.Create(taglibfile, ReadStyle.Average))
@@ -213,6 +215,17 @@ namespace MP3DL.Media
                 //Save and dispose
                 tagFile.Save();
                 tagFile.Dispose();
+            }
+        }
+        public async void SetTagsAsync()
+        {
+            try
+            {
+                Tags = await LastFM.GetTrackTags(Title, FirstAuthor);
+            }
+            catch
+            {
+
             }
         }
         private string PrintAuthors()

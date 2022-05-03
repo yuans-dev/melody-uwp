@@ -1,5 +1,5 @@
 ﻿using Media_Downloader_App.Statics;
-using MP3DL.Media;
+using Media_Downloader_App.Core;
 using System;
 using Windows.Media.Core;
 using Windows.UI.Xaml;
