@@ -1,19 +1,14 @@
-﻿using Media_Downloader_App.Statics;
+﻿using Melody.Statics;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Media.MediaProperties;
-using Windows.Media.Transcoding;
-using Windows.Networking.BackgroundTransfer;
+using Unidecode.NET;
 using Windows.Storage;
-using YoutubeExplode;
 using YoutubeExplode.Common;
-using YoutubeExplode.Search;
-using YoutubeExplode.Videos.Streams;
 
-namespace Media_Downloader_App.Core
+namespace Melody.Core
 {
     public enum Result
     {
@@ -23,7 +18,8 @@ namespace Media_Downloader_App.Core
         Cancelled,
         FailedRequest,
         FFMPEGNotFound,
-        NotDetermined
+        NotDetermined,
+        Other
     }
     public class Downloader
     {
@@ -31,11 +27,9 @@ namespace Media_Downloader_App.Core
         {
             this.OutputPath = "Downloads";
             CancelToken = new CancellationTokenSource().Token;
-            Client = new YoutubeClient();
         }
         public event EventHandler<DownloadCompleteEventArgs> DownloadCompleted;
         public event EventHandler<DownloadProgressEventArgs> ProgressChanged;
-        private YoutubeClient Client;
         public CancellationToken CancelToken;
         private double _Progress { get; set; }
         private double Progress
@@ -58,54 +52,59 @@ namespace Media_Downloader_App.Core
             }
         }
         private IMedia CurrentlyDownloading { get; set; }
-        private StorageFolder OutputFolder { get; set; }
         public string OutputPath { get; set; }
-        public async Task DownloadMedia(IMedia Media)
+        public async Task DownloadMedia(IMedia media)
         {
-            if (Media is SpotifyTrack Track)
+            try
             {
-                await DownloadMedia(Track);
+                if (media is SpotifyTrack track)
+                {
+                    await DownloadMedia(track);
+                }
+                else if (media is YouTubeVideo video)
+                {
+                    await DownloadMedia(video);
+                }
             }
-            else if (Media is YouTubeVideo Video)
+            catch (YoutubeExplode.Exceptions.VideoUnplayableException)
             {
-                await DownloadMedia(Video);
+                OnDownloadCompleted(Result.Other, "Video is unavailable due to age restrictions");
             }
         }
-        public async Task DownloadMedia(SpotifyTrack Track)
+        public async Task DownloadMedia(SpotifyTrack track)
         {
-            CurrentlyDownloading = Track;
-            Client = new YoutubeClient();
-            string CleanFilename = Utils.ClearChars(Track.Name);
-
-            Status = "Searching";
-            var SearchResult = await SpotifyToYouTube(Track);
-            if (string.IsNullOrWhiteSpace(SearchResult))
+            CurrentlyDownloading = track;
+            var ytlink = await ToYouTubeLink(track);
+            if (string.IsNullOrWhiteSpace(ytlink))
             {
                 OnDownloadCompleted(Result.NoMediaFound);
                 return;
             }
+            Status = "Downloading";
 
-            OutputFolder = await StorageFolder.GetFolderFromPathAsync(OutputPath);
-            var manifest = await Client.Videos.Streams.GetManifestAsync(SearchResult);
-            var streaminfo = manifest.GetAudioOnlyStreams().GetWithHighestBitrate();
-
-            var OutputFile = await OutputFolder.CreateFileAsync($"{CleanFilename}.{streaminfo.Container}", CreationCollisionOption.ReplaceExisting);
+            var streaminfo = await Settings.YouTubeClient.GetStreamInfo(ytlink);
+            var outputfile = await (await StorageFolder.GetFolderFromPathAsync(OutputPath))
+                .CreateFileAsync($"{track.Name.MakeSafeForFiles()}.mp3", CreationCollisionOption.ReplaceExisting);
+            var tempfile = await Settings.TemporaryFolder
+                .CreateFileAsync($"{track.Name.MakeSafeForFiles()}.mp3temp", CreationCollisionOption.ReplaceExisting);
 
             try
             {
-                Status = "Downloading";
-                Debug.WriteLine($"[DOWNLOADER] Downloading {streaminfo.Url}");
+                var stream = await Settings.YouTubeClient.GetStream(streaminfo, CancelToken);
 
-                var stream = await Client.Videos.Streams.GetAsync(streaminfo, CancelToken);
-
-                var Progress = new Progress<long>(p => this.Progress = (double)p / (double)stream.Length);
-                var filestream = await OutputFile.OpenStreamForWriteAsync();
+                var filestream = await tempfile.OpenStreamForWriteAsync();
                 filestream.Seek(0, SeekOrigin.Begin);
-                await stream.CopyToAsync(filestream, 81920, Progress, CancelToken);
+                
+                var progress = new Progress<long>(p => this.Progress = (double)p / (double)stream.Length);
 
+                await stream.CopyToAsync(filestream, 81920, progress, CancelToken);
 
                 stream.Dispose();
+                await filestream.FlushAsync();
                 filestream.Dispose();
+
+                await tempfile.ConvertToMP3Async(outputfile);
+                await tempfile.TryDeleteAsync();
             }
             catch (System.Net.Http.HttpRequestException)
             {
@@ -114,82 +113,82 @@ namespace Media_Downloader_App.Core
             }
             catch (TaskCanceledException)
             {
-                if (File.Exists(OutputFile.Path))
-                {
-                    await OutputFile.DeleteAsync();
-                }
+                await outputfile.TryDeleteAsync();
+                await tempfile.TryDeleteAsync();
                 OnDownloadCompleted(Result.Cancelled);
                 return;
             }
             catch (OperationCanceledException)
             {
-                if (File.Exists(OutputFile.Path))
-                {
-                    await OutputFile.DeleteAsync();
-                }
+                await outputfile.TryDeleteAsync();
+                await tempfile.TryDeleteAsync();
                 OnDownloadCompleted(Result.Cancelled);
                 return;
             }
             catch (Exception ex)
             {
-                OnDownloadCompleted(Result.NotDetermined, ex.Message);
+                OnDownloadCompleted(Result.NotDetermined, $"{ex.Source} | {ex.Message}");
+                //throw ex; //for debug
                 return;
             }
-            var newfile = await ConvertToMP3(OutputFile);
-            Track.SetMetadataAsync(newfile);
 
-            Debug.WriteLine("[DOWNLOADER] Finished");
-
-            OnDownloadCompleted(Result.Success, newfile);
+            OnDownloadCompleted(Result.Success,"", await outputfile.SetMetadataAsync(track));
             return;
         }
-        public async Task DownloadMedia(YouTubeVideo Video)
+        public async Task DownloadMedia(YouTubeVideo video)
         {
-            CurrentlyDownloading = Video;
-            Client = new YoutubeClient();
-            string CleanFilename = Utils.ClearChars(Video.Name);
+            CurrentlyDownloading = video;
 
-            OutputFolder = await StorageFolder.GetFolderFromPathAsync(OutputPath);
+            Status = "Downloading";
 
-            var manifest = await Client.Videos.Streams.GetManifestAsync(Video.ID);
+            var streaminfo = await Settings.YouTubeClient.GetStreamInfo(video.ID.ID, video.IsVideo, video.RequestedVideoQuality);
 
-            IStreamInfo streaminfo;
-
-            if (Video.IsVideo)
+            string extension = "";
+            switch (video.IsVideo)
             {
-                if (Video.RequestedVideoQuality is null)
+                case true:
+                    extension = streaminfo.Container.Name;
+                    break;
+                case false:
+                    extension = "mp3";
+                    video = await video.SetMetadataAsync();
+                    break;
+            }
+
+            var outputfile = await 
+                (await StorageFolder.GetFolderFromPathAsync(OutputPath))
+                .CreateFileAsync($"{video.Name.MakeSafeForFiles()}.{extension}", CreationCollisionOption.ReplaceExisting);
+            var tempfile = await
+                        Settings.TemporaryFolder
+                        .CreateFileAsync($"{video.Name.MakeSafeForFiles()}.{extension}temp", CreationCollisionOption.ReplaceExisting);
+
+            try
+            {
+                if (!video.IsVideo)
                 {
-                    streaminfo = manifest.GetVideoOnlyStreams().GetWithHighestVideoQuality();
+                    var stream = await Settings.YouTubeClient.GetStream(streaminfo, CancelToken);
+                    var filestream = await tempfile.OpenStreamForWriteAsync();
+                    filestream.Seek(0, SeekOrigin.Begin);
+                    var progress = new Progress<long>(p => this.Progress = (double)p / (double)stream.Length);
+                    await stream.CopyToAsync(filestream, 81920, progress, CancelToken);
+                    stream.Dispose();
+                    await filestream.FlushAsync();
+                    filestream.Dispose();
+                    await tempfile.ConvertToMP3Async(outputfile);
+                    await tempfile.TryDeleteAsync();
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine($"[DOWNLOADER] Requested quality is {Video.RequestedVideoQuality}");
-                    streaminfo = Video.RequestedVideoQuality;
+                    await tempfile.TryDeleteAsync();
+                    var stream = await Settings.YouTubeClient.GetStream(streaminfo, CancelToken);
+                    var filestream = await outputfile.OpenStreamForWriteAsync();
+                    filestream.Seek(0, SeekOrigin.Begin);
+                    var progress = new Progress<long>(p => this.Progress = (double)p / (double)stream.Length);
+                    await stream.CopyToAsync(filestream, 81920, progress, CancelToken);
+                    stream.Dispose();
+                    await filestream.FlushAsync();
+                    filestream.Dispose();
                 }
-                System.Diagnostics.Debug.WriteLine($"[DOWNLOADER] Downloading at {streaminfo}");
-            }
-            else
-            {
-                streaminfo = manifest.GetAudioOnlyStreams().GetWithHighestBitrate();
-            }
-
-            var OutputFile = await OutputFolder.CreateFileAsync($"{CleanFilename}.{streaminfo.Container}", CreationCollisionOption.OpenIfExists);
-
-            try
-            {
-                Status = "Downloading";
-
-                Debug.WriteLine($"[DOWNLOADER] Downloading {streaminfo.Url}");
-
-                var stream = await Client.Videos.Streams.GetAsync(streaminfo, CancelToken);
-
-                var Progress = new Progress<long>(p => this.Progress = (double)p / (double)stream.Length);
-                var filestream = await OutputFile.OpenStreamForWriteAsync();
-                filestream.Seek(0, SeekOrigin.Begin);
-                await stream.CopyToAsync(filestream, 81920, Progress, CancelToken);
-
-                stream.Dispose();
-                filestream.Dispose();
             }
             catch (System.Net.Http.HttpRequestException)
             {
@@ -198,19 +197,15 @@ namespace Media_Downloader_App.Core
             }
             catch (TaskCanceledException)
             {
-                if (File.Exists(OutputFile.Path))
-                {
-                    await OutputFile.DeleteAsync();
-                }
+                await outputfile.TryDeleteAsync();
+                await tempfile.TryDeleteAsync();
                 OnDownloadCompleted(Result.Cancelled);
                 return;
             }
             catch (OperationCanceledException)
             {
-                if (File.Exists(OutputFile.Path))
-                {
-                    await OutputFile.DeleteAsync();
-                }
+                await outputfile.TryDeleteAsync();
+                await tempfile.TryDeleteAsync();
                 OnDownloadCompleted(Result.Cancelled);
                 return;
             }
@@ -220,189 +215,42 @@ namespace Media_Downloader_App.Core
                 return;
             }
 
-            if (!Video.IsVideo)
+            if (!video.IsVideo)
             {
-                var newfile = await ConvertToMP3(OutputFile);
-                Video.SetMetadataAsync(newfile);
-                OnDownloadCompleted(Result.Success, newfile);
+                OnDownloadCompleted(Result.Success,"",await outputfile.SetMetadataAsync(video));
+                return;
             }
             else
             {
-                OnDownloadCompleted(Result.Success, OutputFile);
+                OnDownloadCompleted(Result.Success,"",outputfile);
+                return;
             }
-
-            Debug.WriteLine("[DOWNLOADER] Finished");
-            return;
         }
-        public async Task BackgroundDownloadMedia(SpotifyTrack Track)
+        private async Task<string> ToYouTubeLink(SpotifyTrack Track)
         {
-            CurrentlyDownloading = Track;
-            Client = new YoutubeClient();
-            string CleanFilename = Utils.ClearChars(Track.Name);
-            var Progress = new Progress<DownloadOperation>(p =>
+           
+            string[] keywords = new string[2] { Track.Title.Unidecode(),Track.Title };
+            int[] errormargins = new int[8] {  0, 1000, 2000, 4000, 8000, 16000, 32000, 64000 };
+            var i = 1;
+            foreach (var keyword in keywords)
             {
-                this.Progress = (double)p.Progress.BytesReceived / (double)p.Progress.TotalBytesToReceive;
-            });
-
-            Status = "Searching";
-            var SearchResult = await SpotifyToYouTube(Track);
-            if (string.IsNullOrWhiteSpace(SearchResult))
-            {
-                OnDownloadCompleted(Result.NoMediaFound);
-                return;
-            }
-
-            OutputFolder = await StorageFolder.GetFolderFromPathAsync(OutputPath);
-            var manifest = await Client.Videos.Streams.GetManifestAsync(SearchResult);
-            var streaminfo = manifest.GetAudioOnlyStreams().GetWithHighestBitrate();
-
-            var OutputFile = await OutputFolder.CreateFileAsync($"{CleanFilename}.{streaminfo.Container}", CreationCollisionOption.ReplaceExisting);
-
-            try
-            {
-                Status = "Downloading";
-                Debug.WriteLine($"[DOWNLOADER] Downloading {streaminfo.Url}");
-
-                BackgroundDownloader downloader = new BackgroundDownloader();
-                DownloadOperation operation = downloader.CreateDownload(new Uri(streaminfo.Url, UriKind.Absolute), OutputFile);
-
-                await operation.StartAsync().AsTask(CancelToken, Progress);
-            }
-            catch (System.Net.Http.HttpRequestException)
-            {
-                OnDownloadCompleted(Result.FailedRequest);
-                return;
-            }
-            catch (TaskCanceledException)
-            {
-                if (File.Exists(OutputFile.Path))
+                foreach (var margin in errormargins)
                 {
-                    await OutputFile.DeleteAsync();
-                }
-                OnDownloadCompleted(Result.Cancelled);
-                return;
-            }
-            catch (OperationCanceledException)
-            {
-                if (File.Exists(OutputFile.Path))
-                {
-                    await OutputFile.DeleteAsync();
-                }
-                OnDownloadCompleted(Result.Cancelled);
-                return;
-            }
-            catch (Exception ex)
-            {
-                OnDownloadCompleted(Result.NotDetermined, ex.Message);
-                return;
-            }
-            var newfile = await ConvertToMP3(OutputFile);
-            Track.SetMetadataAsync(newfile);
-
-            OnDownloadCompleted(Result.Success, newfile);
-            Debug.WriteLine("[DOWNLOADER] Finished");
-            return;
-        }
-        private async Task<string> SpotifyToYouTube(SpotifyTrack Track)
-        {
-            var SearchResult = await Task.Run(() => Search(Track.Name, Track.FirstAuthor, Track.Duration, 1500));
-            Debug.WriteLine("[Downloader] Searching | First attempt");
-            Status = "Searching attempt #1";
-            if (string.IsNullOrWhiteSpace(SearchResult))
-            {
-                SearchResult = await Task.Run(() => Search(Track.Name + " Audio", Track.FirstAuthor, Track.Duration, 3000));
-                Debug.WriteLine("[Downloader] Searching | Second attempt");
-                Status = "Searching attempt #2";
-                if (string.IsNullOrWhiteSpace(SearchResult))
-                {
-                    SearchResult = await Task.Run(() => Search(Track.Title + " Audio", Track.FirstAuthor, Track.Duration, 4000));
-                    Debug.WriteLine("[Downloader] Searching | Third attempt");
-                    Status = "Searching attempt #3";
-                    if (string.IsNullOrWhiteSpace(SearchResult))
+                    Debug.Write($"[DOWNLOADER] #{i++} Trying to search for..." +
+                        $"\n{Track.Title.ToLower()} {Track.Authors[0].ToLower()}" +
+                        $"\nwith the keyword \"{keyword}\"" +
+                        $"\nwith the error margin of {margin}ms\n");
+                    Status = $"Searching";
+                    var result = await Settings.YouTubeClient.Search($"{Track.Title.ToLower()} {Track.Authors[0].ToLower()}", keyword, Track.Duration, margin);
+                    if (!string.IsNullOrWhiteSpace(result))
                     {
-                        SearchResult = await Task.Run(() => Search(Track.Name, Track.FirstAuthor, Track.Duration, 30000));
-                        Debug.WriteLine("[Downloader] Searching | Last attempt");
-                        Status = "Searching attempt #4";
-                        if (string.IsNullOrWhiteSpace(SearchResult))
-                        {
-                            return "";
-                        }
+                        Debug.WriteLine($"[DOWNLOADER] Trying {result}");
+                        Settings.YouTubeClient.InitializeURL(result);
+                        return result;
                     }
                 }
             }
-            return SearchResult;
-        }
-        private async Task<string> Search(string SearchQuery, string Keyword, double Duration, double MarginOfError)
-        {
-            int Results = 8;
-            VideoSearchResult Result;
-            var TempClient = new YoutubeClient();
-            string URL = "";
-            var Videos = await TempClient.Search.GetVideosAsync(SearchQuery).CollectAsync(Results);
-            for (int i = 0; i < Results; i++)
-            {
-                Result = Videos[i];
-                TimeSpan ts = (TimeSpan)Result.Duration;
-                URL = Result.Url;
-                if (ts.TotalMilliseconds < Duration + MarginOfError && ts.TotalMilliseconds > Duration - MarginOfError)
-                {
-                    var Title = Result.Title.ToUpper();
-                    var ChannelName = Result.Author.Title.ToUpper();
-                    if (Title.Contains(Keyword.ToUpper()) || ChannelName.Contains(Keyword.ToUpper()))
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        URL = "";
-                    }
-                }
-                else
-                {
-                    URL = "";
-                }
-            }
-
-            return URL;
-        }
-        private async Task<StorageFile> ConvertToMP3(StorageFile OutputFile)
-        {
-            Status = "Converting";
-            Progress = 0;
-            //Creates new file with .mp3
-            StorageFile NewFile = await (await OutputFile.GetParentAsync()).CreateFileAsync($"{OutputFile.DisplayName}.mp3", CreationCollisionOption.ReplaceExisting);
-
-            Progress = 0.1;
-            System.Diagnostics.Debug.WriteLine($"[DOWNLOADER] Created {NewFile.Path}");
-
-            //Media transcoding garbage
-            MediaEncodingProfile profile =
-                MediaEncodingProfile.CreateMp3(AudioEncodingQuality.High);
-            MediaTranscoder transcoder = new MediaTranscoder();
-
-            PrepareTranscodeResult prepareOp = await
-                transcoder.PrepareFileTranscodeAsync(OutputFile, NewFile, profile);
-            Progress = 0.3;
-
-            if (prepareOp.CanTranscode)
-            {
-                Progress = 0.6;
-                System.Diagnostics.Debug.WriteLine($"[DOWNLOADER] Transcoding {NewFile.Path}");
-                await prepareOp.TranscodeAsync();
-
-                //Deletes raw file\
-                Progress = 0.8;
-                System.Diagnostics.Debug.WriteLine($"[DOWNLOADER] Deleting {OutputFile.Path}");
-                await OutputFile.DeleteAsync();
-                Progress = 0.9;
-                System.Diagnostics.Debug.WriteLine($"[DOWNLOADER] Deleted {OutputFile.Path}");
-
-                return NewFile;
-            }
-            else
-            {
-                return OutputFile;
-            }
+            return String.Empty;
         }
         protected virtual void OnProgressChanged()
         {
@@ -415,7 +263,7 @@ namespace Media_Downloader_App.Core
                         IsVideo = CurrentlyDownloading.IsVideo
                     });
         }
-        protected virtual void OnDownloadCompleted(Result DownloadResult, StorageFile OutputFile, string ExceptionMessage)
+        protected virtual void OnDownloadCompleted(Result DownloadResult, string ExceptionMessage = "", StorageFile OutputFile = null )
         {
             Progress = 1;
             DownloadCompleted?.Invoke(this,
@@ -424,35 +272,6 @@ namespace Media_Downloader_App.Core
                         Result = DownloadResult,
                         ExceptionMessage = ExceptionMessage,
                         OutputFile = OutputFile
-                    });
-        }
-        protected virtual void OnDownloadCompleted(Result DownloadResult, string ExceptionMessage)
-        {
-            Progress = 1;
-            DownloadCompleted?.Invoke(this,
-                    new DownloadCompleteEventArgs()
-                    {
-                        Result = DownloadResult,
-                        ExceptionMessage = ExceptionMessage
-                    });
-        }
-        protected virtual void OnDownloadCompleted(Result DownloadResult, StorageFile OutputFile)
-        {
-            Progress = 1;
-            DownloadCompleted?.Invoke(this,
-                    new DownloadCompleteEventArgs()
-                    {
-                        Result = DownloadResult,
-                        OutputFile = OutputFile
-                    });
-        }
-        protected virtual void OnDownloadCompleted(Result DownloadResult)
-        {
-            Progress = 1;
-            DownloadCompleted?.Invoke(this,
-                    new DownloadCompleteEventArgs()
-                    {
-                        Result = DownloadResult
                     });
         }
     }

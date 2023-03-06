@@ -1,5 +1,5 @@
-﻿using Media_Downloader_App.Statics;
-using Media_Downloader_App.Core;
+﻿using Melody.Statics;
+using Melody.Core;
 using System;
 using Windows.Media.Core;
 using Windows.UI.Xaml;
@@ -10,7 +10,7 @@ using YoutubeExplode.Videos.Streams;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace Media_Downloader_App.SubPages
+namespace Melody.SubPages
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -34,7 +34,7 @@ namespace Media_Downloader_App.SubPages
             var youtube = new YoutubeClient();
             try
             {
-                var streamManifest = await youtube.Videos.Streams.GetManifestAsync(PreviewSource.ID);
+                var streamManifest = await youtube.Videos.Streams.GetManifestAsync(PreviewSource.ID.ID);
                 var streamInfo = streamManifest.GetMuxedStreams().GetWithHighestVideoQuality();
 
                 Player.Source = MediaSource.CreateFromUri(new Uri(streamInfo.Url));

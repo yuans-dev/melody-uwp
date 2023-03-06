@@ -6,11 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Media.Imaging;
 
-namespace Media_Downloader_App.Core
+namespace Melody.Core
 {
     public static class LastFM
     {
-        private static LastfmClient Client = new LastfmClient("426c76e1e708befbffef3ff521b7f875", "7fdafab8e578755d150712bc2ee82148");
+        private static readonly LastfmClient Client = new LastfmClient("426c76e1e708befbffef3ff521b7f875", "7fdafab8e578755d150712bc2ee82148");
         public static async Task<List<string>> GetTrackTags(string Title, string Artist)
         {
             var list = new List<string>();
@@ -36,6 +36,11 @@ namespace Media_Downloader_App.Core
         public static async Task<List<Hqub.Lastfm.Entities.Track>> GetTopTracksInTag(string Tag, int Results)
         {
             var response = await Client.Tag.GetTopTracksAsync(Tag, page: 1, Results);
+            return response.ToList();
+        }
+        public static async Task<List<Hqub.Lastfm.Entities.Track>> GetTopTracks()
+        {
+            var response = await Client.Chart.GetTopTracksAsync(1, 50);
             return response.ToList();
         }
     }

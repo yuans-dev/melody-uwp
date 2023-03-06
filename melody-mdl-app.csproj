@@ -7,8 +7,8 @@
     <ProjectGuid>{CF77CA13-B653-4542-8992-9A96ED2A2A19}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Media_Downloader_App</RootNamespace>
-    <AssemblyName>Media Downloader App</AssemblyName>
+    <RootNamespace>Melody</RootNamespace>
+    <AssemblyName>melody-mdl-app</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.19041.0</TargetPlatformVersion>
@@ -19,7 +19,7 @@
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <PackageCertificateThumbprint>540A00108E66892AD3C5A4BB2BD7D3CC70F72ED2</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>5306EF13CB3321F869AB4C68940FCFC20BA94CD5</PackageCertificateThumbprint>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
@@ -129,9 +129,13 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Classes\BasePage.cs" />
+    <Compile Include="Converters\ArrayToStringConverter.cs" />
     <Compile Include="Converters\BoolToPlaySymbolConverter.cs" />
     <Compile Include="Converters\BoolToOpacityConverter.cs" />
     <Compile Include="Converters\StringToUpperCaseConverter.cs" />
+    <Compile Include="Core\IBaseMedia.cs" />
+    <Compile Include="Core\MediaID.cs" />
+    <Compile Include="Core\MediaItem.cs" />
     <Compile Include="Dialogs\AuthSpotifyDialog.xaml.cs">
       <DependentUpon>AuthSpotifyDialog.xaml</DependentUpon>
     </Compile>
@@ -154,11 +158,10 @@
     <Compile Include="Classes\PagingOptions.cs" />
     <Compile Include="Core\LastFM.cs" />
     <Compile Include="Core\MediaLink.cs" />
-    <Compile Include="Statics\ClipboardExtensions.cs" />
-    <Compile Include="Statics\FileScanner.cs" />
-    <Compile Include="Statics\VisualTreeHelperExtensions.cs" />
+    <Compile Include="Statics\DownloadManager.cs" />
+    <Compile Include="Statics\ExtensionMethods.cs" />
+    <Compile Include="Statics\DependencyObjectExtensions.cs" />
     <Compile Include="Statics\Glyphs.cs" />
-    <Compile Include="Statics\StreamExtensions.cs" />
     <Compile Include="Statics\ImageTools.cs" />
     <Compile Include="Core\Downloader.cs" />
     <Compile Include="Core\IMedia.cs" />
@@ -187,9 +190,13 @@
     <Compile Include="Sub Pages\YouTubePreviewPage.xaml.cs">
       <DependentUpon>YouTubePreviewPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TopTrendingPage.xaml.cs">
+      <DependentUpon>TopTrendingPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\IDownloadItem.cs" />
     <Compile Include="ViewModels\DownloadItemViewModel.cs" />
     <Compile Include="ViewModels\DownloadCollectionItemViewModel.cs" />
+    <Compile Include="ViewModels\HistoryItemViewModel.cs" />
     <Compile Include="ViewModels\StreamInfoViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -248,39 +255,6 @@
     <Content Include="Assets\Wide310x150Logo.scale-125.png" />
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />
     <Content Include="Assets\Wide310x150Logo.scale-400.png" />
-    <Content Include="docs\components\article-card.css" />
-    <Content Include="docs\components\article-card.html" />
-    <Content Include="docs\components\counter.css" />
-    <Content Include="docs\components\counter.html" />
-    <Content Include="docs\components\footer.css" />
-    <Content Include="docs\components\footer.html" />
-    <Content Include="docs\components\header.css" />
-    <Content Include="docs\components\header.html" />
-    <Content Include="docs\components\label.css" />
-    <Content Include="docs\components\label.html" />
-    <Content Include="docs\components\member-details.css" />
-    <Content Include="docs\components\member-details.html" />
-    <Content Include="docs\components\post-reaction.css" />
-    <Content Include="docs\components\post-reaction.html" />
-    <Content Include="docs\components\primary-button.css" />
-    <Content Include="docs\components\primary-button.html" />
-    <Content Include="docs\components\secondary-button.css" />
-    <Content Include="docs\components\secondary-button.html" />
-    <Content Include="docs\components\service-card.css" />
-    <Content Include="docs\components\service-card.html" />
-    <Content Include="docs\components\user-details.css" />
-    <Content Include="docs\components\user-details.html" />
-    <Content Include="docs\home.css" />
-    <Content Include="docs\index.html" />
-    <Content Include="docs\public\playground_assets\blue_wave.svg" />
-    <Content Include="docs\public\playground_assets\city-1-1400w.jpg" />
-    <Content Include="docs\public\playground_assets\gray-vector.svg" />
-    <Content Include="docs\public\playground_assets\team1-200h.jpg" />
-    <Content Include="docs\public\playground_assets\team2-200h.jpg" />
-    <Content Include="docs\public\playground_assets\team4-200h.png" />
-    <Content Include="docs\public\playground_assets\team6-200h.jpg" />
-    <Content Include="docs\public\playground_assets\white-vector.svg" />
-    <Content Include="docs\style.css" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -342,13 +316,17 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="TopTrendingPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Hqub.Last.fm">
       <Version>2.1.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.2.12</Version>
+      <Version>6.2.13</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp">
       <Version>7.1.2</Version>
@@ -372,21 +350,24 @@
       <Version>6.0.0</Version>
     </PackageReference>
     <PackageReference Include="System.Text.Json">
-      <Version>6.0.1</Version>
+      <Version>6.0.4</Version>
     </PackageReference>
     <PackageReference Include="taglib-sharp-netstandard2.0">
       <Version>2.1.0</Version>
     </PackageReference>
+    <PackageReference Include="Unidecode.NET">
+      <Version>2.1.0</Version>
+    </PackageReference>
     <PackageReference Include="YoutubeExplode">
-      <Version>6.0.7</Version>
+      <Version>6.1.2</Version>
     </PackageReference>
     <PackageReference Include="YoutubeExplode.Converter">
-      <Version>6.0.7</Version>
+      <Version>6.1.2</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="docs\package.json" />
     <None Include="Media Downloader App_TemporaryKey.pfx" />
+    <None Include="melody-mdl-app_TemporaryKey.pfx" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

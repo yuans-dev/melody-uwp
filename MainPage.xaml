@@ -1,8 +1,8 @@
 ﻿<Page
-    x:Class="Media_Downloader_App.MainPage"
+    x:Class="Melody.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Media_Downloader_App"
+    xmlns:local="using:Melody"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:m="using:Microsoft.Toolkit.Uwp.UI.Controls"
@@ -40,6 +40,11 @@
             x:FieldModifier="public" IsBackEnabled="{x:Bind ContentFrame.CanGoBack, Mode=OneWay}">
 
             <NavigationView.MenuItems>
+                <NavigationViewItem Visibility="Collapsed" x:Name="TopTrendingItem" Content="Top &amp; Trending" FontSize="14" Tag="TopTrendingPage">
+                    <NavigationViewItem.Icon>
+                        <BitmapIcon UriSource="https://i.imgur.com/eqlVtYT.png"></BitmapIcon>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem x:Name="BrowseItem" Icon="Audio" Content="Browse" FontSize="14" Tag="BrowsePage"/>
                 <NavigationViewItemSeparator/>
                 <NavigationViewItem x:Name="DownloadsItem" Icon="Download" Content="Downloads" FontSize="14" Tag="DownloadsPage"/>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Melody.Statics;
+using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Core;
@@ -9,7 +10,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 
-namespace Media_Downloader_App
+namespace Melody
 {
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.

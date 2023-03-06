@@ -7,16 +7,21 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "melody-mdl-app", "melody-md
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		Debug|ARM = Debug|ARM
 		Debug|ARM64 = Debug|ARM64
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
 		Release|ARM = Release|ARM
 		Release|ARM64 = Release|ARM64
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CF77CA13-B653-4542-8992-9A96ED2A2A19}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{CF77CA13-B653-4542-8992-9A96ED2A2A19}.Debug|Any CPU.Build.0 = Debug|x64
+		{CF77CA13-B653-4542-8992-9A96ED2A2A19}.Debug|Any CPU.Deploy.0 = Debug|x64
 		{CF77CA13-B653-4542-8992-9A96ED2A2A19}.Debug|ARM.ActiveCfg = Debug|ARM
 		{CF77CA13-B653-4542-8992-9A96ED2A2A19}.Debug|ARM.Build.0 = Debug|ARM
 		{CF77CA13-B653-4542-8992-9A96ED2A2A19}.Debug|ARM.Deploy.0 = Debug|ARM
@@ -29,6 +34,9 @@ Global
 		{CF77CA13-B653-4542-8992-9A96ED2A2A19}.Debug|x86.ActiveCfg = Debug|x86
 		{CF77CA13-B653-4542-8992-9A96ED2A2A19}.Debug|x86.Build.0 = Debug|x86
 		{CF77CA13-B653-4542-8992-9A96ED2A2A19}.Debug|x86.Deploy.0 = Debug|x86
+		{CF77CA13-B653-4542-8992-9A96ED2A2A19}.Release|Any CPU.ActiveCfg = Release|x64
+		{CF77CA13-B653-4542-8992-9A96ED2A2A19}.Release|Any CPU.Build.0 = Release|x64
+		{CF77CA13-B653-4542-8992-9A96ED2A2A19}.Release|Any CPU.Deploy.0 = Release|x64
 		{CF77CA13-B653-4542-8992-9A96ED2A2A19}.Release|ARM.ActiveCfg = Release|ARM
 		{CF77CA13-B653-4542-8992-9A96ED2A2A19}.Release|ARM.Build.0 = Release|ARM
 		{CF77CA13-B653-4542-8992-9A96ED2A2A19}.Release|ARM.Deploy.0 = Release|ARM

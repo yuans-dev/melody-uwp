@@ -1,9 +1,11 @@
-﻿using Media_Downloader_App.Abstractions;
-using Media_Downloader_App.Statics;
+﻿using Melody.Abstractions;
+using Melody.Classes;
+using Melody.Statics;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using TagLib;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
@@ -12,16 +14,16 @@ using Windows.UI.Xaml.Media.Imaging;
 using YoutubeExplode.Videos;
 using YoutubeExplode.Videos.Streams;
 
-namespace Media_Downloader_App.Core
+namespace Melody.Core
 {
     public class YouTubeVideo : IMedia
     {
         public YouTubeVideo(Video Video, bool IsVideo)
         {
+            SpotifyTagged = false;
             this.Video = Video;
             Title = Video.Title;
             Authors = new string[1] { Video.Author.Title };
-            PrintedAuthors = PrintAuthors();
             Number = 1;
             Year = Video.UploadDate.Year.ToString();
             Duration = Video.Duration.Value.TotalMilliseconds;
@@ -33,7 +35,7 @@ namespace Media_Downloader_App.Core
             {
                 DurationAsTimeSpan = TimeSpan.Zero;
             }
-            ID = Video.Id;
+            ID = new MediaID(MediaType.YouTubeVideo, Video.Id);
             this.IsVideo = IsVideo;
             Link = new MediaLink(Video.Url);
             Bitmap = new BitmapImage(new Uri(Video.Thumbnails[0].Url, UriKind.Absolute));
@@ -41,10 +43,10 @@ namespace Media_Downloader_App.Core
         }
         public YouTubeVideo(Video Video, bool IsVideo, string ThumnbailUrl)
         {
+            SpotifyTagged = false;
             this.Video = Video;
             Title = Video.Title;
             Authors = new string[1] { Video.Author.Title };
-            PrintedAuthors = PrintAuthors();
             Number = 1;
             Year = Video.UploadDate.Year.ToString();
             Duration = Video.Duration.Value.TotalMilliseconds;
@@ -56,7 +58,7 @@ namespace Media_Downloader_App.Core
             {
                 DurationAsTimeSpan = TimeSpan.Zero;
             }
-            ID = Video.Id;
+            ID = new MediaID(MediaType.YouTubeVideo, Video.Id);
             this.IsVideo = IsVideo;
             Link = new MediaLink(Video.Url);
             Bitmap = new BitmapImage(new Uri(ThumnbailUrl, UriKind.Absolute));
@@ -64,10 +66,10 @@ namespace Media_Downloader_App.Core
         }
         public YouTubeVideo(YouTubeVideo Video)
         {
+            SpotifyTagged = false;
             this.Video = Video.Video;
             Title = Video.Title;
             Authors = Video.Authors;
-            PrintedAuthors = Video.PrintedAuthors;
             Number = Video.Number;
             Year = Video.Year;
             Duration = Video.Duration;
@@ -82,34 +84,26 @@ namespace Media_Downloader_App.Core
         {
             get
             {
-                return $"{FirstAuthor} - {Title}";
+                return $"{Authors.First()} - {Title}";
             }
         }
         private Video Video { get; set; }
+        public bool SpotifyTagged { get; set; }
         public string Title { get; set; }
 
-        public string[] Authors { get; private set; }
+        public string[] Authors { get; set; }
         public string Album { get; set; }
-
-        public Image Art { get; set; }
         public BitmapImage Bitmap { get; set; }
-        private BitmapImage JpgBitmap { get; set; }
+        public BitmapImage JpgBitmap { get; set; }
 
         public uint Number { get; private set; }
 
         public double Duration { get; private set; }
         public TimeSpan DurationAsTimeSpan { get; private set; }
-        public string ID { get; private set; }
+        public MediaID ID { get; private set; }
         public MediaLink Link { get; private set; }
         public string Year { get; private set; }
-
-        public string PrintedAuthors { get; set; }
         public bool IsPreviewAvailable { get; private set; } = true;
-
-        public string FirstAuthor
-        {
-            get { return FirstFromPrinted(); }
-        }
         public bool IsVideo { get; set; }
 
         public bool Equals(IMedia other)
@@ -122,106 +116,9 @@ namespace Media_Downloader_App.Core
             else
                 return false;
         }
-
-        public async void SetMetadataAsync(StorageFile file)
-        {
-            StorageFileAbstraction taglibfile = new StorageFileAbstraction(file);
-            using (var tagFile = TagLib.File.Create(taglibfile, ReadStyle.Average))
-            {
-                //read the raw tags
-                tagFile.Tag.Title = Title;
-                tagFile.Tag.Performers = PrintedAuthorsToArray();
-                tagFile.Tag.Album = Album;
-                tagFile.Tag.Track = Number;
-                tagFile.Tag.Year = (uint)Int32.Parse(Year);
-
-                //Set cover art
-
-                RandomAccessStreamReference random = RandomAccessStreamReference.CreateFromUri(JpgBitmap.UriSource);
-                using (IRandomAccessStream stream = await random.OpenReadAsync())
-                {
-                    var dec = await BitmapDecoder.CreateAsync(stream);
-                    var square = Math.Min(dec.PixelHeight, dec.PixelWidth) - 100;
-
-
-                    var p = new Point((int)((dec.PixelWidth / 2) - (square / 2)), (int)((dec.PixelHeight / 2) - (square / 2)));
-                    var size = new Size((int)square, (int)square);
-
-                    System.Diagnostics.Debug.WriteLine($"Dimensions: Width = {dec.PixelWidth} Height = {dec.PixelHeight} | Point: x = {p.X},y = {p.Y}, Square = {square}");
-
-                    using (var stream1 = stream.AsStreamForWrite())
-                    {
-                        stream1.Position = 0;
-                        using (var newstream = await ImageTools.CropAsync(stream1, p, size))
-                        {
-                            newstream.Position = 0;
-                            TagLib.Picture pic = new TagLib.Picture();
-                            pic.Data = ByteVector.FromStream(newstream);
-                            pic.Type = PictureType.FrontCover;
-
-                            tagFile.Tag.Pictures = new IPicture[] { pic };
-                        }
-                    }
-                }
-
-                //Save and dispose
-                tagFile.Save();
-                tagFile.Dispose();
-            }
-        }
-        private string PrintAuthors()
-        {
-            string print = "";
-            foreach (string author in Authors)
-            {
-                print = $"{print}, {author}";
-            }
-            return print.Substring(1, print.Length - 1).Trim();
-        }
-        private string[] PrintedAuthorsToArray()
-        {
-            List<string> templist = new List<string>();
-            string tempstring;
-            string tempprintedauthors = PrintedAuthors;
-            int i = 0;
-
-            if (!tempprintedauthors.EndsWith(","))
-            {
-                tempprintedauthors = tempprintedauthors + ",";
-            }
-            while (tempprintedauthors.Contains(","))
-            {
-                int x = tempprintedauthors.IndexOf(",");
-                tempstring = tempprintedauthors.Substring(0, x);
-                tempprintedauthors = tempprintedauthors.Substring(x + 1, tempprintedauthors.Length - x - 1);
-                if (tempstring.StartsWith(" "))
-                {
-                    tempstring = tempstring.Substring(1, tempstring.Length - 1);
-                }
-                templist.Add(tempstring);
-                i++;
-            }
-            return templist.ToArray();
-        }
-        private string FirstFromPrinted()
-        {
-            string printedauthors = PrintedAuthors;
-            if (!printedauthors.EndsWith(","))
-            {
-                printedauthors += ",";
-            }
-            int x = printedauthors.IndexOf(",");
-            string temp = printedauthors.Substring(0, x);
-
-            if (temp.StartsWith(" "))
-            {
-                temp = temp.Substring(1, temp.Length - 1);
-            }
-            return temp;
-        }
         public override string ToString()
         {
-            return Name;
+            return "Video";
         }
         public IVideoStreamInfo RequestedVideoQuality { get; set; }
     }

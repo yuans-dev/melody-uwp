@@ -1,5 +1,5 @@
-﻿using Media_Downloader_App.ViewModels;
-using Media_Downloader_App.Core;
+﻿using Melody.ViewModels;
+using Melody.Core;
 using System;
 using System.Collections.ObjectModel;
 using Windows.UI.ViewManagement;
@@ -7,7 +7,7 @@ using Windows.UI.Xaml.Controls;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
-namespace Media_Downloader_App
+namespace Melody
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -23,13 +23,9 @@ namespace Media_Downloader_App
 
             Current = this;
 
-            Downloads = new ObservableCollection<IDownloadItem>();
-
             Settings.ThemeChanged += Settings_ThemeChanged;
         }
         public static MainPage Current;
-        public ObservableCollection<IDownloadItem> Downloads { get; private set; }
-
         private void Settings_ThemeChanged(object sender, EventArgs e)
         {
             ApplicationViewTitleBar formattableTitleBar = ApplicationView.GetForCurrentView().TitleBar;
@@ -37,26 +33,7 @@ namespace Media_Downloader_App
             RequestedTheme = Settings.Theme;
             formattableTitleBar.ButtonForegroundColor = DefaultThemeBrush.Color;
         }
-
-        public async void AddToDownloads(IMedia Media)
-        {
-            var item = new DownloadItemViewModel(Media);
-            Downloads.Add(item);
-            await item.StartDownload();
-        }
-        public void AddToDownloads(SpotifyPlaylist Playlist, bool IsBackground)
-        {
-            var item = new DownloadCollectionItemViewModel(Playlist);
-            Downloads.Add(item);
-            item.StartDownload(IsBackground);
-        }
-        public void AddToDownloads(SpotifyAlbum Album, bool IsBackground)
-        {
-            var item = new DownloadCollectionItemViewModel(Album);
-            Downloads.Add(item);
-            item.StartDownload(IsBackground);
-        }
-
+        
         private void MainNavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
             var item = args.InvokedItemContainer as NavigationViewItem;
@@ -70,6 +47,9 @@ namespace Media_Downloader_App
                     break;
                 case "DownloadsPage":
                     currentitem = DownloadsItem;
+                    break;
+                case "TopTrendingPage":
+                    currentitem = TopTrendingItem;
                     break;
                 default:
                     currentitem = MainNavView.SettingsItem as NavigationViewItem;
@@ -91,6 +71,9 @@ namespace Media_Downloader_App
                     case "DownloadsPage":
                         ContentFrame.Navigate(typeof(DownloadsPage));
                         break;
+                    case "TopTrendingPage":
+                        ContentFrame.Navigate(typeof(TopTrendingPage));
+                        break;
                 }
             }
         }
@@ -107,6 +90,9 @@ namespace Media_Downloader_App
                         break;
                     case "DownloadsPage":
                         MainNavView.SelectedItem = DownloadsItem;
+                        break;
+                    case "TopTrendingPage":
+                        MainNavView.SelectedItem = TopTrendingItem;
                         break;
                     case "SettingsPage":
                         MainNavView.SelectedItem = MainNavView.SettingsItem;

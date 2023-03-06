@@ -2,7 +2,7 @@
 using System.IO;
 using Windows.Storage;
 
-namespace Media_Downloader_App.Abstractions
+namespace Melody.Abstractions
 {
     public class StorageFileAbstraction : TagLib.File.IFileAbstraction
     {

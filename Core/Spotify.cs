@@ -1,11 +1,12 @@
-﻿using Media_Downloader_App;
+﻿using Melody;
+using Melody.Statics;
 using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace Media_Downloader_App.Core
+namespace Melody.Core
 {
     public class Spotify
     {
@@ -88,6 +89,7 @@ namespace Media_Downloader_App.Core
                 throw new ArgumentException("Invalid ID! Please enter a valid playlist ID");
             }
         }
+
         public async Task<FullPlaylist> GetFullPlaylist(string PLAYLIST_ID)
         {
             try
@@ -105,6 +107,27 @@ namespace Media_Downloader_App.Core
             var search = await Client.Search.Item(new SearchRequest(SearchRequest.Types.Track, SearchQuery));
             var item = search.Tracks.Items[Index].Id;
             return item;
+        }
+        public async Task<string> SearchTrack(string SearchQuery,double Duration, int SearchAttempts)
+        {
+            var margin = 500;
+            FullTrack item = null;
+            var search = await Client.Search.Item(new SearchRequest(SearchRequest.Types.Track, SearchQuery));
+            for (int i = 0; i < SearchAttempts; i++)
+            {
+                item = search.Tracks.Items[i];
+                double duration = item.DurationMs;
+                if (duration.IsWithinRange(Duration + margin, Duration - margin))
+                {
+                    break;
+                }
+                else
+                {
+                    item = search.Tracks.Items[0];
+                }
+            }
+            
+            return item.Id;
         }
         public async Task<string> SearchPlaylist(string SearchQuery, int Index)
         {
@@ -203,7 +226,7 @@ namespace Media_Downloader_App.Core
         public async Task<List<SpotifyTrack>> GetPlaylistTracks(SpotifyPlaylist Playlist)
         {
             Debug.WriteLine("[SPOTIFY CLIENT] Getting Playlist Tracks");
-            var fullplaylist = await Client.Playlists.Get(Playlist.ID);
+            var fullplaylist = await Client.Playlists.Get(Playlist.ID.ID);
             Debug.WriteLine($"[SPOTIFY CLIENT] Found {fullplaylist.Name}");
             var temp = new List<SpotifyTrack>();
 
@@ -243,7 +266,7 @@ namespace Media_Downloader_App.Core
         public async Task<List<SpotifyTrack>> GetAlbumTracks(SpotifyAlbum Album)
         {
             Debug.WriteLine("[SPOTIFY CLIENT] Getting Album Tracks");
-            var fullalbum = await Client.Albums.Get(Album.ID);
+            var fullalbum = await Client.Albums.Get(Album.ID.ID);
             Debug.WriteLine($"[SPOTIFY CLIENT] Found {fullalbum.Name}");
             var temp = new List<SpotifyTrack>();
 
@@ -289,7 +312,7 @@ namespace Media_Downloader_App.Core
         {
             int offset = (Index + 1) * 100;
             Playlist.Media = await Client.Playlists.GetItems
-                (Playlist.ID,
+                (Playlist.ID.ID,
                 new PlaylistGetItemsRequest { Offset = offset });
 
         }

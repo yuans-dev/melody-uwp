@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Melody.Statics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,17 +8,17 @@ using Windows.UI.Xaml.Data;
 
 namespace Melody.Converters
 {
-    internal class StringToUpperCaseConverter : IValueConverter
+    internal class ArrayToStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if(value is string str)
+            if (value is string[] arr)
             {
-                return str.ToUpper();
+                return arr.ToString(", ");
             }
             else
             {
-                return value.ToString().ToUpper();
+                return value.ToString();
             }
         }
 
@@ -25,11 +26,11 @@ namespace Melody.Converters
         {
             if (value is string str)
             {
-                return str.ToLower();
+                return str.ToArray();
             }
             else
             {
-                return value.ToString().ToLower();
+                return value;
             }
         }
     }

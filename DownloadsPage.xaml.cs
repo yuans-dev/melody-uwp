@@ -1,9 +1,10 @@
-﻿using Media_Downloader_App.Classes;
-using Media_Downloader_App.Statics;
-using Media_Downloader_App.ViewModels;
+﻿using Melody.Classes;
+using Melody.Statics;
+using Melody.ViewModels;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -12,7 +13,7 @@ using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace Media_Downloader_App
+namespace Melody
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -23,9 +24,7 @@ namespace Media_Downloader_App
         {
             this.InitializeComponent();
 
-            Current = this;
-
-            Downloads = MainPage.Current.Downloads;
+            Downloads = DownloadManager.Downloads;
 
             NavigationCacheMode = NavigationCacheMode.Required;
 
@@ -35,7 +34,6 @@ namespace Media_Downloader_App
         }
         public override string Header => "Downloads";
         public override string MinimalHeader => "DOWNLOADS";
-        public static DownloadsPage Current;
         public ObservableCollection<IDownloadItem> Downloads { get; private set; }
         private void Settings_ThemeChanged(object sender, EventArgs e)
         {
@@ -49,7 +47,7 @@ namespace Media_Downloader_App
         private void ShowCollapseListButton_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
-            var listview = VisualTreeHelper.GetChild(VisualTreeHelperExtensions.RecursiveGetParent(button, 4), 1) as ListView;
+            var listview = VisualTreeHelper.GetChild(button.RecursiveGetParent(4), 1) as ListView;
             if (listview.Visibility == Visibility.Collapsed)
             {
                 listview.Visibility = Visibility.Visible;
@@ -89,7 +87,7 @@ namespace Media_Downloader_App
                 }
                 else if (fonticon.Glyph == Glyphs.RetryGlyph)
                 {
-                    collection.StartDownload(collection.IsBackground);
+                    collection.StartDownload();
                 }
                 else
                 {
@@ -105,27 +103,36 @@ namespace Media_Downloader_App
         }
         private async void DownloadsListView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            await Launcher.LaunchFolderPathAsync(Settings.OutputFolder);
+            if (e.ClickedItem is DownloadItemViewModel downloaditem)
+            {
+                if(downloaditem.Status == "Completed.")
+                {
+                    await Launcher.LaunchFileAsync(downloaditem.OutputFile);
+                }
+            }
+            else
+            {
+                await Launcher.LaunchFolderPathAsync(Settings.OutputFolder);
+            }
         }
         private void RemoveItem_Click(object sender, RoutedEventArgs e)
         {
             var item = (sender as MenuFlyoutItem).DataContext as IDownloadItem;
             item.CancelDownload();
             Downloads.Remove(item);
-            InfoHelper.ShowInAppNotification($"Removed \"{item.Author} - {item.Title}\" from Downloads");
+            InfoHelper.ShowInAppNotification($"Removed \"{item.Authors.First()} - {item.Title}\" from Downloads");
         }
         private async void DeleteFile_Click(object sender, RoutedEventArgs e)
         {
             var item = (sender as MenuFlyoutItem).DataContext as DownloadItemViewModel;
-            if (item.OutputFile != null || File.Exists(item.OutputFile.Path))
+            if (await item.OutputFile.TryDeleteAsync())
             {
-                await item.OutputFile.DeleteAsync();
                 Downloads.Remove(item);
-                InfoHelper.ShowInAppNotification($"Deleted \"{item.Author} - {item.Title}\"");
+                InfoHelper.ShowInAppNotification($"Deleted \"{item.Authors.First()} - {item.Title}\"");
             }
             else
             {
-                InfoHelper.ShowInAppNotification($"Download has not finished!");
+                InfoHelper.ShowInAppNotification($"Could not delete file!");
             }
         }
     }

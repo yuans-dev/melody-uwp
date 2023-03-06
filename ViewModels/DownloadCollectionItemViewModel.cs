@@ -1,5 +1,5 @@
-﻿using Media_Downloader_App.Statics;
-using Media_Downloader_App.Core;
+﻿using Melody.Statics;
+using Melody.Core;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -7,8 +7,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Imaging;
+using Windows.Storage;
+using System.IO;
+using System;
 
-namespace Media_Downloader_App.ViewModels
+namespace Melody.ViewModels
 {
     public class DownloadCollectionItemViewModel : INotifyPropertyChanged, IDownloadItem
     {
@@ -16,29 +19,27 @@ namespace Media_Downloader_App.ViewModels
         {
             StatusGlyph = Glyphs.WaitingGlyph;
             Title = Playlist.Title;
-            Author = Playlist.Author;
+            Authors = Playlist.Authors;
             Bitmap = Playlist.Bitmap;
             HasNotStarted = true;
             TokenSource = new CancellationTokenSource();
             Collection = Playlist;
-            IsBackground = false;
         }
         public DownloadCollectionItemViewModel(SpotifyAlbum Album)
         {
             StatusGlyph = Glyphs.WaitingGlyph;
             Title = Album.Title;
-            Author = Album.Author;
+            Authors = Album.Authors;
             Bitmap = Album.Bitmap;
             HasNotStarted = true;
             TokenSource = new CancellationTokenSource();
             Collection = Album;
-            IsBackground = false;
         }
         public IMediaCollection Collection { get; set; }
-        public bool IsBackground { get; set; }
         public BitmapImage Bitmap { get; set; }
+        private StorageFolder CollectionFolder { get; set; }
         public string Title { get; set; }
-        public string Author { get; set; }
+        public string[] Authors { get; set; }
         private int _ProgressValue { get; set; }
         private CancellationTokenSource TokenSource { get; set; }
         public int ProgressValue
@@ -88,7 +89,7 @@ namespace Media_Downloader_App.ViewModels
             List<DownloadItemViewModel> temp = new List<DownloadItemViewModel>();
             foreach (var track in await Settings.SpotifyClient.GetPlaylistTracks(Playlist))
             {
-                temp.Add(new DownloadItemViewModel(track, false));
+                temp.Add(new DownloadItemViewModel(track, false, CollectionFolder.Path));
             }
             return temp;
         }
@@ -97,8 +98,7 @@ namespace Media_Downloader_App.ViewModels
             List<DownloadItemViewModel> temp = new List<DownloadItemViewModel>();
             foreach (var track in await Settings.SpotifyClient.GetAlbumTracks(Album))
             {
-                temp.Add(new DownloadItemViewModel(track, false));
-                System.Diagnostics.Debug.WriteLine($"[DownloadCollectionItemViewModel] Added {track.Name}");
+                temp.Add(new DownloadItemViewModel(track, false, CollectionFolder.Path));
             }
             return temp;
         }
@@ -118,9 +118,10 @@ namespace Media_Downloader_App.ViewModels
                 MediaItems.Add(item);
             }
         }
-        public async void StartDownload(bool IsBackground)
+        public async void StartDownload()
         {
-            this.IsBackground = IsBackground;
+            var outputfolder = await StorageFolder.GetFolderFromPathAsync(Settings.OutputFolder);
+            CollectionFolder = await outputfolder.CreateFolderAsync(Collection.Title,CreationCollisionOption.GenerateUniqueName);
             if (Collection is SpotifyPlaylist playlist)
             {
                 await InitDownloader(playlist);
@@ -143,14 +144,7 @@ namespace Media_Downloader_App.ViewModels
                 System.Diagnostics.Debug.WriteLine($"[DownloadCollectionItemViewModel] Item {i + 1}");
                 Status = $"Downloading {MediaItems[i].Media.Title}...";
                 CurrentlyDownloading = MediaItems[i];
-                if (this.IsBackground)
-                {
-                    await MediaItems[i].StartBackgroundDownload();
-                }
-                else
-                {
-                    await MediaItems[i].StartDownload();
-                }
+                await MediaItems[i].StartDownload();
                 ProgressValue = 100 * (i + 1) / MediaItems.Count;
             }
             ProgressValue = 100;

@@ -1,25 +1,7 @@
-﻿namespace Media_Downloader_App.Core
+﻿namespace Melody.Core
 {
-    internal class Utils
+    public static class Utils
     {
-        public static string ClearChars(string input)
-        {
-            string tmp = input;
-            tmp = tmp.Replace('/', '-');
-            tmp = tmp.Replace('|', ' ');
-            tmp = tmp.Replace('\"', ' ');
-            tmp = tmp.Replace('[', ' ');
-            tmp = tmp.Replace(']', ' ');
-            tmp = tmp.Replace('{', ' ');
-            tmp = tmp.Replace('}', ' ');
-            tmp = tmp.Replace('\'', ' ');
-            tmp = tmp.Replace(',', ' ');
-            tmp = tmp.Replace('.', ' ');
-            tmp = tmp.Replace(':', ' ');
-            tmp = tmp.Replace('?', ' ');
-            tmp = tmp.Replace('*', ' ');
-            return tmp;
-        }
         public static string IsolateJPG(string LINK)
         {
             try

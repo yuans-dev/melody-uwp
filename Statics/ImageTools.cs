@@ -3,7 +3,7 @@ using SixLabors.ImageSharp.Processing;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Media_Downloader_App.Statics
+namespace Melody.Statics
 {
     public class ImageTools
     {

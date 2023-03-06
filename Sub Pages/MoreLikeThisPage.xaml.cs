@@ -1,5 +1,5 @@
-﻿using Media_Downloader_App.Statics;
-using Media_Downloader_App.Core;
+﻿using Melody.Statics;
+using Melody.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,12 +16,12 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Media_Downloader_App.Classes;
+using Melody.Classes;
 using System.Diagnostics;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace Media_Downloader_App.Sub_Pages
+namespace Melody.Sub_Pages
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -46,7 +46,7 @@ namespace Media_Downloader_App.Sub_Pages
             if (e.Parameter is SpotifyTrack track)
             {
                 MoreLikeThisTrack = track;
-                Label = $"More like {track.FirstAuthor}'s {track.Title}:";
+                Label = $"More like {track.Authors.First()}'s {track.Title}:";
 
                 var UniqueClient = new Spotify();
                 UniqueClient.Details.ID = Settings.SpotifyClient.Details.ID;
@@ -55,7 +55,7 @@ namespace Media_Downloader_App.Sub_Pages
                 await UniqueClient.Auth();
                 try
                 {
-                    ResultsListView.ItemsSource = await UniqueClient.GetSpotifyTracksFromLastFM(await LastFM.GetSimilarTracks(track.Title, track.FirstAuthor, 30));
+                    ResultsListView.ItemsSource = await UniqueClient.GetSpotifyTracksFromLastFM(await LastFM.GetSimilarTracks(track.Title, track.Authors.First(), 30));
                 }
                 catch (Exception ex)
                 {
@@ -72,13 +72,13 @@ namespace Media_Downloader_App.Sub_Pages
         {
             var button = sender as Button;
             var item = button.DataContext as SpotifyTrack;
-            var mediaplayer = VisualTreeHelper.GetChild(VisualTreeHelperExtensions.RecursiveGetParent(button, 3), 1) as MediaElement;
+            var mediaplayer = VisualTreeHelper.GetChild(button.RecursiveGetParent(3), 1) as MediaElement;
 
             if (!item.IsPlayingPreview)
             {
                 ST_ClearPreviouslyPlayed();
                 item.IsPlayingPreview = true;
-                mediaplayer.Play();
+                mediaplayer.Play();                
 
                 PreviouslyPlayed = item;
             }
@@ -95,7 +95,7 @@ namespace Media_Downloader_App.Sub_Pages
                 if (PreviouslyPlayed is SpotifyTrack track)
                 {
                     var container = ResultsListView.ContainerFromItem(track);
-                    var mediaplayer = VisualTreeHelper.GetChild(VisualTreeHelperExtensions.RecursiveGetFirstChild(container, 2), 1) as MediaElement;
+                    var mediaplayer = VisualTreeHelper.GetChild(container.RecursiveGetFirstChild(2), 1) as MediaElement;
 
                     mediaplayer?.Stop();
                     track.IsPlayingPreview = false;
@@ -112,7 +112,7 @@ namespace Media_Downloader_App.Sub_Pages
             var media = button.DataContext as IMedia;
 
             InfoHelper.ShowInAppNotification($"Successfully added \"{media.Name}\" to Downloads",InAppNotif);
-            MainPage.Current.AddToDownloads(media);
+            DownloadManager.AddToDownloads(media);
         }
         private void ST_Tag_Click(object sender, RoutedEventArgs e)
         {
@@ -152,7 +152,7 @@ namespace Media_Downloader_App.Sub_Pages
         {
             var flyoutitem = sender as MenuFlyoutItem;
             var mediaLinks = (flyoutitem.DataContext as SpotifyTrack).Link;
-            ClipboardExtensions.CopyToClipboard(mediaLinks.Web);
+            mediaLinks.Web.CopyToClipboard();
 
             InfoHelper.ShowInAppNotification("Copied to clipboard!", InAppNotif);
         }

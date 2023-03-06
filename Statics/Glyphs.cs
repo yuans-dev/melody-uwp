@@ -1,4 +1,4 @@
-﻿namespace Media_Downloader_App.Statics
+﻿namespace Melody.Statics
 {
     public class Glyphs
     {

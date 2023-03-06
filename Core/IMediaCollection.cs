@@ -1,14 +1,10 @@
 ﻿using Windows.UI.Xaml.Media.Imaging;
 
-namespace Media_Downloader_App.Core
+namespace Melody.Core
 {
-    public interface IMediaCollection
+    public interface IMediaCollection : IBaseMedia
     {
-        string Title { get; }
-        string Author { get; }
-        string ID { get; }
         MediaLink Link { get; }
         uint MediaCount { get; }
-        BitmapImage Bitmap { get; }
     }
 }

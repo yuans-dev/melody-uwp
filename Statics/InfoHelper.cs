@@ -3,9 +3,9 @@ using Microsoft.Toolkit.Uwp.UI.Controls;
 using System;
 using Windows.UI.Xaml.Controls;
 
-namespace Media_Downloader_App.Statics
+namespace Melody.Statics
 {
-    public class InfoHelper
+    public static class InfoHelper
     {
         public static void ShowNotification(string Text, string Title)
         {

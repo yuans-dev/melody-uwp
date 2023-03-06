@@ -1,10 +1,10 @@
-﻿using Media_Downloader_App.Core;
+﻿using Melody.Core;
 using System;
 using System.Text.Json;
 using Windows.Storage;
 using Windows.UI.Xaml;
 
-namespace Media_Downloader_App
+namespace Melody
 {
     internal class Settings
     {
@@ -33,6 +33,7 @@ namespace Media_Downloader_App
                 OnOutputFolderChanged();
             }
         }
+        public static StorageFolder TemporaryFolder { get; set; } = ApplicationData.Current.TemporaryFolder;
         public static void Save()
         {
             if (string.IsNullOrWhiteSpace(OutputFolder))
@@ -43,9 +44,6 @@ namespace Media_Downloader_App
                 (new SerializableSettings
                 {
                     Theme = Theme,
-                    ID = SpotifyClient.Details.ID,
-                    Secret = SpotifyClient.Details.Secret,
-                    Authorized = SpotifyClient.Authd,
                     OutputFolder = OutputFolder
                 });
 
@@ -60,8 +58,12 @@ namespace Media_Downloader_App
                 (string)Local.Values["Settings"]);
 
                 Theme = settings.Theme;
-                SpotifyClient.Details = new ClientDetails { ID = settings.ID, Secret = settings.Secret };
                 OutputFolder = settings.OutputFolder;
+                SpotifyClient.Details = new ClientDetails()
+                {
+                    ID = "fa253e2a6e464e03a1baf7881a4388db",
+                    Secret = "851f30eb4a7d4b4e83de293f1b5baeac"
+                };
                 try
                 {
                     await SpotifyClient.Auth();
@@ -88,10 +90,7 @@ namespace Media_Downloader_App
     public class SerializableSettings
     {
         public ElementTheme Theme { get; set; }
-        public string ID { get; set; }
-        public string Secret { get; set; }
         public string OutputFolder { get; set; }
-        public bool Authorized { get; set; }
     }
     public struct ClientDetails
     {

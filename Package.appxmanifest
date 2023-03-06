@@ -9,14 +9,14 @@
 
   <Identity
     Name="ba1ba48e-7b94-45ba-a6d8-bd3693313cae"
-    Publisher="CN=Verchiel"
-    Version="1.1.7.0" />
+    Publisher="CN=Verc"
+    Version="1.1.8.0" />
 
   <mp:PhoneIdentity PhoneProductId="ba1ba48e-7b94-45ba-a6d8-bd3693313cae" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>Media Downloader</DisplayName>
-    <PublisherDisplayName>Admin</PublisherDisplayName>
+    <DisplayName>Melody</DisplayName>
+    <PublisherDisplayName>Verchiel</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -33,7 +33,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="MediaDownloader.App">
       <uap:VisualElements
-        DisplayName="Media Downloader"
+        DisplayName="Melody"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
         Description="Media Downloader"

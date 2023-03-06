@@ -1,4 +1,4 @@
-﻿namespace Media_Downloader_App.Core
+﻿namespace Melody.Core
 {
     public struct MediaLink
     {

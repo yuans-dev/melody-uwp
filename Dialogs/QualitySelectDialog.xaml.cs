@@ -1,12 +1,12 @@
-﻿using Media_Downloader_App.ViewModels;
-using Media_Downloader_App.Core;
+﻿using Melody.ViewModels;
+using Melody.Core;
 using System.Collections.ObjectModel;
 using Windows.UI.Xaml.Controls;
 using YoutubeExplode;
 
 // The Content Dialog item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace Media_Downloader_App.Dialogs
+namespace Melody.Dialogs
 {
     public partial class QualitySelectDialog : ContentDialog
     {
@@ -29,7 +29,7 @@ namespace Media_Downloader_App.Dialogs
         {
             try
             {
-                var manifest = await Client.Videos.Streams.GetManifestAsync(Video.ID);
+                var manifest = await Client.Videos.Streams.GetManifestAsync(Video.ID.ID);
                 var streaminfos = manifest.GetVideoStreams();
 
                 foreach (var streaminfo in streaminfos)

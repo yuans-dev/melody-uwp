@@ -1,5 +1,6 @@
-﻿using Media_Downloader_App;
-using Media_Downloader_App.Abstractions;
+﻿using Melody;
+using Melody.Abstractions;
+using Melody.Classes;
 using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ using Windows.Storage.Streams;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 
-namespace Media_Downloader_App.Core
+namespace Melody.Core
 {
     public class SpotifyTrack : IMedia, INotifyPropertyChanged
     {
@@ -21,14 +22,13 @@ namespace Media_Downloader_App.Core
         {
             Title = Track.Name;
             Authors = ((IEnumerable<SimpleArtist>)Track.Artists).Select(p => p.Name).ToArray();
-            PrintedAuthors = PrintAuthors();
             _Album = Album;
             this.Album = Track.Album.Name;
             Number = (uint)Track.TrackNumber;
             Year = GetReleaseYear(Track.Album.ReleaseDate);
             PreviewURL = Track.PreviewUrl;
             Duration = Track.DurationMs;
-            ID = Track.Id;
+            ID = new MediaID(MediaType.SpotifyTrack, Track.Id);
             Popularity = Track.Popularity;
             Link = new MediaLink(Track.Uri, "https://open.spotify.com/track/" + Track.Id + "?");
             Bitmap = new BitmapImage(new Uri(Album.Images[0].Url, UriKind.Absolute));
@@ -38,14 +38,13 @@ namespace Media_Downloader_App.Core
         {
             Title = Track.Name;
             Authors = ((IEnumerable<SimpleArtist>)Track.Artists).Select(p => p.Name).ToArray();
-            PrintedAuthors = PrintAuthors();
             _Album = Album;
             this.Album = Album.Name;
             Number = (uint)Track.TrackNumber;
             Year = GetReleaseYear(Album.ReleaseDate);
             PreviewURL = Track.PreviewUrl;
             Duration = Track.DurationMs;
-            ID = Track.Id;
+            ID = new MediaID(MediaType.SpotifyTrack, Track.Id);
             Popularity = 0;
             Link = new MediaLink(Track.Uri, "https://open.spotify.com/track/" + Track.Id + "?");
             Bitmap = new BitmapImage(new Uri(Album.Images[0].Url, UriKind.Absolute));
@@ -55,14 +54,13 @@ namespace Media_Downloader_App.Core
         {
             Title = Track.Name;
             Authors = ((IEnumerable<SimpleArtist>)Track.Artists).Select(p => p.Name).ToArray();
-            PrintedAuthors = PrintAuthors();
             _SimpleAlbum = Album;
             this.Album = Album.Name;
             Number = (uint)Track.TrackNumber;
             Year = GetReleaseYear(Album.ReleaseDate);
             PreviewURL = Track.PreviewUrl;
             Duration = Track.DurationMs;
-            ID = Track.Id;
+            ID = new MediaID(MediaType.SpotifyTrack, Track.Id);
             Popularity = 0;
             Link = new MediaLink(Track.Uri, "https://open.spotify.com/track/" + Track.Id + "?");
             Bitmap = new BitmapImage(new Uri(Album.Images[0].Url, UriKind.Absolute));
@@ -72,14 +70,13 @@ namespace Media_Downloader_App.Core
         {
             Title = Track.Name;
             Authors = ((IEnumerable<SimpleArtist>)Track.Artists).Select(p => p.Name).ToArray();
-            PrintedAuthors = PrintAuthors();
             _SimpleAlbum = Album;
             this.Album = Track.Album.Name;
             Number = (uint)Track.TrackNumber;
             Year = GetReleaseYear(Track.Album.ReleaseDate);
             PreviewURL = Track.PreviewUrl;
             Duration = Track.DurationMs;
-            ID = Track.Id;
+            ID = new MediaID(MediaType.SpotifyTrack, Track.Id);
             Popularity = Track.Popularity;
             Link = new MediaLink(Track.Uri, "https://open.spotify.com/track/" + Track.Id + "?");
             Bitmap = new BitmapImage(new Uri(Album.Images[0].Url, UriKind.Absolute));
@@ -102,22 +99,14 @@ namespace Media_Downloader_App.Core
             Bitmap = Track.Bitmap;
             SetTagsAsync();
         }
-        public System.Drawing.Image Art { get; set; }
         public BitmapImage Bitmap { get; set; }
         public string Name
         {
-            get { return $"{FirstAuthor} - {Title}"; }
+            get { return $"{Authors.First()} - {Title}"; }
         }
         public string Title { get; set; }
-        public string[] Authors { get; private set; }
+        public string[] Authors { get; set; }
         public string PrintedAuthors { get; set; }
-        public string FirstAuthor
-        {
-            get
-            {
-                return FirstFromPrinted();
-            }
-        }
         private FullAlbum _Album { get; set; }
         private SimpleAlbum _SimpleAlbum { get; set; }
         public string Album { get; set; }
@@ -134,7 +123,7 @@ namespace Media_Downloader_App.Core
             }
         }
         public int Popularity { get; private set; }
-        public string ID { get; private set; }
+        public MediaID ID { get; private set; }
         public MediaLink Link { get; private set; }
         public string PreviewURL { get; private set; }
         public double Duration { get; private set; }
@@ -177,102 +166,16 @@ namespace Media_Downloader_App.Core
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
         }
-        public async void SetMetadataAsync(StorageFile file)
-        {
-            StorageFileAbstraction taglibfile = new StorageFileAbstraction(file);
-            using (var tagFile = TagLib.File.Create(taglibfile, ReadStyle.Average))
-            {
-                //read the raw tags
-                tagFile.Tag.Title = Title;
-                tagFile.Tag.Performers = PrintedAuthorsToArray();
-                tagFile.Tag.Album = Album;
-                tagFile.Tag.Track = Number;
-                tagFile.Tag.Year = (uint)Int32.Parse(Year);
-
-                try
-                {
-                    //Set cover art
-                    RandomAccessStreamReference random = RandomAccessStreamReference.CreateFromUri(Bitmap.UriSour‌​ce);
-
-                    using (IRandomAccessStream stream = await random.OpenReadAsync())
-                    {
-                        using (var TempStream = stream.AsStream())
-                        {
-                            TempStream.Position = 0;
-                            TagLib.Picture pic = new TagLib.Picture();
-                            pic.Data = ByteVector.FromStream(TempStream);
-                            pic.Type = PictureType.FrontCover;
-
-                            tagFile.Tag.Pictures = new IPicture[] { pic };
-                        }
-                    }
-                }
-                catch
-                {
-
-                }
-                
-                //Save and dispose
-                tagFile.Save();
-                tagFile.Dispose();
-            }
-        }
         public async void SetTagsAsync()
         {
             try
             {
-                Tags = await LastFM.GetTrackTags(Title, FirstAuthor);
+                Tags = await LastFM.GetTrackTags(Title, Authors.First().ToString());
             }
             catch
             {
 
             }
-        }
-        private string PrintAuthors()
-        {
-            string print = "";
-            foreach (string author in Authors)
-            {
-                print = $"{print}, {author}";
-            }
-            return print.Substring(1, print.Length - 1).Trim();
-        }
-        private string[] PrintedAuthorsToArray()
-        {
-            List<string> templist = new List<string>();
-            string tempstring;
-            string tempprintedauthors = PrintedAuthors;
-            int i = 0;
-
-            if (!tempprintedauthors.EndsWith(","))
-            {
-                tempprintedauthors += ",";
-            }
-            while (tempprintedauthors.Contains(","))
-            {
-                int x = tempprintedauthors.IndexOf(",");
-                tempstring = tempprintedauthors.Substring(0, x);
-                tempprintedauthors = tempprintedauthors.Substring(x + 1, tempprintedauthors.Length - x - 1);
-                if (tempstring.StartsWith(" "))
-                {
-                    tempstring = tempstring.Substring(1, tempstring.Length - 1);
-                }
-                templist.Add(tempstring);
-                i++;
-            }
-            return templist.ToArray();
-        }
-        private string FirstFromPrinted()
-        {
-            string printedauthors = PrintedAuthors;
-            if (!printedauthors.EndsWith(","))
-            {
-                printedauthors += ",";
-            }
-            int x = printedauthors.IndexOf(",");
-            string temp = printedauthors.Substring(0, x);
-
-            return temp.Trim();
         }
         private string GetReleaseYear(string fulldate)
         {
@@ -295,7 +198,7 @@ namespace Media_Downloader_App.Core
         }
         public override string ToString()
         {
-            return Name;
+            return "Track";
         }
         public bool Equals(IMedia other)
         {

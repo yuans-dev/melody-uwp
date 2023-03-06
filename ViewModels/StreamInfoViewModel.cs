@@ -1,6 +1,6 @@
 ﻿using YoutubeExplode.Videos.Streams;
 
-namespace Media_Downloader_App.ViewModels
+namespace Melody.ViewModels
 {
     public class StreamInfoViewModel
     {

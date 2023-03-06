@@ -1,6 +1,6 @@
-﻿using Media_Downloader_App.Core;
+﻿using Melody.Core;
 
-namespace Media_Downloader_App.Classes
+namespace Melody.Classes
 {
     public class PagingOptions
     {

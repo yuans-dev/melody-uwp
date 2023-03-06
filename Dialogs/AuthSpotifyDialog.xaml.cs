@@ -1,11 +1,11 @@
-﻿using Media_Downloader_App.Core;
+﻿using Melody.Core;
 using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 // The Content Dialog item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace Media_Downloader_App.Dialogs
+namespace Melody.Dialogs
 {
     public partial class AuthSpotifyDialog : ContentDialog
     {

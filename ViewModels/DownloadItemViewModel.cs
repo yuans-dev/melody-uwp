@@ -1,41 +1,33 @@
-﻿using Media_Downloader_App.Statics;
-using Media_Downloader_App.Core;
+﻿using Melody.Statics;
+using Melody.Core;
 using System;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.UI.Xaml;
+using System.IO;
+using Windows.ApplicationModel.ExtendedExecution;
 
-namespace Media_Downloader_App.ViewModels
+namespace Melody.ViewModels
 {
     public class DownloadItemViewModel : INotifyPropertyChanged, IDownloadItem
     {
-        public DownloadItemViewModel(IMedia Media)
+        public DownloadItemViewModel(IMedia Media, bool WillSendNotifs = true, string OutputFolderExtension = "")
         {
             StatusGlyph = Glyphs.WaitingGlyph;
             this.Media = Media;
             Bitmap = Media.Bitmap;
             Title = Media.Title;
-            Author = Media.PrintedAuthors;
-            WillSendNotifs = true;
-
-            CancellationTokenSource = new CancellationTokenSource();
-            HasNotStarted = true;
-        }
-        public DownloadItemViewModel(IMedia Media, bool WillSendNotifs)
-        {
-            StatusGlyph = Glyphs.WaitingGlyph;
-            this.Media = Media;
-            Bitmap = Media.Bitmap;
-            Title = Media.Title;
-            Author = Media.PrintedAuthors;
+            Authors = Media.Authors;
             this.WillSendNotifs = WillSendNotifs;
+            OutputPath = Path.Combine(Settings.OutputFolder, OutputFolderExtension);
 
             CancellationTokenSource = new CancellationTokenSource();
             HasNotStarted = true;
         }
         public StorageFile OutputFile { get; private set; }
+        private string OutputPath { get; set; }
         private Downloader Downloader { get; set; }
         private CancellationTokenSource CancellationTokenSource { get; set; }
         public IMedia Media { get; set; }
@@ -86,45 +78,52 @@ namespace Media_Downloader_App.ViewModels
 
         public string Title { get; set; }
 
-        public string Author { get; set; }
+        public string[] Authors { get; set; }
 
         public void InitDownloader()
         {
-            Downloader = new Downloader() { OutputPath = Settings.OutputFolder, CancelToken = CancellationTokenSource.Token };
+            Downloader = new Downloader() { OutputPath = OutputPath, CancelToken = CancellationTokenSource.Token };
             Downloader.ProgressChanged += Downloader_ProgressChanged;
             Downloader.DownloadCompleted += Downloader_DownloadCompleted;
         }
         public async Task StartDownload()
         {
-            InitDownloader();
-            StatusGlyph = Glyphs.CancelGlyph;
-            try
+            var downloadsession = new ExtendedExecutionSession();
+            downloadsession.Reason = ExtendedExecutionReason.Unspecified;
+            downloadsession.Revoked += SessionRevoked;
+            ExtendedExecutionResult result = await downloadsession.RequestExtensionAsync();
+            switch (result)
             {
-                await Downloader.DownloadMedia(Media);
+                case ExtendedExecutionResult.Allowed:
+                    InitDownloader();
+                    StatusGlyph = Glyphs.CancelGlyph;
+                    try
+                    {
+                        await Downloader.DownloadMedia(Media);
+                    }
+                    catch (Exception ex)
+                    {
+                        StatusGlyph = Glyphs.RetryGlyph;
+                        System.Diagnostics.Debug.WriteLine($"An exception occurred : {ex.Message}");
+                        //throw ex; //For debug
+                    }
+                    break;
+
+                default:
+                case ExtendedExecutionResult.Denied:
+                    CancelDownload();
+                    break;
             }
-            catch (Exception ex)
-            {
-                StatusGlyph = Glyphs.RetryGlyph;
-                System.Diagnostics.Debug.WriteLine($"An exception occurred : {ex.Message}");
-            }
+            downloadsession.Revoked -= SessionRevoked;
+            downloadsession.Dispose();
+            downloadsession = null;
         }
-        public async Task StartBackgroundDownload()
+
+        private void SessionRevoked(object sender, ExtendedExecutionRevokedEventArgs args)
         {
-            InitDownloader();
-            StatusGlyph = Glyphs.CancelGlyph;
-            try
-            {
-                if (Media is SpotifyTrack Track)
-                {
-                    await Downloader.BackgroundDownloadMedia(Track);
-                }
-            }
-            catch (Exception ex)
-            {
-                StatusGlyph = Glyphs.RetryGlyph;
-                System.Diagnostics.Debug.WriteLine($"An exception occurred : {ex.Message}");
-            }
+            CancelDownload();
         }
+
         public void CancelDownload()
         {
             StatusGlyph = Glyphs.RetryGlyph;
@@ -161,6 +160,10 @@ namespace Media_Downloader_App.ViewModels
                     break;
                 case Result.Cancelled:
                     Status = "Cancelled.";
+                    StatusGlyph = Glyphs.RetryGlyph;
+                    break;
+                case Result.Other:
+                    Status = $"{e.ExceptionMessage}";
                     StatusGlyph = Glyphs.RetryGlyph;
                     break;
                 default:

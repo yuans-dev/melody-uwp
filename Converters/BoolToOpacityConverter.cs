@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Data;
 
-namespace Media_Downloader_App.Converters
+namespace Melody.Converters
 {
     internal class BoolToOpacityConverter : IValueConverter
     {

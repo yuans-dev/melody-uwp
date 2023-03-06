@@ -1,15 +1,17 @@
-﻿using Media_Downloader_App.Statics;
-using Media_Downloader_App.Core;
+﻿using Melody.Statics;
+using Melody.Core;
 using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Media_Downloader_App.Classes;
+using Melody.Classes;
+using Windows.System;
+using System.Threading.Tasks;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace Media_Downloader_App.SubPages
+namespace Melody.SubPages
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -29,7 +31,6 @@ namespace Media_Downloader_App.SubPages
             IsLoading = true;
             if (e.Parameter is SpotifyPlaylist playlist)
             {
-                CollectionLabel.Text = "PLAYLIST";
                 Collection = playlist;
                 try
                 {
@@ -42,7 +43,6 @@ namespace Media_Downloader_App.SubPages
             }
             else if (e.Parameter is SpotifyAlbum album)
             {
-                CollectionLabel.Text = "ALBUM";
                 Collection = album;
                 try
                 {
@@ -53,6 +53,7 @@ namespace Media_Downloader_App.SubPages
                     System.Diagnostics.Debug.WriteLine($"[CollectionDetailsPage] {ex.Message}");
                 }
             }
+
             IsLoading = false;
         }
 
@@ -97,19 +98,61 @@ namespace Media_Downloader_App.SubPages
             if (PreviouslyPlayed != null)
             {
                 var container = MediaListView.ContainerFromItem(PreviouslyPlayed);
-                var mediaplayer = VisualTreeHelper.GetChild(VisualTreeHelperExtensions.RecursiveGetFirstChild(container, 2), 9) as MediaElement;
+                var mediaplayer = VisualTreeHelper.GetChild(container.RecursiveGetFirstChild(2), 9) as MediaElement;
 
                 mediaplayer?.Stop();
                 PreviouslyPlayed.IsPlayingPreview = false;
             }
         }
-        private void DownloadButton_Click(object sender, RoutedEventArgs e)
+        private void ST_Download_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            var media = button.DataContext as IMedia;
+            var item = sender as MenuFlyoutItem;
+            var media = item.DataContext as IMedia;
 
-            MainPage.Current.AddToDownloads(media);
-            InfoHelper.ShowInAppNotification($"Successfully added \"{media.Name}\" to Downloads", InAppNotif);
+            InfoHelper.ShowInAppNotification($"Successfully added \"{media.Name}\" to Downloads",InAppNotif);
+            DownloadManager.AddToDownloads(media);
+        }
+        private async void ST_OpenInWeb_Click(object sender, RoutedEventArgs e)
+        {
+            var flyoutitem = sender as MenuFlyoutItem;
+            var track = (flyoutitem.DataContext as SpotifyTrack);
+
+            ContentDialog dialog = new ContentDialog()
+            {
+                Title = "Opening...",
+                Content = "Would you like to open it in the app?",
+                PrimaryButtonText = "Open in app",
+                SecondaryButtonText = "Open in web",
+                SecondaryButtonStyle = ButtonTransparentBackground,
+                CloseButtonStyle = ButtonTransparentBackground,
+                CloseButtonText = "Cancel",
+                RequestedTheme = Settings.Theme
+            };
+            switch (await dialog.ShowAsync())
+            {
+                case ContentDialogResult.Primary:
+                    await Launcher.LaunchUriAsync(new Uri(track.Link.App, UriKind.Absolute), new LauncherOptions { FallbackUri = new Uri(@"https://www.spotify.com/us/download/", UriKind.Absolute) });
+                    break;
+                case ContentDialogResult.Secondary:
+                    await Launcher.LaunchUriAsync(new Uri(track.Link.Web, UriKind.Absolute), new LauncherOptions { FallbackUri = new Uri(@"https://www.spotify.com/us/", UriKind.Absolute) });
+                    break;
+                default:
+                    break;
+            }
+        }
+        private void ST_CopyLink_Click(object sender, RoutedEventArgs e)
+        {
+            var flyoutitem = sender as MenuFlyoutItem;
+            var mediaLinks = (flyoutitem.DataContext as SpotifyTrack).Link;
+            mediaLinks.Web.CopyToClipboard();
+
+            InfoHelper.ShowInAppNotification("Copied to clipboard!", InAppNotif);
+        }
+        private void ST_MoreLikeThis_Click(object sender, RoutedEventArgs e)
+        {
+            var item = (sender as MenuFlyoutItem).DataContext as SpotifyTrack;
+
+            App.SendToRootFrame(typeof(Sub_Pages.MoreLikeThisPage), item);
         }
 
         private void MediaListView_SelectionChanged(object sender, SelectionChangedEventArgs e)

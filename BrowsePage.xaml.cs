@@ -1,8 +1,8 @@
-﻿using Media_Downloader_App.Classes;
-using Media_Downloader_App.Dialogs;
-using Media_Downloader_App.Statics;
-using Media_Downloader_App.SubPages;
-using Media_Downloader_App.Core;
+﻿using Melody.Classes;
+using Melody.Dialogs;
+using Melody.Statics;
+using Melody.SubPages;
+using Melody.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,10 +15,11 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using YoutubeExplode.Search;
+using System.Collections;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace Media_Downloader_App
+namespace Melody
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -48,18 +49,20 @@ namespace Media_Downloader_App
         public ObservableCollection<YouTubeVideo> YouTubeResults { get; set; }
         private IMedia PreviouslyPlayed { get; set; }
         private List<VideoSearchResult> YouTubeSearchResult { get; set; }
+        public override bool SpotifyIsLoading => base.SpotifyIsLoading;
+        public override bool YouTubeIsLoading => base.YouTubeIsLoading;
 
         private void Settings_ThemeChanged(object sender, EventArgs e)
         {
             RequestedTheme = Settings.Theme;
         }
-        private async void BrowseTextBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        private async void SpotifyBrowseTextBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
             try
             {
-                if (Settings.SpotifyClient.Authd && Settings.OutputFolder != "Downloads" && !string.IsNullOrWhiteSpace(Settings.OutputFolder) && !string.IsNullOrWhiteSpace(BrowseTextbox.Text))
+                if (Settings.SpotifyClient.Authd && Settings.OutputFolder != "Downloads" && !string.IsNullOrWhiteSpace(Settings.OutputFolder) && !string.IsNullOrWhiteSpace(SpotifyBrowseTextbox.Text))
                 {
-                    await GetResults(BrowseTextbox.Text);
+                    await GetSpotifyResults(SpotifyBrowseTextbox.Text);
                 }
                 else if (!Settings.SpotifyClient.Authd)
                 {
@@ -75,13 +78,24 @@ namespace Media_Downloader_App
 
             }
         }
-        private async Task GetResults(string Query)
+        private async void YouTubeBrowseTextbox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            try
+            {
+                await GetYouTubeResults(YouTubeBrowseTextbox.Text);
+            }
+            catch
+            {
+
+            }
+        }
+        private async Task GetSpotifyResults(string Query)
         {
             var p = new PagingOptions(Settings.SpotifyClient, Settings.YouTubeClient, Query, 25, 0);
-            IsLoading = true;
+            SpotifyIsLoading = true;
 
             ST_ClearPreviouslyPlayed();
-            ClearResults();
+            ClearSpotifyResults();
 
             if (Utils.IsSpotifyLink(Query))
             {
@@ -108,10 +122,19 @@ namespace Media_Downloader_App
                 GettingSpotifyResultsFinished();
                 SpotifyResultGrid.Visibility = Visibility.Visible;
             }
+            SpotifyIsLoading = false;
+        }
+        private async Task GetYouTubeResults(string Query)
+        {
+            var p = new PagingOptions(Settings.SpotifyClient, Settings.YouTubeClient, Query, 25, 0);
+            YouTubeIsLoading = true;
+            YouTubeResults.Clear();
+            ClearYouTubeResults();
 
             YouTubeSearchResult = (await p.YouTubeClient.GetVideoSearchResult(p.Query, p.Results, p.Offset)).ToList();
-            YouTubeResults.Clear();
-            IsLoading = false;
+
+            YouTubeIsLoading = false;
+
             foreach (var result in YouTubeSearchResult)
             {
                 var video = await p.YouTubeClient.GetVideo(result.Url);
@@ -146,12 +169,16 @@ namespace Media_Downloader_App
             SpotifyResultGrid.Visibility = Visibility.Visible;
             GettingSpotifyResultsFinished();
         }
-        private void ClearResults()
+        private void ClearSpotifyResults()
         {
             YouTubeSearchResult?.Clear();
             SpotifyPlaylistResults.Clear();
             SpotifyAlbumResults.Clear();
             SpotifyTrackResults.Clear();
+        }
+        private void ClearYouTubeResults()
+        {
+            YouTubeSearchResult?.Clear();
         }
         private void ST_ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -176,7 +203,7 @@ namespace Media_Downloader_App
             media.IsVideo = false;
 
             InfoHelper.ShowInAppNotification($"Successfully added \"{media.Name} (Audio)\" to Downloads");
-            MainPage.Current.AddToDownloads(media);
+            DownloadManager.AddToDownloads(media);
         }
         private async void YT_DownloadVideo_Click(object sender, RoutedEventArgs e)
         {
@@ -193,7 +220,7 @@ namespace Media_Downloader_App
             {
                 video.IsVideo = true;
                 InfoHelper.ShowInAppNotification($"Successfully added \"{video.Name} (Video)\" to Downloads");
-                MainPage.Current.AddToDownloads(video);
+                DownloadManager.AddToDownloads(video);
             }
         }
         private async void YT_EditDownload_Click(object sender, RoutedEventArgs e)
@@ -210,22 +237,22 @@ namespace Media_Downloader_App
             if (dialogresult == ContentDialogResult.Primary)
             {
                 InfoHelper.ShowInAppNotification($"Successfully added \"{media.Name}\" to Downloads");
-                MainPage.Current.AddToDownloads(media);
+                DownloadManager.AddToDownloads(media);
             }
         }
         private async void YT_OpenInWeb_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            var mediaURL = (button.DataContext as YouTubeVideo).Link.Web;
+            var item = sender as MenuFlyoutItem;
+            var mediaURL = (item.DataContext as YouTubeVideo).Link.Web;
             var mediaUri = new Uri(mediaURL, UriKind.Absolute);
 
             await Launcher.LaunchUriAsync(mediaUri, new LauncherOptions { FallbackUri = new Uri(@"https://www.youtube.com", UriKind.Absolute) });
         }
         private void YT_CopyLink_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            var Links = (button.DataContext as YouTubeVideo).Link;
-            ClipboardExtensions.CopyToClipboard(Links.Web);
+            var item = sender as MenuFlyoutItem;
+            var Links = (item.DataContext as YouTubeVideo).Link;
+            Links.Web.CopyToClipboard();
 
             InfoHelper.ShowInAppNotification("Copied to clipboard!");
         }
@@ -241,7 +268,7 @@ namespace Media_Downloader_App
         {
             var button = sender as Button;
             var item = button.DataContext as SpotifyTrack;
-            var mediaplayer = VisualTreeHelper.GetChild(VisualTreeHelperExtensions.RecursiveGetParent(button, 3), 1) as MediaElement;
+            var mediaplayer = VisualTreeHelper.GetChild(button.RecursiveGetParent(3), 1) as MediaElement;
 
             if (!item.IsPlayingPreview)
             {
@@ -264,7 +291,7 @@ namespace Media_Downloader_App
                 if (PreviouslyPlayed is SpotifyTrack track)
                 {
                     var container = ST_ResultsListView.ContainerFromItem(track);
-                    var mediaplayer = VisualTreeHelper.GetChild(VisualTreeHelperExtensions.RecursiveGetFirstChild(container, 2), 1) as MediaElement;
+                    var mediaplayer = VisualTreeHelper.GetChild(container.RecursiveGetFirstChild(2), 1) as MediaElement;
 
                     mediaplayer?.Stop();
                     track.IsPlayingPreview = false;
@@ -281,7 +308,7 @@ namespace Media_Downloader_App
             var media = button.DataContext as IMedia;
 
             InfoHelper.ShowInAppNotification($"Successfully added \"{media.Name}\" to Downloads");
-            MainPage.Current.AddToDownloads(media);
+            DownloadManager.AddToDownloads(media);
         }
         private async void ST_OpenInWeb_Click(object sender, RoutedEventArgs e)
         {
@@ -315,7 +342,7 @@ namespace Media_Downloader_App
         {
             var flyoutitem = sender as MenuFlyoutItem;
             var mediaLinks = (flyoutitem.DataContext as SpotifyTrack).Link;
-            ClipboardExtensions.CopyToClipboard(mediaLinks.Web);
+            mediaLinks.Web.CopyToClipboard();
 
             InfoHelper.ShowInAppNotification("Copied to clipboard!");
         }
@@ -385,31 +412,18 @@ namespace Media_Downloader_App
             if ((sender as MenuFlyoutItem).DataContext is SpotifyPlaylist playlist)
             {
                 InfoHelper.ShowInAppNotification($"Successfully added \"{playlist.Title}\" to Downloads");
-                MainPage.Current.AddToDownloads(playlist, false);
+                DownloadManager.AddToDownloads(playlist);
             }
             else if ((sender as MenuFlyoutItem).DataContext is SpotifyAlbum album)
             {
                 InfoHelper.ShowInAppNotification($"Successfully added \"{album.Title}\" to Downloads");
-                MainPage.Current.AddToDownloads(album, false);
-            }
-        }
-        private void Collections_BgDownload_Click(object sender, RoutedEventArgs e)
-        {
-            if ((sender as MenuFlyoutItem).DataContext is SpotifyPlaylist playlist)
-            {
-                InfoHelper.ShowInAppNotification($"Successfully added \"{playlist.Title}\" to Downloads");
-                MainPage.Current.AddToDownloads(playlist, true);
-            }
-            else if ((sender as MenuFlyoutItem).DataContext is SpotifyAlbum album)
-            {
-                InfoHelper.ShowInAppNotification($"Successfully added \"{album.Title}\" to Downloads");
-                MainPage.Current.AddToDownloads(album, true);
+                DownloadManager.AddToDownloads(album);
             }
         }
         private void Collections_CopyLink(object sender, RoutedEventArgs e)
         {
             var collection = (sender as MenuFlyoutItem).DataContext as IMediaCollection;
-            ClipboardExtensions.CopyToClipboard(collection.Link.Web);
+            collection.Link.Web.CopyToClipboard();
         }
         private void PlaylistSeeMore_Button_Click(object sender, RoutedEventArgs e)
         {

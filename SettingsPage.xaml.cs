@@ -1,11 +1,12 @@
-﻿using Media_Downloader_App.Classes;
-using Media_Downloader_App.Dialogs;
+﻿using Melody.Classes;
+using Melody.Dialogs;
+using Melody.Statics;
 using System;
 using Windows.UI.Xaml;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace Media_Downloader_App
+namespace Melody
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
@@ -15,11 +16,6 @@ namespace Media_Downloader_App
         public SettingsPage()
         {
             this.InitializeComponent();
-
-            if (Settings.SpotifyClient.Authd)
-            {
-                AuthorizationControls.Visibility = Visibility.Collapsed;
-            }
 
             switch (Settings.Theme)
             {
@@ -100,6 +96,12 @@ namespace Media_Downloader_App
             {
                 Settings.SpotifyClient = e.SpotifyClient;
                 Settings.Save();
+
+                InfoHelper.ShowInAppNotification("Authorized!");
+            }
+            else
+            {
+                InfoHelper.ShowInAppNotification("Authorization failed! Please try again");
             }
         }
     }
