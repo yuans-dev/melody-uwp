@@ -1,4 +1,5 @@
 ﻿using Melody.Classes;
+using Melody.Core;
 using Melody.Dialogs;
 using Melody.Statics;
 using System;
@@ -31,6 +32,15 @@ namespace Melody
             }
             Settings.ThemeChanged += Settings_ThemeChanged;
             Settings.OutputChanged += Settings_OutputChanged;
+            if (Settings.SpotifyClient.Authorized)
+            {
+                AuthorizationControls.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                AuthorizationControls.Visibility = Visibility.Visible;
+            }
+            Settings.SpotifyClient.SpotifyAuthorizationAttempted += SpotifyClient_SpotifyAuthorizationAttempted;
         }
         public override string Header => "Settings";
         public override string MinimalHeader => "SETTINGS";
@@ -43,22 +53,18 @@ namespace Melody
         {
             OutputFolderTextBlock.Text = Settings.OutputFolder;
         }
-
         private void LightTheme_Checked(object sender, RoutedEventArgs e)
         {
             Settings.Theme = ElementTheme.Light;
         }
-
         private void DarkTheme_Checked(object sender, RoutedEventArgs e)
         {
             Settings.Theme = ElementTheme.Dark;
         }
-
         private void DefaultTheme_Checked(object sender, RoutedEventArgs e)
         {
             Settings.Theme = ElementTheme.Default;
         }
-
         private async void AuthorizeSpotify_Click(object sender, RoutedEventArgs e)
         {
             AuthSpotifyDialog dialog = new AuthSpotifyDialog();
@@ -92,7 +98,7 @@ namespace Melody
         }
         private void Dialog_AuthorizationAttempted(object sender, AuthorizedEventArgs e)
         {
-            if (e.SpotifyClient.Authd)
+            if (e.SpotifyClient.Authorized)
             {
                 Settings.SpotifyClient = e.SpotifyClient;
                 Settings.Save();
@@ -102,6 +108,17 @@ namespace Melody
             else
             {
                 InfoHelper.ShowInAppNotification("Authorization failed! Please try again");
+            }
+        }
+        private void SpotifyClient_SpotifyAuthorizationAttempted(object sender, SpotifyAuthorizedEventArgs e)
+        {
+            if (e.Authorized)
+            {
+                AuthorizationControls.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                AuthorizationControls.Visibility = Visibility.Visible;
             }
         }
     }

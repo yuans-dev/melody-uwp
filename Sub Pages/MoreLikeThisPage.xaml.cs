@@ -55,7 +55,7 @@ namespace Melody.Sub_Pages
                 await UniqueClient.Auth();
                 try
                 {
-                    ResultsListView.ItemsSource = await UniqueClient.GetSpotifyTracksFromLastFM(await LastFM.GetSimilarTracks(track.Title, track.Authors.First(), 30));
+                    ResultsListView.ItemsSource = await UniqueClient.GetSpotifyTracksFromLastFM(await Auxiliaries.GetSimilarTracks(track.Title, track.Authors.First(), 30));
                 }
                 catch (Exception ex)
                 {
@@ -72,39 +72,8 @@ namespace Melody.Sub_Pages
         {
             var button = sender as Button;
             var item = button.DataContext as SpotifyTrack;
-            var mediaplayer = VisualTreeHelper.GetChild(button.RecursiveGetParent(3), 1) as MediaElement;
 
-            if (!item.IsPlayingPreview)
-            {
-                ST_ClearPreviouslyPlayed();
-                item.IsPlayingPreview = true;
-                mediaplayer.Play();                
-
-                PreviouslyPlayed = item;
-            }
-            else
-            {
-                item.IsPlayingPreview = false;
-                mediaplayer.Stop();
-            }
-        }
-        private void ST_ClearPreviouslyPlayed()
-        {
-            try
-            {
-                if (PreviouslyPlayed is SpotifyTrack track)
-                {
-                    var container = ResultsListView.ContainerFromItem(track);
-                    var mediaplayer = VisualTreeHelper.GetChild(container.RecursiveGetFirstChild(2), 1) as MediaElement;
-
-                    mediaplayer?.Stop();
-                    track.IsPlayingPreview = false;
-                }
-            }
-            catch
-            {
-
-            }
+            Player.Player.Play(item);
         }
         private void ST_Download_Click(object sender, RoutedEventArgs e)
         {
@@ -118,7 +87,7 @@ namespace Melody.Sub_Pages
         {
             var item = (sender as Button).DataContext as string;
 
-            App.SendToRootFrame(typeof(Sub_Pages.PopularInTagPage), item);
+            MainPage.Current.Navigate(typeof(PopularInTagPage), item);
         }
         private async void ST_OpenInWeb_Click(object sender, RoutedEventArgs e)
         {
@@ -160,15 +129,7 @@ namespace Melody.Sub_Pages
         {
             var item = (sender as MenuFlyoutItem).DataContext as SpotifyTrack;
 
-            App.SendToRootFrame(typeof(MoreLikeThisPage), item);
-        }
-        private void BackButton_Click(object sender, RoutedEventArgs e)
-        {
-            InAppNotif.Dismiss();
-            var button = sender as Button;
-            Frame rootFrame = Window.Current.Content as Frame;
-            rootFrame.GoBack();
-            button.IsEnabled = false;
+            MainPage.Current.Navigate(typeof(MoreLikeThisPage), item);
         }
     }
 }

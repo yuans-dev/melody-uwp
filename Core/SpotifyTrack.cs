@@ -1,6 +1,7 @@
 ﻿using Melody;
 using Melody.Abstractions;
 using Melody.Classes;
+using Melody.Statics;
 using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using TagLib;
 using Windows.Storage;
 using Windows.Storage.Streams;
@@ -125,7 +127,7 @@ namespace Melody.Core
         public int Popularity { get; private set; }
         public MediaID ID { get; private set; }
         public MediaLink Link { get; private set; }
-        public string PreviewURL { get; private set; }
+        public string PreviewURL {get; private set;}
         public double Duration { get; private set; }
         public string DurationAsTimeSpan
         {
@@ -170,7 +172,7 @@ namespace Melody.Core
         {
             try
             {
-                Tags = await LastFM.GetTrackTags(Title, Authors.First().ToString());
+                Tags = await Auxiliaries.GetTrackTags(Title, Authors.First().ToString());
             }
             catch
             {

@@ -1,5 +1,9 @@
-﻿using Melody.Core;
+﻿using Melody.Classes;
+using Melody.Core;
+using Microsoft.Toolkit.Uwp.Helpers;
+using Microsoft.Toolkit.Uwp.UI.Controls.TextToolbarSymbols;
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using Windows.Storage;
 using Windows.UI.Xaml;
@@ -8,6 +12,7 @@ namespace Melody
 {
     internal class Settings
     {
+        public Settings Current = new Settings();
         private static readonly ApplicationDataContainer Local = ApplicationData.Current.LocalSettings;
         public static event EventHandler ThemeChanged;
         public static event EventHandler OutputChanged;
@@ -47,22 +52,16 @@ namespace Melody
                     OutputFolder = OutputFolder
                 });
 
-            System.Diagnostics.Debug.WriteLine($"[SETTINGS] Saved {JsonString}");
             Local.Values["Settings"] = JsonString;
         }
         public async static void Load()
         {
             try
             {
-                SerializableSettings settings = JsonSerializer.Deserialize<SerializableSettings>(
-                (string)Local.Values["Settings"]);
-
-                Theme = settings.Theme;
-                OutputFolder = settings.OutputFolder;
                 SpotifyClient.Details = new ClientDetails()
                 {
-                    ID = "fa253e2a6e464e03a1baf7881a4388db",
-                    Secret = "851f30eb4a7d4b4e83de293f1b5baeac"
+                    ID = "6bbfc275c5524340bd07599097c8722b",
+                    Secret = "67b37cf01daf41c39c260a721930f7b3"
                 };
                 try
                 {
@@ -72,6 +71,14 @@ namespace Melody
                 {
 
                 }
+                SerializableSettings settings = JsonSerializer.Deserialize<SerializableSettings>(
+                (string)Local.Values["Settings"]);
+               
+
+                Theme = settings.Theme;
+                OutputFolder = settings.OutputFolder;
+                
+                
             }
             catch
             {

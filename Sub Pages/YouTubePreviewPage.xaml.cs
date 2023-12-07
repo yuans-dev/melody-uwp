@@ -49,12 +49,16 @@ namespace Melody.SubPages
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            Player.MediaPlayer.Pause();
-
-            var button = sender as Button;
-            Frame rootFrame = Window.Current.Content as Frame;
-            rootFrame.GoBack();
-            button.IsEnabled = false;
+            try
+            {
+                Player.MediaPlayer.Pause();
+                var button = sender as Button;
+                Frame rootFrame = Window.Current.Content as Frame;
+                rootFrame.GoBack();
+                button.IsEnabled = false;
+            }
+            catch { 
+            }
         }
         private void OnError()
         {

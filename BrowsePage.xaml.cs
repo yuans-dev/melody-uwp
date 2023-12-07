@@ -16,6 +16,10 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using YoutubeExplode.Search;
 using System.Collections;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.Toolkit.Uwp.UI.Animations;
+using System.ComponentModel;
+using MetaBrainz.MusicBrainz;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -24,7 +28,7 @@ namespace Melody
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class BrowsePage : BasePage
+    public sealed partial class BrowsePage : BasePage, INotifyPropertyChanged
     {
         public BrowsePage()
         {
@@ -36,7 +40,8 @@ namespace Melody
             SpotifyTrackResults = new ObservableCollection<SpotifyTrack>();
             SpotifyPlaylistResults = new ObservableCollection<SpotifyPlaylist>();
             SpotifyAlbumResults = new ObservableCollection<SpotifyAlbum>();
-            YouTubeResults = new ObservableCollection<YouTubeVideo>();
+            YouTubeVideoResults = new ObservableCollection<YouTubeVideo>();
+            YouTubePlaylistResults = new ObservableCollection<YouTubePlaylist>();
 
             Settings.ThemeChanged += Settings_ThemeChanged;
         }
@@ -46,11 +51,33 @@ namespace Melody
         public ObservableCollection<SpotifyTrack> SpotifyTrackResults { get; set; }
         public ObservableCollection<SpotifyPlaylist> SpotifyPlaylistResults { get; set; }
         public ObservableCollection<SpotifyAlbum> SpotifyAlbumResults { get; set; }
-        public ObservableCollection<YouTubeVideo> YouTubeResults { get; set; }
+        public ObservableCollection<YouTubeVideo> YouTubeVideoResults { get; set; }
+        public ObservableCollection<YouTubePlaylist> YouTubePlaylistResults { get; set; }
         private IMedia PreviouslyPlayed { get; set; }
-        private List<VideoSearchResult> YouTubeSearchResult { get; set; }
-        public override bool SpotifyIsLoading => base.SpotifyIsLoading;
-        public override bool YouTubeIsLoading => base.YouTubeIsLoading;
+        private List<VideoSearchResult> YouTubeVideoSearchResults { get; set; }
+        private List<PlaylistSearchResult> YouTubePlaylistSearchResults { get; set; }
+        private bool _SpotifyIsLoading { get; set; } = false;
+        private bool _YouTubeIsLoading { get; set; } = false;
+        private readonly BrowsingParameters BrowsingParameters = new BrowsingParameters(Settings.SpotifyClient, Settings.YouTubeClient, 25, 0);
+
+        public bool SpotifyIsLoading
+        {
+            get { return _SpotifyIsLoading; }
+            set
+            {
+                _SpotifyIsLoading = value;
+                OnPropertyChanged("SpotifyIsLoading");
+            }
+        }
+        public bool YouTubeIsLoading
+        {
+            get { return _YouTubeIsLoading; }
+            set
+            {
+                _YouTubeIsLoading = value;
+                OnPropertyChanged("YouTubeIsLoading");
+            }
+        }
 
         private void Settings_ThemeChanged(object sender, EventArgs e)
         {
@@ -60,18 +87,21 @@ namespace Melody
         {
             try
             {
-                if (Settings.SpotifyClient.Authd && Settings.OutputFolder != "Downloads" && !string.IsNullOrWhiteSpace(Settings.OutputFolder) && !string.IsNullOrWhiteSpace(SpotifyBrowseTextbox.Text))
-                {
-                    await GetSpotifyResults(SpotifyBrowseTextbox.Text);
-                }
-                else if (!Settings.SpotifyClient.Authd)
-                {
-                    InfoHelper.ShowInAppNotification("You are not authorized! Please go to the Settings tab and \"Authorize Spotify\"");
-                }
-                else if (string.IsNullOrWhiteSpace(Settings.OutputFolder) || Settings.OutputFolder == "Downloads")
+                if (string.IsNullOrWhiteSpace(Settings.OutputFolder) || Settings.OutputFolder == "Downloads")
                 {
                     InfoHelper.ShowInAppNotification("You have not set a Downloads folder! Please go to the Settings tab and choose a folder");
+                    return;
                 }
+                if (!Settings.SpotifyClient.Authorized)
+                {
+                    InfoHelper.ShowInAppNotification("You are not authorized! Please go to the Settings tab and \"Authorize Spotify\"");
+                    return;
+                }
+                if (string.IsNullOrWhiteSpace(SpotifyBrowseTextbox.Text))
+                {
+                    return;
+                }
+                await GetSpotifyResults(SpotifyBrowseTextbox.Text);
             }
             catch
             {
@@ -80,18 +110,19 @@ namespace Melody
         }
         private async void YouTubeBrowseTextbox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            try
+            if (string.IsNullOrWhiteSpace(Settings.OutputFolder) || Settings.OutputFolder == "Downloads")
             {
-                await GetYouTubeResults(YouTubeBrowseTextbox.Text);
+                InfoHelper.ShowInAppNotification("You have not set a Downloads folder! Please go to the Settings tab and choose a folder");
+                return;
             }
-            catch
+            if (string.IsNullOrWhiteSpace(YouTubeBrowseTextbox.Text))
             {
-
+                return;
             }
+            await GetYouTubeResults(YouTubeBrowseTextbox.Text);
         }
         private async Task GetSpotifyResults(string Query)
         {
-            var p = new PagingOptions(Settings.SpotifyClient, Settings.YouTubeClient, Query, 25, 0);
             SpotifyIsLoading = true;
 
             ST_ClearPreviouslyPlayed();
@@ -104,9 +135,9 @@ namespace Melody
             else
             {
 
-                var playlistresults = await p.SpotifyClient.BrowseSpotifyPlaylist(p.Query, p.Results, p.Offset);
-                var albumresults = await p.SpotifyClient.BrowseSpotifyAlbum(p.Query, p.Results, p.Offset);
-                var trackresults = await p.SpotifyClient.BrowseSpotifyTracks(p.Query, p.Results, p.Offset);
+                var playlistresults = await BrowsingParameters.SpotifyClient.BrowseSpotifyPlaylist(Query, BrowsingParameters.Results, BrowsingParameters.Offset);
+                var albumresults = await BrowsingParameters.SpotifyClient.BrowseSpotifyAlbum(Query, BrowsingParameters.Results, BrowsingParameters.Offset);
+                var trackresults = await BrowsingParameters.SpotifyClient.BrowseSpotifyTracks(Query, BrowsingParameters.Results, BrowsingParameters.Offset);
                 foreach (var playlist in playlistresults)
                 {
                     SpotifyPlaylistResults.Add(playlist);
@@ -120,29 +151,56 @@ namespace Melody
                     SpotifyTrackResults.Add(track);
                 }
                 GettingSpotifyResultsFinished();
-                SpotifyResultGrid.Visibility = Visibility.Visible;
             }
             SpotifyIsLoading = false;
+            SpotifyResultGrid.Visibility = Visibility.Visible;
         }
         private async Task GetYouTubeResults(string Query)
         {
-            var p = new PagingOptions(Settings.SpotifyClient, Settings.YouTubeClient, Query, 25, 0);
             YouTubeIsLoading = true;
-            YouTubeResults.Clear();
+            YouTubeVideoResults.Clear();
+            YouTubePlaylistResults.Clear();
             ClearYouTubeResults();
 
-            YouTubeSearchResult = (await p.YouTubeClient.GetVideoSearchResult(p.Query, p.Results, p.Offset)).ToList();
+            YouTubePlaylistSearchResults = (await BrowsingParameters.YouTubeClient.GetPlaylistSearchResult(Query, BrowsingParameters.Results, BrowsingParameters.Offset)).ToList();
+            YouTubeVideoSearchResults = (await BrowsingParameters.YouTubeClient.GetVideoSearchResult(Query, BrowsingParameters.Results, BrowsingParameters.Offset)).ToList();
 
+            DisplayPlaylistResults();
+            DisplayVideoResults();
             YouTubeIsLoading = false;
-
-            foreach (var result in YouTubeSearchResult)
+            YouTubeResultGrid.Visibility = Visibility.Visible;
+        }
+        private async void DisplayPlaylistResults()
+        {
+            try
             {
-                var video = await p.YouTubeClient.GetVideo(result.Url);
-                if (video.DurationAsTimeSpan != TimeSpan.Zero)
+                foreach (var result in YouTubePlaylistSearchResults)
                 {
-                    YouTubeResults.Add(video);
-                    YouTubeResultGrid.Visibility = Visibility.Visible;
+                    var playlist = await BrowsingParameters.YouTubeClient.GetPlaylist(result.Url);
+                    YouTubePlaylistResults.Add(playlist);
                 }
+            }
+            catch
+            {
+
+            }
+        }
+        private async void DisplayVideoResults()
+        {
+            try
+            {
+                foreach (var result in YouTubeVideoSearchResults)
+                {
+                    var video = await BrowsingParameters.YouTubeClient.GetVideo(result.Url);
+                    if (video.DurationAsTimeSpan != TimeSpan.Zero)
+                    {
+                        YouTubeVideoResults.Add(video);
+                    }
+                }
+            }
+            catch
+            {
+
             }
         }
         private async void GetSpecifiedSpotifyResult(string Query)
@@ -165,20 +223,20 @@ namespace Melody
                 default:
                     break;
             }
-            //Show Spotify esults
+            //Show Spotify results
             SpotifyResultGrid.Visibility = Visibility.Visible;
             GettingSpotifyResultsFinished();
         }
         private void ClearSpotifyResults()
         {
-            YouTubeSearchResult?.Clear();
             SpotifyPlaylistResults.Clear();
             SpotifyAlbumResults.Clear();
             SpotifyTrackResults.Clear();
         }
         private void ClearYouTubeResults()
         {
-            YouTubeSearchResult?.Clear();
+            YouTubeVideoSearchResults?.Clear();
+            YouTubePlaylistSearchResults?.Clear();
         }
         private void ST_ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -268,21 +326,8 @@ namespace Melody
         {
             var button = sender as Button;
             var item = button.DataContext as SpotifyTrack;
-            var mediaplayer = VisualTreeHelper.GetChild(button.RecursiveGetParent(3), 1) as MediaElement;
 
-            if (!item.IsPlayingPreview)
-            {
-                ST_ClearPreviouslyPlayed();
-                item.IsPlayingPreview = true;
-                mediaplayer.Play();
-
-                PreviouslyPlayed = item;
-            }
-            else
-            {
-                item.IsPlayingPreview = false;
-                mediaplayer.Stop();
-            }
+            Player.Player.Play(item);
         }
         private void ST_ClearPreviouslyPlayed()
         {
@@ -350,13 +395,13 @@ namespace Melody
         {
             var item = (sender as MenuFlyoutItem).DataContext as SpotifyTrack;
 
-            App.SendToRootFrame(typeof(Sub_Pages.MoreLikeThisPage), item);
+            MainPage.Current.Navigate(typeof(Sub_Pages.MoreLikeThisPage), item);
         }
         private void ST_Tag_Click(object sender, RoutedEventArgs e)
         {
             var item = (sender as Button).DataContext as string;
 
-            App.SendToRootFrame(typeof(Sub_Pages.PopularInTagPage), item);
+            MainPage.Current.Navigate(typeof(Sub_Pages.PopularInTagPage), item);
         }
         private void GettingSpotifyResultsFinished()
         {
@@ -391,13 +436,13 @@ namespace Melody
         {
             var collection = e.ClickedItem as SpotifyPlaylist;
 
-            App.SendToRootFrame(typeof(CollectionDetailsPage), collection);
+            MainPage.Current.Navigate(typeof(CollectionDetailsPage), collection);
         }
         private void SA_CollectionsView_ItemClick(object sender, ItemClickEventArgs e)
         {
             var collection = e.ClickedItem as SpotifyAlbum;
 
-            App.SendToRootFrame(typeof(CollectionDetailsPage), collection);
+            MainPage.Current.Navigate(typeof(CollectionDetailsPage), collection);
         }
         private void SA_CollectionsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -425,30 +470,35 @@ namespace Melody
             var collection = (sender as MenuFlyoutItem).DataContext as IMediaCollection;
             collection.Link.Web.CopyToClipboard();
         }
-        private void PlaylistSeeMore_Button_Click(object sender, RoutedEventArgs e)
+        private void TagsDataChanged(FrameworkElement sender, DataContextChangedEventArgs args)
         {
-            if(SP_CollectionsView.Height == 192)
-            {
-                SP_CollectionsView.Height = Double.NaN;
-                PlaylistSeeMore_TextBlock.Text = "COLLAPSE";
-            }
-            else
-            {
-                SP_CollectionsView.Height = 192;
-                PlaylistSeeMore_TextBlock.Text = "SEE MORE";
-            }
+            var repeater = sender as ItemsRepeater;
+            var storyboard = repeater.Resources["StoryboardAnimation"] as Storyboard;
+            storyboard.Seek(TimeSpan.Zero);
+            storyboard.Begin();
         }
-        private void AlbumSeeMore_Button_Click(object sender, RoutedEventArgs e)
+
+        private void YT_CollectionResultsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (SA_CollectionsView.Height == 192)
+            if(YT_CollectionResultsListView.SelectedItem != null)
             {
-                SA_CollectionsView.Height = Double.NaN;
-                AlbumSeeMore_TextBlock.Text = "COLLAPSE";
+                var element = sender as ListView;
+                var collection = element.SelectedItem as YouTubePlaylist;
+
+                YT_CollectionResultsListView.SelectedItem = null;
+                MainPage.Current.Navigate(typeof(CollectionDetailsPage), collection);
             }
             else
             {
-                SA_CollectionsView.Height = 192;
-                AlbumSeeMore_TextBlock.Text = "SEE MORE";
+                return;
+            }  
+        }
+
+        private void SpotifyBrowseTextbox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            {
+                //sender.ItemsSource = Settings.SearchHistory;
             }
         }
     }

@@ -5,16 +5,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Media.Imaging;
+using System.Diagnostics;
+using MetaBrainz.MusicBrainz;
 
 namespace Melody.Core
 {
-    public static class LastFM
+    public static class Auxiliaries
     {
+        private static readonly Query mbq = new Query("Melody", "1.1.9");
         private static readonly LastfmClient Client = new LastfmClient("426c76e1e708befbffef3ff521b7f875", "7fdafab8e578755d150712bc2ee82148");
         public static async Task<List<string>> GetTrackTags(string Title, string Artist)
         {
-            var list = new List<string>();
-            try
+            var release = await mbq.FindRecordingsAsync($"{Title.ToLower()} AND artist:\"{Artist.ToLower()}\"", 10, 0);
+            var tags = new List<MetaBrainz.MusicBrainz.Interfaces.Entities.ITag>();
+            if(release.Results.Count > 0)
             {
                 for (int i = 0; i < release.Results.Count; i++)
                 {
@@ -31,15 +35,20 @@ namespace Melody.Core
                         }
                     }
                     else
-                {
-                    list.Add(tag.Name);
+                    {
+                        tags = release.Results[i].Item.Tags.ToList();
+                        break;
+                    }
                 }
             }
-            catch (NullReferenceException)
+            var taglist = new List<string>();
+            foreach(var tag in tags)
             {
-                System.Diagnostics.Debug.WriteLine($"[LastFM] No tags found for \"{Artist} - {Title}\"");
+                //var str = tag.ToString().Substring(tag.ToString().IndexOf("]") + 2, tag.ToString().Length - tag.ToString().IndexOf("]") - 2);
+                var str = tag.Name;
+                taglist.Add(str);
             }
-            return list;
+            return taglist;
         }
         public static async Task<List<Hqub.Lastfm.Entities.Track>> GetSimilarTracks(string Title,string Artist, int Results)
         {

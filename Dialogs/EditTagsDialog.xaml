@@ -12,9 +12,21 @@
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
     SecondaryButtonClick="ContentDialog_SecondaryButtonClick">
 
+    <ContentDialog.Resources>
+        <ResourceDictionary>
+            <Style TargetType="Button" x:Name="ButtonTransparentBackground">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Opacity" Value="0.7"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentDialog.Resources>
     <Grid>
         <Grid MaxWidth="360">
             <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="24"/>
+                <RowDefinition Height="32"/>
+                <RowDefinition Height="24"/>
                 <RowDefinition Height="32"/>
                 <RowDefinition Height="24"/>
                 <RowDefinition Height="32"/>
@@ -25,12 +37,20 @@
                 <ColumnDefinition Width="64"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <TextBox Grid.Column="1" Grid.Row="0" x:Name="TitleTextBox" PlaceholderText="Title..."></TextBox>
-            <TextBlock FontSize="16" Grid.Row="0">Title:</TextBlock>
-            <TextBox Grid.Column="1" Grid.Row="2" x:Name="ArtistTextBox" PlaceholderText="Artist(s)... Separate with comma"></TextBox>
-            <TextBlock FontSize="16" Grid.Row="2">Artist(s):</TextBlock>
-            <TextBox Grid.Column="1" Grid.Row="4" x:Name="AlbumTextBox" PlaceholderText="Album"></TextBox>
-            <TextBlock FontSize="16" Grid.Row="4">Album:</TextBlock>
+            <Grid Grid.ColumnSpan="2">
+                <Image Stretch="Uniform" Height="150" x:Name="MediaBitmapImage" ></Image>
+                <Button Click="RevertButton_Click" Height="42" Width="42" CornerRadius="21" ToolTipService.ToolTip="Revert back to original" HorizontalAlignment="Right" Style="{StaticResource ButtonTransparentBackground}">
+                    <SymbolIcon Symbol="Refresh"/>
+                </Button>
+            </Grid>
+            
+            <TextBox Grid.Column="1" Grid.Row="2" x:Name="TitleTextBox" PlaceholderText="Title..."></TextBox>
+            <TextBlock FontSize="16" Grid.Row="2">Title:</TextBlock>
+            <TextBox Grid.Column="1" Grid.Row="4" x:Name="ArtistTextBox" PlaceholderText="Artist(s)... Separate with comma"></TextBox>
+            <TextBlock FontSize="16" Grid.Row="4">Artist(s):</TextBlock>
+            <TextBox Grid.Column="1" Grid.Row="6" x:Name="AlbumTextBox" PlaceholderText="Album"></TextBox>
+            <TextBlock FontSize="16" Grid.Row="6">Album:</TextBlock>
+            <Button Style="{StaticResource ButtonTransparentBackground}" x:Name="FetchFromSpotifyButton" Click="FetchFromSpotifyButton_Click" Content="Fetch from Spotify" Grid.Row="8" Grid.ColumnSpan="2" HorizontalAlignment="Center" />
         </Grid>
     </Grid>
 </ContentDialog>

@@ -9,14 +9,17 @@ using YoutubeExplode.Converter;
 using YoutubeExplode.Common;
 using YoutubeExplode.Search;
 using YoutubeExplode.Videos.Streams;
-using System.Diagnostics;
 using System.ServiceModel.Channels;
 using Melody.Statics;
+using Melody.Classes;
+using System.Diagnostics;
+using YoutubeExplode.Playlists;
 
 namespace Melody.Core
 {
     public class YouTube
     {
+        public new string Name { get; set; } = "YOUTUBE";
         private YoutubeClient Client;
         public YouTubeVideo CurrentVideo { get; private set; }
         public async Task<YouTubeVideo> GetVideo(string URL)
@@ -33,6 +36,13 @@ namespace Melody.Core
                 throw new ArgumentException("Invalid URL");
             }
         }
+        public async Task<YouTubePlaylist> GetPlaylist(string URL)
+        {
+            Client = new YoutubeClient();
+            var temp = await Client.Playlists.GetAsync(URL);
+            var thumbnail = temp.Thumbnails.GetWithHighestResolution().Url;
+            return new YouTubePlaylist(temp, thumbnail, 0);
+        }
         public async void InitializeURL(string URL)
         {
             try
@@ -42,7 +52,7 @@ namespace Melody.Core
             }
             catch
             {
-                throw new ArgumentException("Invalid URL");
+                throw new ArgumentException($"Invalid URL {URL}");
             }
         }
         public async Task<IStreamInfo> GetStreamInfo(string URL, bool IsVideo = false, IStreamInfo RequestedVideoQuality = null)
@@ -91,7 +101,7 @@ namespace Melody.Core
         public async Task<string> Search(string SearchQuery, string Keyword, double Duration, double MarginOfError)
         {
             var TempClient = new YoutubeClient();
-            int Results = 1;
+            int Results = 3;
             var Keywords = Keyword.ToUpper().GetComponents();
             VideoSearchResult Result;
             var Videos = await TempClient.Search.GetVideosAsync(SearchQuery).CollectAsync(Results);
@@ -104,12 +114,9 @@ namespace Melody.Core
                 Title = Title.Replace(')', ' ');
                 Title = Title.Replace('」', ' ');
                 Title = Title.Replace('「', ' ');
-                Title = Title.Unidecode().ToUpper();
+                Title = Title.Replace('.', ' ');
+                Title = (await Title.Romanize()).ToUpper();
                 var ChannelName = Result.Author.Title.ToUpper();
-
-                Debug.WriteLine($"[SEARCHINFO] Media found: {ChannelName} {Title} ({ts.TotalMilliseconds}) \n" +
-                            $"comparing to keyword: {Keywords[0]} \n" +
-                            $"with range: {Duration - MarginOfError/16} - {Duration + MarginOfError}");
 
                 if (ts.TotalMilliseconds.IsWithinRange(Duration + MarginOfError, Duration - MarginOfError/16))
                 {
@@ -121,6 +128,32 @@ namespace Melody.Core
             }
 
             return string.Empty;
+        }
+        public async Task<string> FuzzySearch(string SearchQuery, double Duration)
+        {
+            var TempClient = new YoutubeClient();
+            int Results = 3;
+            VideoSearchResult Result;
+            var Videos = await TempClient.Search.GetVideosAsync(SearchQuery).CollectAsync(Results);
+            for (int i = 0; i < Results; i++)
+            {
+                Result = Videos[i];
+                TimeSpan ts = (TimeSpan)Result.Duration;
+                var Title = Result.Title.ToUpper();
+                Title = Title.Replace('(', ' ');
+                Title = Title.Replace(')', ' ');
+                Title = Title.Replace('」', ' ');
+                Title = Title.Replace('「', ' ');
+                Title = (await Title.Romanize()).ToUpper();
+                var ChannelName = Result.Author.Title.ToUpper();
+
+                if (ts.TotalMilliseconds.IsWithinRange(Duration + 15000, Duration - 15000 / 4))
+                {
+                    return Result.Url;
+                }
+            }
+
+            return Videos[0].Url;
         }
         public async Task<List<YouTubeVideo>> BrowseYouTubeVideo(string BrowseQuery, int Results, int Offset)
         {
@@ -144,13 +177,66 @@ namespace Melody.Core
             }
             return temp;
         }
+        public async Task<List<YouTubePlaylist>> BrowseYouTubePlaylists(string BrowseQuery, int Results, int Offset)
+        {
+            List<YouTubePlaylist> temp = new List<YouTubePlaylist>();
+            var TempClient = new YoutubeClient();
+            var Playlists = await TempClient.Search.GetPlaylistsAsync(BrowseQuery).CollectAsync(Results + Offset);
+
+            if (Playlists.Count >= Results)
+            {
+                for (int i = 0; i < Results; i++)
+                {
+                    temp.Add(await GetPlaylist(Playlists[i + Offset].Url));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < Playlists.Count; i++)
+                {
+                    temp.Add(await GetPlaylist(Playlists[i + Offset].Url));
+                }
+            }
+            return temp;
+        }
         public async Task<IReadOnlyList<VideoSearchResult>> GetVideoSearchResult(string BrowseQuery, int Results, int Offset)
         {
-            List<string> temp = new List<string>();
             var TempClient = new YoutubeClient();
             var Videos = await TempClient.Search.GetVideosAsync(BrowseQuery).CollectAsync(Results + Offset);
 
             return Videos;
+        }
+        public async Task<IReadOnlyList<PlaylistSearchResult>> GetPlaylistSearchResult(string BrowseQuery, int Results, int Offset)
+        {
+            var TempClient = new YoutubeClient();
+            var Playlists = await TempClient.Search.GetPlaylistsAsync(BrowseQuery).CollectAsync(Results + Offset);
+
+            return Playlists;
+        }
+        public async Task<List<YouTubeVideo>> GetPlaylistVideos(YouTubePlaylist playlist)
+        {
+            int i = 0;
+            List<YouTubeVideo> ytvideos = new List<YouTubeVideo>();
+            var TempClient = new YoutubeClient();
+            var videos = await TempClient.Playlists.GetVideosAsync(playlist.ID.ID);
+            foreach(var v in videos)
+            {
+                ytvideos.Add(new YouTubeVideo(v, true));
+                i++;
+            }
+            playlist.UpdateMediaCount(i);
+            return ytvideos;
+        }
+        public async Task<int> GetPlaylistVideoCount(Playlist playlist)
+        {
+            int i = 0;
+            var TempClient = new YoutubeClient();
+            var videos = await TempClient.Playlists.GetVideosAsync(playlist.Id);
+            foreach (var v in videos)
+            {
+                i++;
+            }
+            return i;
         }
     }
 }

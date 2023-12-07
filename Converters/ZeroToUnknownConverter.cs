@@ -1,30 +1,26 @@
-﻿using System;
+﻿using Melody.Statics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 
 namespace Melody.Converters
 {
-    internal class StringToUpperCaseConverter : IValueConverter
+    internal class ZeroToUnknownCoverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if(value is string str)
+            if (value is uint count)
             {
-                return str.ToUpper();
+                if(count == 0)
+                return "Unknown number of"; else return count.ToString();
             }
             else
             {
-                try
-                {
-                    return value.ToString().ToUpper();
-                }
-                catch
-                {
-                    return "";
-                }
+                return value.ToString();
             }
         }
 
@@ -32,11 +28,11 @@ namespace Melody.Converters
         {
             if (value is string str)
             {
-                return str.ToLower();
+                return str.ToArray();
             }
             else
             {
-                return value.ToString().ToLower();
+                return value;
             }
         }
     }

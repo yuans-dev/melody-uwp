@@ -27,6 +27,8 @@ namespace Melody.Core
                     return await Settings.SpotifyClient.GetPlaylist(ID);
                 case MediaType.YouTubeVideo:
                     return await Settings.YouTubeClient.GetVideo(ID);
+                case MediaType.YouTubePlaylist:
+                    return await Settings.YouTubeClient.GetPlaylist(ID);
                 default:
                     return Media.Empty();
 
@@ -48,5 +50,6 @@ namespace Melody.Core
         SpotifyAlbum,
         SpotifyPlaylist,
         YouTubeVideo,
+        YouTubePlaylist
     }
 }

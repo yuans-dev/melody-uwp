@@ -4,6 +4,10 @@ using System;
 using System.Collections.ObjectModel;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media.Animation;
+using System.Diagnostics;
+using Melody.Statics;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -33,7 +37,17 @@ namespace Melody
             RequestedTheme = Settings.Theme;
             formattableTitleBar.ButtonForegroundColor = DefaultThemeBrush.Color;
         }
-        
+        public void Navigate(Type PageType, object args)
+        {
+            MainPage.Current.InAppNotif.Dismiss();
+            ContentFrame.Navigate(PageType, args);
+        }
+        public void Navigate(Type PageType, object args, NavigationTransitionInfo a)
+        {
+            MainPage.Current.InAppNotif.Dismiss();
+            ContentFrame.Navigate(PageType, args, a);
+        }
+
         private void MainNavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
             var item = args.InvokedItemContainer as NavigationViewItem;
@@ -51,35 +65,42 @@ namespace Melody
                 case "TopTrendingPage":
                     currentitem = TopTrendingItem;
                     break;
-                default:
+                case "SettingsPage":
                     currentitem = MainNavView.SettingsItem as NavigationViewItem;
                     break;
+                default:
+                    currentitem = null;
+                    break;
             }
-
-            if (currentitem == item) { return; }
             if (args.IsSettingsInvoked)
             {
-                ContentFrame.Navigate(typeof(SettingsPage));
+                item = MainNavView.SettingsItem as NavigationViewItem;
             }
-            else
+
+            if (currentitem == item) {
+                Debug.WriteLine($"{currentitem.Tag} - {item.Tag}: Current item is the same as item invoked");
+                return; }
+
+            switch (item.Tag)
             {
-                switch (item.Tag)
-                {
-                    case "BrowsePage":
-                        ContentFrame.Navigate(typeof(BrowsePage));
-                        break;
-                    case "DownloadsPage":
-                        ContentFrame.Navigate(typeof(DownloadsPage));
-                        break;
-                    case "TopTrendingPage":
-                        ContentFrame.Navigate(typeof(TopTrendingPage));
-                        break;
-                }
+                case "BrowsePage":
+                    ContentFrame.Navigate(typeof(BrowsePage));
+                    break;
+                case "DownloadsPage":
+                    ContentFrame.Navigate(typeof(DownloadsPage));
+                    break;
+                case "TopTrendingPage":
+                    ContentFrame.Navigate(typeof(TopTrendingPage));
+                    break;
+                default:
+                    ContentFrame.Navigate(typeof(SettingsPage));
+                    break;
             }
         }
 
         private void MainNavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
+            Debug.WriteLine("Back requested");
             if (ContentFrame.CanGoBack)
             {
                 ContentFrame.GoBack();
@@ -99,6 +120,20 @@ namespace Melody
                         break;
                 }
             }
+        }
+
+        private void ClosePlayerButton_Click(object sender, RoutedEventArgs e)
+        {
+            Player.Player.Hide();
+        }
+
+        private void PlayerDownloadButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var media = button.DataContext as IMedia;
+
+            InfoHelper.ShowInAppNotification($"Successfully added \"{media.Name}\" to Downloads");
+            DownloadManager.AddToDownloads(media);
         }
     }
 }

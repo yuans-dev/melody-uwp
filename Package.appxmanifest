@@ -9,14 +9,14 @@
 
   <Identity
     Name="ba1ba48e-7b94-45ba-a6d8-bd3693313cae"
-    Publisher="CN=Verc"
-    Version="1.1.8.0" />
+    Publisher="CN=verc"
+    Version="1.2.1.0" />
 
   <mp:PhoneIdentity PhoneProductId="ba1ba48e-7b94-45ba-a6d8-bd3693313cae" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>Melody</DisplayName>
-    <PublisherDisplayName>Verchiel</PublisherDisplayName>
+    <PublisherDisplayName>verc</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -38,7 +38,8 @@
         Square44x44Logo="Assets\Square44x44Logo.png"
         Description="Media Downloader"
         BackgroundColor="transparent">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square71x71Logo="Assets\SmallTile.png" Square310x310Logo="Assets\LargeTile.png"/>
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square71x71Logo="Assets\SmallTile.png" Square310x310Logo="Assets\LargeTile.png" ShortName="Melody">
+        </uap:DefaultTile >
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
         <uap:LockScreen Notification="badgeAndTileText" BadgeLogo="Assets\BadgeLogo.png"/>
         <uap:InitialRotationPreference>

@@ -8,6 +8,7 @@ using Windows.UI.Xaml.Navigation;
 using Melody.Classes;
 using Windows.System;
 using System.Threading.Tasks;
+using Melody.Sub_Pages;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -26,12 +27,14 @@ namespace Melody.SubPages
         }
         public IMediaCollection Collection { get; set; }
         private SpotifyTrack PreviouslyPlayed { get; set; }
+        private MediaType mediatype { get; set; }
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
             IsLoading = true;
             if (e.Parameter is SpotifyPlaylist playlist)
             {
                 Collection = playlist;
+                mediatype = MediaType.SpotifyPlaylist;
                 try
                 {
                     MediaListView.ItemsSource = await Settings.SpotifyClient.GetPlaylistTracks(playlist);
@@ -44,6 +47,7 @@ namespace Melody.SubPages
             else if (e.Parameter is SpotifyAlbum album)
             {
                 Collection = album;
+                mediatype = MediaType.SpotifyAlbum;
                 try
                 {
                     MediaListView.ItemsSource = await Settings.SpotifyClient.GetAlbumTracks(album);
@@ -52,56 +56,37 @@ namespace Melody.SubPages
                 {
                     System.Diagnostics.Debug.WriteLine($"[CollectionDetailsPage] {ex.Message}");
                 }
+            }else if(e.Parameter is YouTubePlaylist yplaylist)
+            {
+                Collection = yplaylist;
+                mediatype = MediaType.YouTubePlaylist;
+                try
+                {
+                    MediaListView.ItemsSource = await Settings.YouTubeClient.GetPlaylistVideos(yplaylist);
+                }catch(Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[CollectionDetailsPage] {ex.Message}");
+                }
             }
 
             IsLoading = false;
         }
 
-        private void BackButton_Click(object sender, RoutedEventArgs e)
-        {
-            InAppNotif.Dismiss();
-            var button = sender as Button;
-            Frame rootFrame = Window.Current.Content as Frame;
-            rootFrame.GoBack();
-            button.IsEnabled = false;
-        }
-
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            var item = button.DataContext as SpotifyTrack;
-            var mediaplayer = VisualTreeHelper.GetChild(VisualTreeHelper.GetParent(button), 9) as MediaElement;
-
-            if (!item.IsPlayingPreview)
+            if(mediatype == MediaType.YouTubePlaylist)
             {
-                try
-                {
-                    ClearPreviouslyPlayed();
-                }
-                catch
-                {
+                var vidbutton = sender as Button;
+                var vid = vidbutton.DataContext as YouTubeVideo;
 
-                }
-                mediaplayer?.Play();
-                item.IsPlayingPreview = true;
-
-                PreviouslyPlayed = item;
+                App.SendToRootFrame(typeof(YouTubePreviewPage), vid);
             }
             else
             {
-                mediaplayer?.Stop();
-                item.IsPlayingPreview = false;
-            }
-        }
-        private void ClearPreviouslyPlayed()
-        {
-            if (PreviouslyPlayed != null)
-            {
-                var container = MediaListView.ContainerFromItem(PreviouslyPlayed);
-                var mediaplayer = VisualTreeHelper.GetChild(container.RecursiveGetFirstChild(2), 9) as MediaElement;
+                var button = sender as Button;
+                var item = button.DataContext as SpotifyTrack;
 
-                mediaplayer?.Stop();
-                PreviouslyPlayed.IsPlayingPreview = false;
+                Player.Player.Play(item);
             }
         }
         private void ST_Download_Click(object sender, RoutedEventArgs e)
@@ -152,7 +137,7 @@ namespace Melody.SubPages
         {
             var item = (sender as MenuFlyoutItem).DataContext as SpotifyTrack;
 
-            App.SendToRootFrame(typeof(Sub_Pages.MoreLikeThisPage), item);
+            MainPage.Current.Navigate(typeof(MoreLikeThisPage), item);
         }
 
         private void MediaListView_SelectionChanged(object sender, SelectionChangedEventArgs e)

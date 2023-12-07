@@ -81,7 +81,7 @@
                             </my:ItemsRepeater>
                         </Grid>
                         <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Spacing="16" Margin="0,12,0,0"  Orientation="Horizontal">
-                            <Button Background="Transparent" Opacity="{Binding IsPreviewAvailable,Converter={StaticResource BoolToOpacityConverter},Mode=OneWay}" IsHitTestVisible="{Binding IsPreviewAvailable}" DataContext="{Binding}" Click="ST_Play_Click" ToolTipService.ToolTip="Play preview">
+                            <Button Background="Transparent" DataContext="{Binding}" Click="ST_Play_Click" ToolTipService.ToolTip="Play preview">
                                 <SymbolIcon Symbol="{Binding IsPlayingPreview,Converter={StaticResource BoolToPlaySymbolConverter}, Mode=OneWay}"/>
                             </Button>
                             <Button Background="Transparent" DataContext="{Binding}" Click="ST_Download_Click" ToolTipService.ToolTip="Download audio">
@@ -117,7 +117,7 @@
             </Style>
         </ResourceDictionary>
     </Page.Resources>
-    <Grid Margin="0,32,0,0">
+    <Grid Margin="0,-24,0,0">
         <Grid.RowDefinitions>
             <RowDefinition MinHeight="140" MaxHeight="160" Height="4*"/>
             <RowDefinition Height="7*"/>
@@ -148,9 +148,6 @@
                 <ProgressBar Grid.Row="1" Width="160" Maximum="1" HorizontalAlignment="Center" Foreground="{ThemeResource DefaultForeground}" Value="{x:Bind LoadingProgress,Mode=OneWay}"/>
             </Grid>
         </controls:Loading>
-        <Button x:Name="BackButton" Click="BackButton_Click" VerticalAlignment="Top" Background="Transparent">
-            <FontIcon Glyph="&#xE72B;" FontSize="16"/>
-        </Button>
         <m:InAppNotification Grid.RowSpan="2" VerticalAlignment="Bottom" CornerRadius="16,16,16,16" Width="AUTO" x:Name="InAppNotif" x:FieldModifier="public"/>
     </Grid>
 </classes:BasePage>

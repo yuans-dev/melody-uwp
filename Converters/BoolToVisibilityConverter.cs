@@ -3,41 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 
 namespace Melody.Converters
 {
-    internal class StringToUpperCaseConverter : IValueConverter
+    internal class BoolToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if(value is string str)
+            if(value is bool boolean)
             {
-                return str.ToUpper();
-            }
-            else
-            {
-                try
+                if (boolean)
                 {
-                    return value.ToString().ToUpper();
+                    return Visibility.Collapsed;
                 }
-                catch
+                else
                 {
-                    return "";
+                    return Visibility.Visible;
                 }
             }
+            return Visibility.Visible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
-            if (value is string str)
-            {
-                return str.ToLower();
-            }
-            else
-            {
-                return value.ToString().ToLower();
-            }
+            return value;
         }
     }
 }

@@ -57,7 +57,7 @@ namespace Melody
 
             }
 
-            var topresults = await Settings.SpotifyClient.GetSpotifyTracksFromLastFM(await LastFM.GetTopTracks());
+            var topresults = await Settings.SpotifyClient.GetSpotifyTracksFromLastFM(await Auxiliaries.GetTopTracks());
             foreach(var result in topresults)
             {
                 TopTracksResults.Add(result);

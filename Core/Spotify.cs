@@ -1,10 +1,11 @@
 ﻿using Melody;
+using Melody.Classes;
 using Melody.Statics;
 using SpotifyAPI.Web;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
+using YoutubeExplode.Playlists;
 
 namespace Melody.Core
 {
@@ -16,12 +17,13 @@ namespace Melody.Core
             Details.Secret = "";
         }
         public ClientDetails Details;
-        public bool Authd { get; private set; } = false;
+        public bool Authorized { get; private set; } = false;
 
         public SpotifyClient Client;
         public event EventHandler<CollectionProgressEventArgs> CollectionFetchingProgressChanged;
         public event EventHandler CollectionFetchingDone;
         public event EventHandler<CollectionProgressEventArgs> SpotifyTracksFromLastFMProgressChanged;
+        public event EventHandler<SpotifyAuthorizedEventArgs> SpotifyAuthorizationAttempted;
         public async Task Auth()
         {
             try
@@ -33,17 +35,16 @@ namespace Melody.Core
                 var response = await new OAuthClient(config).RequestToken(request);
 
                 Client = new SpotifyClient(config.WithToken(response.AccessToken));
-                Debug.WriteLine("[SPOTIFY CLIENT] Auth Success!");
-                Authd = true;
+                OnSpotifyAuthorized(true, Details);
             }
             catch (ArgumentNullException)
             {
-                Authd = false;
+                OnSpotifyAuthorized(false, Details);
                 throw new ArgumentNullException("Must set Client ID and Secret");
             }
             catch (Exception)
             {
-                Authd = false;
+                OnSpotifyAuthorized(false, Details);
                 throw new ArgumentException("Invalid Client ID and Secret");
             }
         }
@@ -94,7 +95,6 @@ namespace Melody.Core
         {
             try
             {
-                Debug.WriteLine(PLAYLIST_ID);
                 return await Client.Playlists.Get(PLAYLIST_ID);
             }
             catch (Exception)
@@ -126,7 +126,6 @@ namespace Melody.Core
                     item = search.Tracks.Items[0];
                 }
             }
-            
             return item.Id;
         }
         public async Task<string> SearchPlaylist(string SearchQuery, int Index)
@@ -225,17 +224,13 @@ namespace Melody.Core
         }
         public async Task<List<SpotifyTrack>> GetPlaylistTracks(SpotifyPlaylist Playlist)
         {
-            Debug.WriteLine("[SPOTIFY CLIENT] Getting Playlist Tracks");
             var fullplaylist = await Client.Playlists.Get(Playlist.ID.ID);
-            Debug.WriteLine($"[SPOTIFY CLIENT] Found {fullplaylist.Name}");
             var temp = new List<SpotifyTrack>();
 
-            Debug.WriteLine($"[SPOTIFY CLIENT] {Playlist.MediaCount} Total IDs found in playlist");
 
             int x = (int)Math.Ceiling((decimal)Playlist.MediaCount / 100);
             int finished = 0;
             int total = (int)Playlist.MediaCount;
-            Debug.WriteLine($"[SPOTIFY CLIENT] Playlist going through {x} loop(s)--");
             for (int i = 0; i < x; i++)
             {
                 foreach (PlaylistTrack<IPlayableItem> item in fullplaylist.Tracks.Items)
@@ -245,15 +240,14 @@ namespace Melody.Core
                         try
                         {
                             temp.Add(new SpotifyTrack(track, track.Album));
-                            Debug.WriteLine($"[SPOTIFY CLIENT] Added {track.Name} | Loop {i + 1}");
                         }
                         catch (System.ArgumentNullException ex)
                         {
-                            Debug.WriteLine($"[SPOTIFY CLIENT] Null item error ({ex.Message}) | Source: {ex.Source} from {ex.TargetSite}");
+                           
                         }
                         catch (System.ArgumentOutOfRangeException e)
                         {
-                            Debug.WriteLine($"[SPOTIFY CLIENT] Out of range error ({e.Message}) | Source: {e.Source} from {e.TargetSite}");
+                           
                         }
                     }
                     finished++;
@@ -265,17 +259,11 @@ namespace Melody.Core
         }
         public async Task<List<SpotifyTrack>> GetAlbumTracks(SpotifyAlbum Album)
         {
-            Debug.WriteLine("[SPOTIFY CLIENT] Getting Album Tracks");
             var fullalbum = await Client.Albums.Get(Album.ID.ID);
-            Debug.WriteLine($"[SPOTIFY CLIENT] Found {fullalbum.Name}");
             var temp = new List<SpotifyTrack>();
-
-            Debug.WriteLine($"[SPOTIFY CLIENT] {Album.MediaCount} Total IDs found in album");
-
             int x = (int)Math.Ceiling((decimal)Album.MediaCount / 100);
             int finished = 0;
             int total = (int)Album.MediaCount;
-            Debug.WriteLine($"[SPOTIFY CLIENT] Album going through {x} loop(s)--");
             for (int i = 0; i < x; i++)
             {
                 foreach (SimpleTrack item in fullalbum.Tracks.Items)
@@ -283,15 +271,12 @@ namespace Melody.Core
                     try
                     {
                         temp.Add(new SpotifyTrack(item, fullalbum));
-                        Debug.WriteLine($"[SPOTIFY CLIENT] Added {item.Name} | Loop {i + 1}");
                     }
                     catch (System.ArgumentNullException ex)
-                    {
-                        Debug.WriteLine($"[SPOTIFY CLIENT] Null item error ({ex.Message}) | Source: {ex.Source} from {ex.TargetSite}");
+                    {   
                     }
                     catch (System.ArgumentOutOfRangeException e)
                     {
-                        Debug.WriteLine($"[SPOTIFY CLIENT] Out of range error ({e.Message}) | Source: {e.Source} from {e.TargetSite}");
                     }
                     finished++;
                     OnPlaylistFetchingProgressChanged(finished, total);
@@ -349,7 +334,7 @@ namespace Melody.Core
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[SPOTIFY CLIENT] Error - {ex.Message}");
+
                 }
                 OnSpotifyTracksFromLastFMProgressChanged(i+1, LastFMSimilarTracks.Count);
             }
@@ -377,7 +362,19 @@ namespace Melody.Core
         {
             CollectionFetchingDone?.Invoke(this, EventArgs.Empty);
         }
+        protected virtual void OnSpotifyAuthorized(bool Authorized, ClientDetails Details)
+        {
+            this.Authorized = Authorized;
+            SpotifyAuthorizationAttempted?.Invoke(this, new SpotifyAuthorizedEventArgs { Authorized = Authorized, Details = Details }) ;
+        }
     }
+
+    public class SpotifyAuthorizedEventArgs
+    {
+        public bool Authorized { get; set; }
+        public ClientDetails Details {get;set;}
+    }
+
     public class CollectionProgressEventArgs : EventArgs
     {
         public int Finished { get; set; }

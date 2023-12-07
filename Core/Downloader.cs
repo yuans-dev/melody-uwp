@@ -1,4 +1,5 @@
-﻿using Melody.Statics;
+﻿using Melody.Classes;
+using Melody.Statics;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -53,6 +54,12 @@ namespace Melody.Core
         }
         private IMedia CurrentlyDownloading { get; set; }
         public string OutputPath { get; set; }
+        public async Task<string> GetStream(SpotifyTrack track)
+        {
+            var ytlink = await ToYouTubeLink(track);
+            var streaminfo = await Settings.YouTubeClient.GetStreamInfo(ytlink);
+            return streaminfo.Url;
+        }
         public async Task DownloadMedia(IMedia media)
         {
             try
@@ -69,6 +76,9 @@ namespace Melody.Core
             catch (YoutubeExplode.Exceptions.VideoUnplayableException)
             {
                 OnDownloadCompleted(Result.Other, "Video is unavailable due to age restrictions");
+            }catch(UnauthorizedAccessException) 
+            {
+                OnDownloadCompleted(Result.Other, "Unauthorized access! Please set your downloads folder again.");
             }
         }
         public async Task DownloadMedia(SpotifyTrack track)
@@ -140,7 +150,6 @@ namespace Melody.Core
             CurrentlyDownloading = video;
 
             Status = "Downloading";
-
             var streaminfo = await Settings.YouTubeClient.GetStreamInfo(video.ID.ID, video.IsVideo, video.RequestedVideoQuality);
 
             string extension = "";
@@ -151,7 +160,6 @@ namespace Melody.Core
                     break;
                 case false:
                     extension = "mp3";
-                    video = await video.SetMetadataAsync();
                     break;
             }
 
@@ -228,33 +236,30 @@ namespace Melody.Core
         }
         private async Task<string> ToYouTubeLink(SpotifyTrack Track)
         {
-           
-            string[] keywords = new string[2] { Track.Title.Unidecode(),Track.Title };
-            int[] errormargins = new int[8] {  0, 1000, 2000, 4000, 8000, 16000, 32000, 64000 };
+            string title = await Track.Title.Romanize();
+            string[] keywords = new string[2] { title ,Track.Title };
+            int[] errormargins = new int[6] {  0, 1000, 2000, 4000, 8000, 12000 };
             var i = 1;
             foreach (var keyword in keywords)
             {
                 foreach (var margin in errormargins)
                 {
-                    Debug.Write($"[DOWNLOADER] #{i++} Trying to search for..." +
-                        $"\n{Track.Title.ToLower()} {Track.Authors[0].ToLower()}" +
-                        $"\nwith the keyword \"{keyword}\"" +
-                        $"\nwith the error margin of {margin}ms\n");
                     Status = $"Searching";
-                    var result = await Settings.YouTubeClient.Search($"{Track.Title.ToLower()} {Track.Authors[0].ToLower()}", keyword, Track.Duration, margin);
+                    var result = await Settings.YouTubeClient.Search($"{title.ToLower()} {Track.Authors[0].ToLower()}", keyword, Track.Duration, margin);
                     if (!string.IsNullOrWhiteSpace(result))
                     {
-                        Debug.WriteLine($"[DOWNLOADER] Trying {result}");
                         Settings.YouTubeClient.InitializeURL(result);
                         return result;
                     }
                 }
             }
-            return String.Empty;
+            Debug.WriteLine($"{title.ToLower()} {Track.Authors[0].ToLower()} official");
+            var fuzzyresult = await Settings.YouTubeClient.FuzzySearch($"{title.ToLower()} {Track.Authors[0].ToLower()} official", Track.Duration);
+            Settings.YouTubeClient.InitializeURL(fuzzyresult);
+            return fuzzyresult;
         }
         protected virtual void OnProgressChanged()
         {
-            Debug.WriteLine($"[DOWNLOADER] {Status} | {Progress * 100}%");
             ProgressChanged?.Invoke(this,
                     new DownloadProgressEventArgs()
                     {

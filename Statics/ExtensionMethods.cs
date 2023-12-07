@@ -3,7 +3,6 @@ using Melody.Core;
 using Melody.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -13,12 +12,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using TagLib;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Globalization;
 using Windows.Graphics.Imaging;
 using Windows.Media.MediaProperties;
 using Windows.Media.Transcoding;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Composition;
+using MyNihongo.KanaDetector;
+using Kawazu;
+using Unidecode.NET;
+using Melody.Classes;
+using YoutubeExplode.Videos.Streams;
 
 namespace Melody.Statics
 {
@@ -187,6 +192,7 @@ namespace Melody.Statics
                 tagFile.Tag.Album = track.Album;
                 tagFile.Tag.Track = track.Number;
                 tagFile.Tag.Year = (uint)Int32.Parse(track.Year);
+                tagFile.Tag.Genres = track.Tags.ToArray();
 
                 try
                 {
@@ -236,7 +242,7 @@ namespace Melody.Statics
                     using (IRandomAccessStream stream = await random.OpenReadAsync())
                     {
                         var dec = await BitmapDecoder.CreateAsync(stream);
-                        var square = Math.Min(dec.PixelHeight, dec.PixelWidth) - 100;
+                        var square = Math.Min(dec.PixelHeight, dec.PixelWidth) - 150;
 
 
                         var p = new Point((int)((dec.PixelWidth / 2) - (square / 2)), (int)((dec.PixelHeight / 2) - (square / 2)));
@@ -284,26 +290,6 @@ namespace Melody.Statics
             }
             return file;
         }
-        public static async Task<YouTubeVideo> SetMetadataAsync(this YouTubeVideo video)
-        {
-            var track = await Settings.SpotifyClient.GetTrack(await Settings.SpotifyClient.SearchTrack(video.Title, video.DurationAsTimeSpan.TotalMilliseconds, 5));
-            Debug.WriteLine($"[METADATA] Video duration: {video.DurationAsTimeSpan.TotalMilliseconds}");
-            Debug.WriteLine($"[METADATA] Track duration: {track.Duration} Track link: {track.Link.Web}");
-            if (video.DurationAsTimeSpan.TotalMilliseconds.IsWithinRange(track.Duration + 500, track.Duration - 1000))
-            {
-                Debug.WriteLine("Found corresponding track");
-                video.Title = track.Title;
-                video.Authors = track.Authors;
-                video.Album = track.Album;
-                video.Bitmap = track.Bitmap;
-                video.SpotifyTagged = true;
-                return video;
-            }
-            else
-            {
-                return video;
-            }
-        }
         public static string[] GetComponents(this string str)
         {
             str = str.Replace("FEAT.","");
@@ -333,11 +319,9 @@ namespace Melody.Statics
                 {
                     if (str.Contains(item))
                     {
-                        Debug.WriteLine($"{str} contains {item}");
                         doesContain = true;
                     }
                     else {
-                        Debug.WriteLine($"{str} does not contain {item}");
                         doesContain = false; }
                 }
             }
@@ -352,6 +336,17 @@ namespace Melody.Statics
                 }
             }
             return doesContain;
+        }
+        public static async Task<string> Romanize(this string text)
+        {
+            if (text.HasHiragana() || text.HasKana() || text.HasKatakana())
+            {
+                var converter = new KawazuConverter();
+                var result = await converter.Convert(text, To.Romaji, Mode.Spaced, RomajiSystem.Hepburn);
+                converter.Dispose();
+                return result;
+            }
+            return text.Unidecode();
         }
     }
 }

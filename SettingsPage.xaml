@@ -8,12 +8,17 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Dictionary.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
     <ScrollViewer>
         <Grid Margin="36,0,36,16">
             <StackPanel Margin="0,0,0,0">
-
-                <StackPanel Margin="0, 0, 0, 24" x:Name="AuthorizationControls" Visibility="Visible">
+                <StackPanel Margin="0, 0, 0, 24" x:Name="AuthorizationControls" Visibility="Collapsed">
                     <TextBlock 
                     FontSize="24" 
                     FontFamily="Segoe UI Light" 

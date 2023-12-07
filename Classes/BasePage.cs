@@ -8,33 +8,13 @@ namespace Melody.Classes
         public virtual string Header => "";
         public virtual string MinimalHeader => "";
         private bool _IsLoading { get; set; } = false;
-        private bool _SpotifyIsLoading { get; set; } = false;
-        private bool _YouTubeIsLoading { get; set; } = false;
         public virtual bool IsLoading
         {
             get { return _IsLoading; }
-            set 
-            { 
+            set
+            {
                 _IsLoading = value;
                 OnPropertyChanged("IsLoading");
-            }
-        }
-        public virtual bool SpotifyIsLoading
-        {
-            get { return _SpotifyIsLoading; }
-            set
-            {
-                _SpotifyIsLoading = value;
-                OnPropertyChanged("SpotifyIsLoading");
-            }
-        }
-        public virtual bool YouTubeIsLoading
-        {
-            get { return _YouTubeIsLoading; }
-            set
-            {
-                _YouTubeIsLoading = value;
-                OnPropertyChanged("YouTubeIsLoading");
             }
         }
         private string _LoadingText { get; set; } = "";

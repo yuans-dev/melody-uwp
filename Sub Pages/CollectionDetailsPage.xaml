@@ -22,7 +22,7 @@
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="Opacity" Value="0.7"/>
             </Style>
-            <DataTemplate x:Key="SpotifyCollectionListDataTemplate">
+            <DataTemplate x:Key="CollectionListDataTemplate">
                 <Grid ColumnSpacing="18" Height="48" Margin="0,12,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="48"/>
@@ -38,9 +38,9 @@
                     <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,0,18" Grid.Column="1" ToolTipService.ToolTip="{Binding Title}" Text="{Binding Title}"/>
                     <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Opacity="0.37" Margin="0,18,0,0" Grid.Column="1" ToolTipService.ToolTip="{Binding Authors, Converter={StaticResource ArrayToStringConverter}}"  Text="{Binding Authors, Converter={StaticResource ArrayToStringConverter}}"/>
                     <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Grid.Column="4" Text="{Binding Album}"/>
-                    <TextBlock VerticalAlignment="Center" Grid.Column="5" Text="{Binding Year}"/>
+                    <TextBlock VerticalAlignment="Center" Grid.Column="5" Visibility="{Binding Year, Converter={StaticResource IsValidConverter}}" Text="{Binding Year}"/>
                     <TextBlock Opacity="0.37" VerticalAlignment="Center" Grid.Column="6" Text="{Binding DurationAsTimeSpan}"/>
-                    <Button Click="PlayButton_Click" DataContext="{Binding}" Opacity="{Binding IsPreviewAvailable,Converter={StaticResource BoolToOpacityConverter},Mode=OneWay}" IsHitTestVisible="{Binding IsPreviewAvailable}" ToolTipService.ToolTip="Play preview" Background="Transparent" Grid.Column="2">
+                    <Button Click="PlayButton_Click" DataContext="{Binding}" ToolTipService.ToolTip="Play preview" Background="Transparent" Grid.Column="2">
                         <SymbolIcon Symbol="{Binding IsPlayingPreview,Converter={StaticResource BoolToPlaySymbolConverter}, Mode=OneWay}"/>
                     </Button>
                     <Button Grid.Column="3" Background="Transparent" Opacity="0.7" DataContext="{Binding}" ToolTipService.ToolTip="More...">
@@ -65,7 +65,7 @@
         </ResourceDictionary>
     </Page.Resources>
 
-    <Grid Margin="0,32,0,0">
+    <Grid Margin="0,-28,0,0">
         <Grid.RowDefinitions>
             <RowDefinition MinHeight="172" MaxHeight="200" Height="4*"/>
             <RowDefinition Height="7*"/>
@@ -88,10 +88,10 @@
                        FontSize="14" RelativePanel.RightOf="AuthorTextBlock" 
                        RelativePanel.AlignBottomWithPanel="True" Text="{x:Bind Collection.Authors, Converter={StaticResource ArrayToStringConverter}}"/>
             
-            <TextBlock Margin="2,0,0,32" Opacity="0.37" FontSize="14" RelativePanel.RightOf="MediaCountTextBlock" RelativePanel.AlignBottomWithPanel="True" Text="songs"/>
-            <TextBlock x:Name="MediaCountTextBlock" Margin="18,0,0,32" Opacity="0.37" FontSize="14" RelativePanel.RightOf="CollectionImage" RelativePanel.AlignBottomWithPanel="True" Text="{x:Bind Collection.MediaCount}"/>
+            <TextBlock Margin="2,0,0,32" Opacity="0.37" FontSize="14" RelativePanel.RightOf="MediaCountTextBlock" RelativePanel.AlignBottomWithPanel="True" Text="item(s)"/>
+            <TextBlock x:Name="MediaCountTextBlock" Margin="18,0,0,32" Opacity="0.37" FontSize="14" RelativePanel.RightOf="CollectionImage" RelativePanel.AlignBottomWithPanel="True" Text="{x:Bind Collection.MediaCount, Converter={StaticResource ZeroToUnknownConverter}}"/>
         </RelativePanel>
-        <ListView SelectionChanged="MediaListView_SelectionChanged" ItemTemplate="{StaticResource SpotifyCollectionListDataTemplate}" Grid.Row="1" x:Name="MediaListView">
+        <ListView SelectionChanged="MediaListView_SelectionChanged" ItemTemplate="{StaticResource CollectionListDataTemplate}" Grid.Row="1" x:Name="MediaListView">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -105,9 +105,6 @@
                 <TextBlock FontWeight="SemiBold" FontSize="16">SEARCHING...</TextBlock>
             </StackPanel>
         </controls:Loading>
-        <Button Click="BackButton_Click" VerticalAlignment="Top" Background="Transparent">
-            <FontIcon Glyph="&#xE72B;" FontSize="16"/>
-        </Button>
         <m:InAppNotification Grid.RowSpan="2" VerticalAlignment="Bottom" CornerRadius="16,16,16,16" Width="AUTO" x:Name="InAppNotif" x:FieldModifier="public"/>
     </Grid>
 </classes:BasePage>

@@ -20,6 +20,9 @@
     <converters:BoolToPlaySymbolConverter x:Key="BoolToPlaySymbolConverter"/>
     <converters:StringToUpperCaseConverter x:Key="StringToUpperCaseConverter"/>
     <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
+    <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     <converters:ArrayToStringConverter x:Key="ArrayToStringConverter"/>
+    <converters:IsValidConverter x:Key="IsValidConverter"/>
+    <converters:ZeroToUnknownCoverter x:Key="ZeroToUnknownConverter"/>
     <my:StackLayout x:Key="HorizontalStackLayout" Orientation="Horizontal" Spacing="6"/>
 </ResourceDictionary>

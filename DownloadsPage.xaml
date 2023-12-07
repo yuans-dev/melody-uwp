@@ -47,21 +47,10 @@
                             </Grid.ContextFlyout>
                             <Grid Grid.Row="0" Height="128" CornerRadius="8,8,8,8" Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
                                 <Grid ColumnSpacing="8">
-                                    <Grid.Background>
-                                        <ImageBrush ImageSource="{Binding Bitmap}" Stretch="UniformToFill"/>
-                                    </Grid.Background>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="128"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Rectangle Grid.ColumnSpan="2">
-                                        <Rectangle.Fill>
-                                            <brushes:AcrylicBrush BackgroundSource="Backdrop"
-                                                                  TintColor="{ThemeResource DefaultBackgroundColor}"
-                                                                  TintOpacity="0.87"
-                                                                  BlurAmount="24"/>
-                                        </Rectangle.Fill>
-                                    </Rectangle>
                                     <Image Grid.Column="0" HorizontalAlignment="Center" Stretch="UniformToFill" Source="{Binding Bitmap}"/>
                                     <Grid Grid.Column="1" Margin="0,12,12,12">
                                         <Grid.RowDefinitions>
@@ -97,11 +86,11 @@
                                             <FontIcon Glyph="{Binding StatusGlyph}" FontSize="14"/>
                                         </Button>
                                         <Button Opacity="0.6" Width="36" Height="36" CornerRadius="18,18,18,18" Margin="0,0,40,0" DataContext="{Binding}" Visibility="{Binding ListVisibility}" Click="ShowCollapseListButton_Click" Background="Transparent" Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                                            <FontIcon Glyph="&#xE8C4;" FontSize="14"/>
+                                            <FontIcon Glyph="&#xEA37;" FontSize="14"/>
                                         </Button>
                                     </Grid>
                                 </Grid>
-                                <ProgressBar Margin="128,0,0,0" VerticalAlignment="Bottom" Foreground="{ThemeResource AppBarItemForegroundThemeBrush}" HorizontalAlignment="Stretch" Value="{Binding ProgressValue,Mode=OneWay}" IsIndeterminate="{Binding HasNotStarted,Mode=OneWay}"></ProgressBar>
+                                <ProgressBar Margin="128,0,0,0" VerticalAlignment="Bottom" Foreground="{ThemeResource SystemAccentColorLight2}" HorizontalAlignment="Stretch" Value="{Binding ProgressValue,Mode=OneWay}" IsIndeterminate="{Binding HasNotStarted,Mode=OneWay}"></ProgressBar>
                             </Grid>
                             <ListView SelectionChanged="ListView_SelectionChanged" Margin="12,0,12,0" Grid.Row="1" MaxHeight="240" ItemsSource="{Binding MediaItems}">
                                 <ListView.ItemContainerStyle>

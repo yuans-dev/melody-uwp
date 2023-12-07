@@ -6,7 +6,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:m="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:brushes="using:Microsoft.Toolkit.Uwp.UI.Media"
+    xmlns:player="using:Melody.Player"
+    xmlns:brushes="using:Microsoft.Toolkit.Uwp.UI.Media" d:DataContext="{d:DesignInstance Type=player:Player}"
     mc:Ignorable="d"
     NavigationCacheMode="Enabled"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -24,11 +25,21 @@
                               TintColor="{ThemeResource DefaultBackgroundColor}"
                               TintOpacity="0.6"
                               BlurAmount="10"/>
+            <Style TargetType="Button" x:Name="ButtonTransparentBackground">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Opacity" Value="0.7"/>
+            </Style>
             <SolidColorBrush x:FieldModifier="public" x:Name="DefaultThemeBrush" x:Key="DefaultThemeBrush" Color="{ThemeResource DefaultForegroundColor}"/>
         </ResourceDictionary>
     </Page.Resources>
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="6*"/>
+            <RowDefinition Height="170"/>
+        </Grid.RowDefinitions>
         <NavigationView 
+            Grid.RowSpan="2"
+            Grid.Row="0"
             Header="lol"
             PaneDisplayMode="Top"
             x:Name="MainNavView" 
@@ -52,6 +63,57 @@
 
             <Frame x:Name="ContentFrame" x:FieldModifier="public"/>
         </NavigationView>
-        <m:InAppNotification CornerRadius="4,4,4,4" Width="AUTO" x:Name="InAppNotif" x:FieldModifier="public"/>
+
+        <Grid x:Name="PlayerGrid" x:FieldModifier="public" Visibility="Collapsed" Grid.Row="1" Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="128"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <MediaPlayerElement 
+                Grid.Row="1"
+                x:FieldModifier="public"
+                x:Name="DefaultMediaElement"
+                HorizontalAlignment="Stretch" 
+                AutoPlay="True"
+                AreTransportControlsEnabled="True">
+                <MediaPlayerElement.TransportControls>
+                    <MediaTransportControls IsZoomButtonVisible="False" IsCompact="True" IsFullWindowButtonVisible="False">
+                    </MediaTransportControls>
+                </MediaPlayerElement.TransportControls>
+            </MediaPlayerElement>
+            <Grid Grid.Row="0" ColumnSpacing="12" RowSpacing="8" x:FieldModifier="public" x:Name="InfoGrid">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="128"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="28"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Image x:FieldModifier="public" Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" x:Name="InfoImage" Width="128" Stretch="Uniform">
+                    
+                </Image>
+                <TextBlock x:FieldModifier="public" Grid.Row="0" x:Name="InfoTitle" Margin="0,8,0,0" FontSize="24" FontWeight="Bold" Grid.Column="1"></TextBlock>
+                <TextBlock x:FieldModifier="public" Grid.Row="1" x:Name="InfoArtist" Opacity="0.6" FontSize="12" Grid.Column="1"></TextBlock>
+                <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+                    <Button x:FieldModifier="public" x:Name="PlayerDownloadButton" Click="PlayerDownloadButton_Click" Margin="0,0,0,8" Background="{ThemeResource SystemControlAccentDark2AcrylicElementAccentDark2MediumHighBrush}" Opacity="0.9" CornerRadius="8">
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <SymbolIcon Grid.Column="0" Symbol="Download"/>
+                            <TextBlock Grid.Column="1" Text="Download"/>
+                        </Grid>
+                    </Button>
+                </StackPanel>
+            </Grid>
+            <Button Style="{StaticResource ButtonTransparentBackground}" Grid.Row="0" ToolTipService.ToolTip="Close" HorizontalAlignment="Right" Margin="4" CornerRadius="20,20,20,20" Width="40" Height="40" VerticalAlignment="Top" Click="ClosePlayerButton_Click">
+                <SymbolIcon Symbol="Cancel"/>
+            </Button>
+        </Grid>
+        <m:InAppNotification Background="{ThemeResource SystemControlAcrylicElementMediumHighBrush}" Grid.RowSpan="2" CornerRadius="4,4,4,4" Width="AUTO" x:Name="InAppNotif" x:FieldModifier="public"/>
     </Grid>
 </Page>
