@@ -16,8 +16,21 @@ namespace Melody.Core
             var list = new List<string>();
             try
             {
-                var response = await Client.Track.GetInfoAsync(Title, Artist);
-                foreach (var tag in response.Tags)
+                for (int i = 0; i < release.Results.Count; i++)
+                {
+                    if (release.Results[i].Item.Tags == null)
+                    {
+                        if (release.Results[i].Item.UserTags == null)
+                        {
+
+                        }
+                        else
+                        {
+                            tags = release.Results[i].Item.UserTags.ToList();
+                            break;
+                        }
+                    }
+                    else
                 {
                     list.Add(tag.Name);
                 }
