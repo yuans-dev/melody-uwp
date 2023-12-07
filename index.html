@@ -15,12 +15,12 @@
             <ul id="navlinks">
                 <li><a class="selected" id="homelink"><h3>home</h3></a></li>
                 <li><a id="aboutlink"><h3>about</h3></a></li>
-                <li><button class="navdownload-btn"><h2>download</h2></button></li>
+                <li><button id="navdownload-btn" class="navdownload-btn"><h2>download</h2></button></li>
             </ul>
         </div>
         
         <div class="alignright">
-            <button class="github-btn">
+            <button class="github-btn" id="github-btn">
                 <h2>github <span class="material-symbols-outlined">code</span></h2>
             </button>
         </div>
@@ -33,7 +33,7 @@
                     <h4>Sail the seven seas with style.</h4>
                 </div>
                 <br>
-                <button class="pbutton">
+                <button class="pbutton" id="download-btn">
                     <div>
                         <span class="material-symbols-outlined">download</span>
                         <h2>Download</h2>
@@ -66,6 +66,20 @@
             }else{
                 navigation.classList.add("collapsewidth");
             }
+        })
+    </script>
+    <script>
+        const githubbtn = document.getElementById("github-btn");
+        const navdownloadbtn = document.getElementById("navdownload-btn");
+        const downloadbtn = document.getElementById("download-btn");
+        githubbtn.addEventListener("click", function(){
+            window.location.href = "https://github.com/yverci/melody-uwp";
+        })
+        navdownloadbtn.addEventListener("click", function(){
+            window.location.href = "https://github.com/yverci/melody-uwp/releases";
+        })
+        downloadbtn.addEventListener("click", function(){
+            window.location.href = "https://github.com/yverci/melody-uwp/releases";
         })
     </script>
     <script>
