@@ -1,9 +1,5 @@
-## Media Downloader App
+##what is Melody?
+Melody is a Universal Windows Platform (UWP) application that lets you pirate YouTube video and audio.
 
-An app that lets you download media from various sources
-
-### What does it do?
-
-The app downloads media via YouTube links. When you download a Spotify track, it does not actually rip the track directly. First, it searches for the song on YouTube, then it grabs the YouTube download link and downloads from there. 
-
-As you can imagine, there are times when the media you are downloading will not match one-for-one, but there are safety nets to ensure that it does not happen very often.
+#how does it work?
+Melody uses the YouTubeExplode library by Tyrrrz which scrapes raw page data and intercepts internal endpoints to resolve download links.
