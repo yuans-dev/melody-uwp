@@ -1,128 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/x-icon" href="img/logo.png">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" type="image/x-icon" href="img/logo.png" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    />
     <title>Melody</title>
-</head>
-<body>
+  </head>
+  <body>
     <div class="navbar" id="navbar">
-        <div class="alignleft">
-            <button class="menubutton" id="menu"><span class="material-symbols-outlined">menu</span></button>
-            <ul id="navlinks">
-                <li><a class="selected" id="homelink"><h3>home</h3></a></li>
-                <li><a id="aboutlink"><h3>about</h3></a></li>
-                <li><button id="navdownload-btn" class="navdownload-btn"><h2>download</h2></button></li>
-            </ul>
-        </div>
-        
-        <div class="alignright">
-            <button class="github-btn" id="github-btn">
-                <h2>github <span class="material-symbols-outlined">code</span></h2>
+      <div class="alignleft">
+        <button class="menubutton" id="menu">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+        <ul id="navlinks">
+          <li>
+            <a class="selected" id="homelink"><h3>home</h3></a>
+          </li>
+          <li>
+            <a id="aboutlink"><h3>about</h3></a>
+          </li>
+          <li>
+            <a id="author-btn"><h3>yuans-dev</h3></a>
+          </li>
+          <li>
+            <button id="navdownload-btn" class="navdownload-btn">
+              <h2>releases</h2>
             </button>
-        </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="alignright">
+        <button class="github-btn" id="github-btn">
+          <h2>github <span class="material-symbols-outlined">code</span></h2>
+        </button>
+      </div>
     </div>
     <section id="herobanner" class="herobanner">
-        <div id="parallax">
-            <div class="content">
-                <div>
-                    <img id="melodylogo" src="img/Melody Logo.svg" alt="melody">
-                    <h4>Sail the seven seas with style.</h4>
-                </div>
-                <br>
-                <button class="pbutton" id="download-btn">
-                    <div>
-                        <span class="material-symbols-outlined">download</span>
-                        <h2>Download</h2>
-                    </div>
-                </button>
+      <div id="parallax">
+        <div class="content">
+          <div>
+            <img id="melodylogo" src="img/Melody Logo.svg" alt="melody" />
+            <h4>Sail the seven seas with style.</h4>
+          </div>
+          <br />
+          <button class="pbutton" id="download-btn">
+            <div>
+              <span class="material-symbols-outlined">download</span>
+              <h2>Download</h2>
             </div>
+          </button>
         </div>
+      </div>
     </section>
 
     <section id="about" class="about">
-        <div class="content">
-            <section>
-                <h2>what is Melody?</h2>
-                <p>Melody is a <a class="link" href="https://learn.microsoft.com/en-us/windows/uwp/get-started/universal-application-platform-guide">Universal Windows Platform (UWP)</a> application that lets you pirate YouTube video and audio.</p>
-            </section>
-            <section>
-                <h2>how does it work?</h2>
-                <p>Melody uses the <a class="link" href="https://github.com/Tyrrrz/YoutubeExplode">YouTubeExplode library by Tyrrrz</a> which scrapes raw page data and intercepts internal endpoints to resolve download links.</p>
-            </section>
-        </div>
-    </section> 
-    
-    
-    <script>
-        const menubutton = document.getElementById("menu");
-        const navigation = document.getElementById("navlinks")
-        menubutton.addEventListener("click", function(){
-            if(navigation.classList.contains("collapsewidth")){
-                navigation.classList.remove("collapsewidth");
-            }else{
-                navigation.classList.add("collapsewidth");
-            }
-        })
-    </script>
-    <script>
-        const githubbtn = document.getElementById("github-btn");
-        const navdownloadbtn = document.getElementById("navdownload-btn");
-        const downloadbtn = document.getElementById("download-btn");
-        githubbtn.addEventListener("click", function(){
-            window.location.href = "https://github.com/yuans-dev/melody-uwp";
-        })
-        navdownloadbtn.addEventListener("click", function(){
-            window.location.href = "https://github.com/yuans-dev/melody-uwp/releases";
-        })
-        downloadbtn.addEventListener("click", function(){
-            window.location.href = "https://github.com/yuans-dev/melody-uwp/releases";
-        })
-    </script>
-    <script>
-        
-        const aboutbutton = document.getElementById("aboutlink");
-        const aboutcontent = document.getElementById("about");
-        aboutbutton.addEventListener("click", function(){
-            removeSelectedFromAll();
-            aboutbutton.classList.add("selected");
-            aboutcontent.scrollIntoView({
-        behavior: 'smooth'
-    });
-        })
-        const homebutton = document.getElementById("homelink");
-        const homecontent = document.getElementById("herobanner");
-        homebutton.addEventListener("click", function(){
-            removeSelectedFromAll();
-            homebutton.classList.add("selected");
-            homecontent.scrollIntoView({
-        behavior: 'smooth'
-    });
-        })
-        window.onscroll = function(){
-            if(isInViewport(homecontent)){
-                removeSelectedFromAll();
-            homebutton.classList.add("selected");
-            }else if(isInViewport(aboutcontent)){
-                removeSelectedFromAll();
-            aboutbutton.classList.add("selected");
-            }
-        }
+      <div class="content">
+        <section>
+          <h2>what is Melody?</h2>
+          <p>
+            Melody is a
+            <a
+              class="link"
+              href="https://learn.microsoft.com/en-us/windows/uwp/get-started/universal-application-platform-guide"
+              >Universal Windows Platform (UWP)</a
+            >
+            application that lets you pirate YouTube video and audio.
+          </p>
+        </section>
+        <section>
+          <h2>how does it work?</h2>
+          <p>
+            Melody uses the
+            <a class="link" href="https://github.com/Tyrrrz/YoutubeExplode"
+              >YouTubeExplode library by Tyrrrz</a
+            >
+            which scrapes raw page data and intercepts internal endpoints to
+            resolve download links.
+          </p>
+        </section>
+      </div>
+    </section>
 
-        function removeSelectedFromAll(){
-            if(homebutton.classList.contains("selected")){
-                homebutton.classList.remove("selected");
-            }else{
-                aboutbutton.classList.remove("selected");
-            }
+    <script>
+      const menubutton = document.getElementById("menu");
+      const navigation = document.getElementById("navlinks");
+      menubutton.addEventListener("click", function () {
+        if (navigation.classList.contains("collapsewidth")) {
+          navigation.classList.remove("collapsewidth");
+        } else {
+          navigation.classList.add("collapsewidth");
         }
-        function isInViewport (elem, offset = 0) {
-            const bounding = elem.getBoundingClientRect();
-            return (bounding.top >= 0 && bounding.bottom <= (window.innerHeight || document.documentElement.clientHeight) + offset);
-        }
+      });
     </script>
-</body>
+    <script>
+      const githubbtn = document.getElementById("github-btn");
+      const navdownloadbtn = document.getElementById("navdownload-btn");
+      const downloadbtn = document.getElementById("download-btn");
+      const authorbtn = document.getElementById("author-btn");
+      githubbtn.addEventListener("click", function () {
+        window.location.href = "https://github.com/yverci/melody-uwp";
+      });
+      navdownloadbtn.addEventListener("click", function () {
+        window.location.href = "https://github.com/yverci/melody-uwp/releases";
+      });
+      downloadbtn.addEventListener("click", function () {
+        window.location.href =
+          "https://github.com/yuans-dev/melody-uwp/releases/latest/download/melody.zip";
+      });
+      authorbtn.addEventListener("click", function () {
+        window.location.href = "https://yuans-dev.github.io";
+      });
+    </script>
+    <script>
+      const aboutbutton = document.getElementById("aboutlink");
+      const aboutcontent = document.getElementById("about");
+      aboutbutton.addEventListener("click", function () {
+        removeSelectedFromAll();
+        aboutbutton.classList.add("selected");
+        aboutcontent.scrollIntoView({
+          behavior: "smooth",
+        });
+      });
+      const homebutton = document.getElementById("homelink");
+      const homecontent = document.getElementById("herobanner");
+      homebutton.addEventListener("click", function () {
+        removeSelectedFromAll();
+        homebutton.classList.add("selected");
+        homecontent.scrollIntoView({
+          behavior: "smooth",
+        });
+      });
+      window.onscroll = function () {
+        if (isInViewport(homecontent)) {
+          removeSelectedFromAll();
+          homebutton.classList.add("selected");
+        } else if (isInViewport(aboutcontent)) {
+          removeSelectedFromAll();
+          aboutbutton.classList.add("selected");
+        }
+      };
+
+      function removeSelectedFromAll() {
+        if (homebutton.classList.contains("selected")) {
+          homebutton.classList.remove("selected");
+        } else {
+          aboutbutton.classList.remove("selected");
+        }
+      }
+      function isInViewport(elem, offset = 0) {
+        const bounding = elem.getBoundingClientRect();
+        return (
+          bounding.top >= 0 &&
+          bounding.bottom <=
+            (window.innerHeight || document.documentElement.clientHeight) +
+              offset
+        );
+      }
+    </script>
+  </body>
 </html>
