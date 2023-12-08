@@ -147,24 +147,23 @@ button{
     
 }
 
-.herobanner #parallax {
+.herobanner .parallax {
     background-image: url("img/hero.jpg");
     box-shadow: 0px 18px 36px var(--shadow);
     height: 100vh;
     width: 100%;
+    overflow: hidden;
     background-attachment: fixed;
     background-position: center;
-
     background-repeat: no-repeat;
     background-size: cover;
     
 }
-.herobanner #parallax .content{
-    height: 100vh;
-    display: block;
+.herobanner .parallax .content{
     overflow: hidden;
+    margin: 5%;
 }
-.herobanner #parallax img{
+.herobanner .parallax img{
     height: 48vh;
     -webkit-filter: drop-shadow(20px 20px 15px --shadow);
     filter: drop-shadow(20px 20px 15px --shadow);
