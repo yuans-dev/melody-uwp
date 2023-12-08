@@ -131,7 +131,7 @@ button{
     transform: rotate(180deg);
 }
 .navbar .menubutton span{
-    transform: translate(0, 1px);
+    transform: translate(0, 2px);
 }
 
 
