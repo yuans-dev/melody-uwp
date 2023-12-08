@@ -21,6 +21,17 @@ body {
     height: 100vh;
 }
 
+.navbar.compact{
+    display: flex;
+    align-items:flex-start;
+    justify-content:flex-start;
+    height: 100vh;
+    width: 200px;
+    margin: 0;
+    padding: 0;
+    vertical-align: unset;
+    position: fixed;
+}
 .navbar{
     display: flex;
     vertical-align: middle;
@@ -40,10 +51,22 @@ body {
 .navbar .selected{
     color: var(--accent);
 }
+.navbar .alignright.compact{
+    padding-right: unset;
+    justify-content: flex-end;
+    align-items:center;
+    display:none;
+}
 .navbar .alignright{
     padding-right: 16px;
     justify-content: flex-end;
     align-items:center;
+
+}
+.navbar .alignleft.compact{
+    align-items:flex-start;
+    padding-left: unset;
+    
 }
 .navbar .alignleft{
     padding-left: 16px;
@@ -56,14 +79,28 @@ body {
     transition: 0.3s ease;
     cursor: pointer;
 }
-.navbar ul li{
-    margin-right: 12px;
-}
 
 .navbar a:hover{
     color: var(--accent);
 }
 
+.navbar ul.compact{
+    opacity: 1;
+    list-style: none;
+    width: 200px;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: block;
+    position: absolute;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    -webkit-transition: opacity 0.5s ease, width 0.3s ease;
+    -moz-transition: opacity 0.5s ease, width 0.3s ease;
+    -ms-transition: opacity 0.5s ease, width 0.3s ease;
+    -o-transition: opacity 0.5s ease, width 0.3s ease;
+    transition: opacity 0.5s ease, width 0.3s ease;
+}
 .navbar ul{
     opacity: 1;
     padding: 12px 12px;
@@ -77,8 +114,20 @@ body {
     -o-transition: opacity 0.5s ease, width 0.3s ease;
     transition: opacity 0.5s ease, width 0.3s ease;
 }
+
+.navbar ul.compact.collapsewidth{
+    width: 0%;
+    opacity: 1;
+    padding: 0;
+    overflow: hidden;
+    -webkit-transition: opacity 0.5s ease, width 0.3s ease;
+    -moz-transition: opacity 0.5s ease, width 0.3s ease;
+    -ms-transition: opacity 0.5s ease, width 0.3s ease;
+    -o-transition: opacity 0.5s ease, width 0.3s ease;
+    transition: opacity 0.5s ease, width 0.3s ease;
+}
 .navbar ul.collapsewidth{
-    width: 48px;
+    width: 46px;
     opacity: 0.9;
     overflow: hidden;
     -webkit-transition: opacity 0.5s ease, width 0.3s ease;
@@ -87,6 +136,10 @@ body {
     -o-transition: opacity 0.5s ease, width 0.3s ease;
     transition: opacity 0.5s ease, width 0.3s ease;
 }
+.navbar ul li{
+    margin-right: 12px;
+}
+
 button{
     transition: 0.3s ease;
     cursor: pointer; 
@@ -117,6 +170,10 @@ button{
     padding-left: 12px;
     padding-right: 12px;
     transform: translate(0, -5%);
+    
+}
+.navbar .navdownload-btn.compact{
+    display:none;
 }
 .navbar .navdownload-btn:hover{
     border-radius: 32px;
@@ -127,11 +184,30 @@ button{
     
     width: 140px;
 }
+.navbar .menubutton.compact{
+    border:none;
+    -webkit-backdrop-filter: unset;
+    backdrop-filter: unset;
+    box-shadow: unset;
+    z-index: 2;
+}
 .navbar .menubutton:hover{
     transform: rotate(180deg);
 }
 .navbar .menubutton span{
     transform: translate(0, 2px);
+}
+.navbar .releasescompact{
+    display:none;
+}
+.navbar .githubcompact{
+    display: none;
+}
+.navbar .releasescompact.compact{
+    display:unset;
+}
+.navbar .githubcompact.compact{
+    display: unset;
 }
 
 
@@ -165,6 +241,8 @@ button{
 }
 .herobanner .parallax img{
     height: 48vh;
+    width: 48vw;
+    min-width: 277px;
     -webkit-filter: drop-shadow(20px 20px 15px --shadow);
     filter: drop-shadow(20px 20px 15px --shadow);
 }

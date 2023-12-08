@@ -13,7 +13,7 @@
   </head>
   <body>
     <div class="navbar" id="navbar">
-      <div class="alignleft">
+      <div class="alignleft" id="alignleft">
         <button class="menubutton" id="menu">
           <span class="material-symbols-outlined">menu</span>
         </button>
@@ -34,10 +34,18 @@
               <h2>releases</h2>
             </button>
           </li>
+          <li>
+            <a id="releasescompact" class="releasescompact"
+              ><h3>releases</h3></a
+            >
+          </li>
+          <li>
+            <a id="githubcompact" class="githubcompact"><h3>github</h3></a>
+          </li>
         </ul>
       </div>
 
-      <div class="alignright">
+      <div class="alignright" id="alignright">
         <button class="github-btn" id="github-btn">
           <h2>github <span class="material-symbols-outlined">code</span></h2>
         </button>
@@ -92,6 +100,11 @@
     <script>
       const menubutton = document.getElementById("menu");
       const navigation = document.getElementById("navlinks");
+      const navbar = document.getElementById("navbar");
+      const alignleft = document.getElementById("alignleft");
+      const alignright = document.getElementById("alignright");
+      const releasescompact = document.getElementById("releasescompact");
+      const githubcompact = document.getElementById("githubcompact");
       menubutton.addEventListener("click", function () {
         if (navigation.classList.contains("collapsewidth")) {
           navigation.classList.remove("collapsewidth");
@@ -99,6 +112,31 @@
           navigation.classList.add("collapsewidth");
         }
       });
+      const melodylogo = document.getElementById("melodylogo");
+      window.onresize = function () {
+        var melodylogorect = melodylogo.getBoundingClientRect();
+
+        if (melodylogorect.width < 278) {
+          console.log(melodylogorect.width);
+          menubutton.classList.add("compact");
+          navigation.classList.add("compact");
+          navbar.classList.add("compact");
+          alignright.classList.add("compact");
+          alignleft.classList.add("compact");
+          navdownloadbtn.classList.add("compact");
+          githubcompact.classList.add("compact");
+          releasescompact.classList.add("compact");
+        } else {
+          menubutton.classList.remove("compact");
+          navigation.classList.remove("compact");
+          navbar.classList.remove("compact");
+          alignright.classList.remove("compact");
+          alignleft.classList.remove("compact");
+          navdownloadbtn.classList.remove("compact");
+          githubcompact.classList.remove("compact");
+          releasescompact.classList.remove("compact");
+        }
+      };
     </script>
     <script>
       const githubbtn = document.getElementById("github-btn");
