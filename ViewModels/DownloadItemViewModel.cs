@@ -111,6 +111,7 @@ namespace Melody.ViewModels
 
                 default:
                 case ExtendedExecutionResult.Denied:
+                    Status = "Download cancelled due to low battery life. Please plug-in your device or allow background tasks.";
                     CancelDownload();
                     break;
             }
