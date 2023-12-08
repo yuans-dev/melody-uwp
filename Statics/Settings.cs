@@ -1,12 +1,18 @@
 ﻿using Melody.Classes;
 using Melody.Core;
+using Melody.Statics;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.UI.Controls.TextToolbarSymbols;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
+using Windows.ApplicationModel;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 
 namespace Melody
 {
@@ -58,11 +64,8 @@ namespace Melody
         {
             try
             {
-                SpotifyClient.Details = new ClientDetails()
-                {
-                    ID = "6bbfc275c5524340bd07599097c8722b",
-                    Secret = "67b37cf01daf41c39c260a721930f7b3"
-                };
+                var spotifycredentials = await StorageFile.GetFileFromApplicationUriAsync((new Uri(@"ms-appx:///s_cred.json")));
+                SpotifyClient.Details = JsonSerializer.Deserialize<ClientDetails>(await FileIO.ReadTextAsync(spotifycredentials));
                 try
                 {
                     await SpotifyClient.Auth();
@@ -73,7 +76,7 @@ namespace Melody
                 }
                 SerializableSettings settings = JsonSerializer.Deserialize<SerializableSettings>(
                 (string)Local.Values["Settings"]);
-               
+                
 
                 Theme = settings.Theme;
                 OutputFolder = settings.OutputFolder;
