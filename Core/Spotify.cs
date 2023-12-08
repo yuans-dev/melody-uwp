@@ -301,14 +301,7 @@ namespace Melody.Core
                 new PlaylistGetItemsRequest { Offset = offset });
 
         }
-        private async Task Offset(SimplePlaylist Playlist, int Index)
-        {
-            int offset = (Index + 1) * 100;
-            Playlist.Tracks = await Client.Playlists.GetItems
-                (Playlist.Id,
-                new PlaylistGetItemsRequest { Offset = offset });
 
-        }
         private async Task Offset(FullAlbum Album, int Index)
         {
             int offset = (Index + 1) * 100;

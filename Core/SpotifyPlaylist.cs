@@ -18,18 +18,6 @@ namespace Melody.Core
 
             Bitmap = new BitmapImage(new System.Uri(Playlist.Images[0].Url, System.UriKind.Absolute));
         }
-        public SpotifyPlaylist(SimplePlaylist Playlist)
-        {
-            Title = Playlist.Name;
-            Authors = new string[1] { Playlist.Owner.DisplayName };
-
-            ID = new MediaID(MediaType.YouTubeVideo, Playlist.Id);
-            Link = new MediaLink(Playlist.Uri, "https://open.spotify.com/playlist/" + Playlist.Id);
-            MediaCount = (uint)Playlist.Tracks.Total;
-            Media = Playlist.Tracks;
-
-            Bitmap = new BitmapImage(new System.Uri(Playlist.Images[0].Url, System.UriKind.Absolute));
-        }
         public string Title { get; set; }
         public string[] Authors { get; set; }
         public string Name
