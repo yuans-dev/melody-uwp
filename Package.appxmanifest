@@ -9,14 +9,14 @@
 
   <Identity
     Name="ba1ba48e-7b94-45ba-a6d8-bd3693313cae"
-    Publisher="CN=verc"
-    Version="1.2.1.0" />
+    Publisher="CN=yuans-dev"
+    Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="ba1ba48e-7b94-45ba-a6d8-bd3693313cae" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>Melody</DisplayName>
-    <PublisherDisplayName>verc</PublisherDisplayName>
+    <PublisherDisplayName>yuans-dev</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
