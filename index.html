@@ -112,13 +112,9 @@
       const menubutton = document.getElementById("menu");
       const navigation = document.getElementById("navlinks");
       const navbar = document.getElementById("navbar");
-      const alignleft = document.getElementById("alignleft");
-      const alignright = document.getElementById("alignright");
-      const releasescompact = document.getElementById("releasescompact");
-      const githubcompact = document.getElementById("githubcompact");
+
       const homeicon = document.getElementById("homeicon");
       const hometext = document.getElementById("hometext");
-      const melodylogo = document.getElementById("melodylogo");
       const githubbtn = document.getElementById("github-btn");
       const navdownloadbtn = document.getElementById("navdownload-btn");
       const downloadbtn = document.getElementById("download-btn");
@@ -192,28 +188,14 @@
         );
       }
       function toggleCompactMode() {
-        var melodylogorect = melodylogo.getBoundingClientRect();
-
-        if (melodylogorect.width <= 320) {
-          menubutton.classList.add("compact");
-          navigation.classList.add("compact");
+        var navbarrect = navbar.getBoundingClientRect();
+        //console.log(navbarrect.width);
+        if (navbarrect.width <= 600) {
           navbar.classList.add("compact");
-          alignright.classList.add("compact");
-          alignleft.classList.add("compact");
-          navdownloadbtn.classList.add("compact");
-          githubcompact.classList.add("compact");
-          releasescompact.classList.add("compact");
           hometext.style.display = "none";
           homeicon.style.display = "flex";
         } else {
-          menubutton.classList.remove("compact");
-          navigation.classList.remove("compact");
           navbar.classList.remove("compact");
-          alignright.classList.remove("compact");
-          alignleft.classList.remove("compact");
-          navdownloadbtn.classList.remove("compact");
-          githubcompact.classList.remove("compact");
-          releasescompact.classList.remove("compact");
           homeicon.style.display = "none";
           hometext.style.display = "flex";
         }
