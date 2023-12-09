@@ -118,6 +118,45 @@
       const githubcompact = document.getElementById("githubcompact");
       const homeicon = document.getElementById("homeicon");
       const hometext = document.getElementById("hometext");
+      const melodylogo = document.getElementById("melodylogo");
+      const githubbtn = document.getElementById("github-btn");
+      const navdownloadbtn = document.getElementById("navdownload-btn");
+      const downloadbtn = document.getElementById("download-btn");
+      const authorbtn = document.getElementById("author-btn");
+      const aboutbutton = document.getElementById("aboutlink");
+      const aboutcontent = document.getElementById("about");
+      const homebutton = document.getElementById("homelink");
+      const homecontent = document.getElementById("herobanner");
+    </script>
+    <script>
+      githubbtn.addEventListener("click", function () {
+        window.location.href = "https://github.com/yverci/melody-uwp";
+      });
+      navdownloadbtn.addEventListener("click", function () {
+        window.location.href = "https://github.com/yverci/melody-uwp/releases";
+      });
+      downloadbtn.addEventListener("click", function () {
+        window.location.href =
+          "https://github.com/yuans-dev/melody-uwp/releases/latest/download/melody.zip";
+      });
+      authorbtn.addEventListener("click", function () {
+        window.location.href = "https://yuans-dev.github.io";
+      });
+      aboutbutton.addEventListener("click", function () {
+        removeSelectedFromAll();
+        aboutbutton.classList.add("selected");
+        aboutcontent.scrollIntoView({
+          behavior: "smooth",
+        });
+      });
+
+      homebutton.addEventListener("click", function () {
+        removeSelectedFromAll();
+        homebutton.classList.add("selected");
+        homecontent.scrollIntoView({
+          behavior: "smooth",
+        });
+      });
       menubutton.addEventListener("click", function () {
         if (navigation.classList.contains("collapsewidth")) {
           navigation.classList.remove("collapsewidth");
@@ -125,9 +164,33 @@
           navigation.classList.add("collapsewidth");
         }
       });
-      const melodylogo = document.getElementById("melodylogo");
       window.onload = toggleCompactMode;
       window.onresize = toggleCompactMode;
+      window.onscroll = function () {
+        if (isInViewport(homecontent)) {
+          removeSelectedFromAll();
+          homebutton.classList.add("selected");
+        } else if (isInViewport(aboutcontent)) {
+          removeSelectedFromAll();
+          aboutbutton.classList.add("selected");
+        }
+      };
+      function removeSelectedFromAll() {
+        if (homebutton.classList.contains("selected")) {
+          homebutton.classList.remove("selected");
+        } else {
+          aboutbutton.classList.remove("selected");
+        }
+      }
+      function isInViewport(elem, offset = 0) {
+        const bounding = elem.getBoundingClientRect();
+        return (
+          bounding.top >= 0 &&
+          bounding.bottom <=
+            (window.innerHeight || document.documentElement.clientHeight) +
+              offset
+        );
+      }
       function toggleCompactMode() {
         var melodylogorect = melodylogo.getBoundingClientRect();
 
@@ -154,71 +217,6 @@
           homeicon.style.display = "none";
           hometext.style.display = "flex";
         }
-      }
-    </script>
-    <script>
-      const githubbtn = document.getElementById("github-btn");
-      const navdownloadbtn = document.getElementById("navdownload-btn");
-      const downloadbtn = document.getElementById("download-btn");
-      const authorbtn = document.getElementById("author-btn");
-      githubbtn.addEventListener("click", function () {
-        window.location.href = "https://github.com/yverci/melody-uwp";
-      });
-      navdownloadbtn.addEventListener("click", function () {
-        window.location.href = "https://github.com/yverci/melody-uwp/releases";
-      });
-      downloadbtn.addEventListener("click", function () {
-        window.location.href =
-          "https://github.com/yuans-dev/melody-uwp/releases/latest/download/melody.zip";
-      });
-      authorbtn.addEventListener("click", function () {
-        window.location.href = "https://yuans-dev.github.io";
-      });
-    </script>
-    <script>
-      const aboutbutton = document.getElementById("aboutlink");
-      const aboutcontent = document.getElementById("about");
-      aboutbutton.addEventListener("click", function () {
-        removeSelectedFromAll();
-        aboutbutton.classList.add("selected");
-        aboutcontent.scrollIntoView({
-          behavior: "smooth",
-        });
-      });
-      const homebutton = document.getElementById("homelink");
-      const homecontent = document.getElementById("herobanner");
-      homebutton.addEventListener("click", function () {
-        removeSelectedFromAll();
-        homebutton.classList.add("selected");
-        homecontent.scrollIntoView({
-          behavior: "smooth",
-        });
-      });
-      window.onscroll = function () {
-        if (isInViewport(homecontent)) {
-          removeSelectedFromAll();
-          homebutton.classList.add("selected");
-        } else if (isInViewport(aboutcontent)) {
-          removeSelectedFromAll();
-          aboutbutton.classList.add("selected");
-        }
-      };
-
-      function removeSelectedFromAll() {
-        if (homebutton.classList.contains("selected")) {
-          homebutton.classList.remove("selected");
-        } else {
-          aboutbutton.classList.remove("selected");
-        }
-      }
-      function isInViewport(elem, offset = 0) {
-        const bounding = elem.getBoundingClientRect();
-        return (
-          bounding.top >= 0 &&
-          bounding.bottom <=
-            (window.innerHeight || document.documentElement.clientHeight) +
-              offset
-        );
       }
     </script>
   </body>
