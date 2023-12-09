@@ -19,7 +19,10 @@
         </button>
         <ul id="navlinks">
           <li>
-            <a class="selected" id="homelink"><h3>home</h3></a>
+            <a class="selected" id="homelink"
+              ><span id="homeicon" class="material-symbols-outlined">home</span>
+              <h3 id="hometext">home</h3></a
+            >
           </li>
           <li>
             <a id="aboutlink"><h3>about</h3></a>
@@ -29,8 +32,8 @@
               <h3><nobr>yuans-dev</nobr></h3>
             </a>
           </li>
-          <li>
-            <button id="navdownload-btn" class="navdownload-btn">
+          <li id="navdownload-btn">
+            <button class="navdownload-btn">
               <h2>releases</h2>
             </button>
           </li>
@@ -113,6 +116,8 @@
       const alignright = document.getElementById("alignright");
       const releasescompact = document.getElementById("releasescompact");
       const githubcompact = document.getElementById("githubcompact");
+      const homeicon = document.getElementById("homeicon");
+      const hometext = document.getElementById("hometext");
       menubutton.addEventListener("click", function () {
         if (navigation.classList.contains("collapsewidth")) {
           navigation.classList.remove("collapsewidth");
@@ -121,11 +126,12 @@
         }
       });
       const melodylogo = document.getElementById("melodylogo");
-      window.onresize = function () {
+      window.onload = toggleCompactMode;
+      window.onresize = toggleCompactMode;
+      function toggleCompactMode() {
         var melodylogorect = melodylogo.getBoundingClientRect();
 
-        if (melodylogorect.width < 278) {
-          console.log(melodylogorect.width);
+        if (melodylogorect.width <= 320) {
           menubutton.classList.add("compact");
           navigation.classList.add("compact");
           navbar.classList.add("compact");
@@ -134,6 +140,8 @@
           navdownloadbtn.classList.add("compact");
           githubcompact.classList.add("compact");
           releasescompact.classList.add("compact");
+          hometext.style.display = "none";
+          homeicon.style.display = "flex";
         } else {
           menubutton.classList.remove("compact");
           navigation.classList.remove("compact");
@@ -143,8 +151,10 @@
           navdownloadbtn.classList.remove("compact");
           githubcompact.classList.remove("compact");
           releasescompact.classList.remove("compact");
+          homeicon.style.display = "none";
+          hometext.style.display = "flex";
         }
-      };
+      }
     </script>
     <script>
       const githubbtn = document.getElementById("github-btn");
