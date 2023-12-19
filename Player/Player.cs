@@ -18,23 +18,18 @@ namespace Melody.Player
     {
         private static MediaPlayerElement DefaultMediaElement = MainPage.Current.DefaultMediaElement;
         private static Grid PlayerGrid = MainPage.Current.PlayerGrid;
+        private static RowDefinition PlayerGridRow = MainPage.Current.PlayerGridRow;
         public static async void Play (SpotifyTrack item)
         {
-            SetInfo(item);
             Show();
+            SetInfo(item);
+            DefaultMediaElement.IsEnabled = false;
             if (DefaultMediaElement.MediaPlayer.PlaybackSession.CanPause)
             {
                 DefaultMediaElement.MediaPlayer.Pause();
             }
-            try
-            {
-                DefaultMediaElement.Source = MediaSource.CreateFromUri(new Uri(item.PreviewURL, UriKind.Absolute));
-            }
-            catch
-            {
-                DefaultMediaElement.Source = MediaSource.CreateFromUri(new Uri(await TryGetPreviewURLFromYT(item), UriKind.Absolute));
-            }
-            
+            DefaultMediaElement.Source = MediaSource.CreateFromUri(new Uri(await TryGetPreviewURLFromYT(item), UriKind.Absolute));
+            DefaultMediaElement.IsEnabled = true;
             DefaultMediaElement.MediaPlayer.Volume = 0.25;
         }
         public static void SetInfo(SpotifyTrack item)
@@ -46,10 +41,12 @@ namespace Melody.Player
         }
         public static void Show()
         {
+            PlayerGridRow.Height = new Windows.UI.Xaml.GridLength(170,Windows.UI.Xaml.GridUnitType.Pixel);
             PlayerGrid.Visibility = Windows.UI.Xaml.Visibility.Visible;
         }
         public static void Hide()
         {
+            PlayerGridRow.Height = new Windows.UI.Xaml.GridLength(0, Windows.UI.Xaml.GridUnitType.Pixel);
             PlayerGrid.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
             if (DefaultMediaElement.MediaPlayer.PlaybackSession.CanPause)
             {
@@ -58,33 +55,10 @@ namespace Melody.Player
         }
         private static async Task<string> TryGetPreviewURLFromYT(SpotifyTrack track)
         {
-            var ytlink = await ToYouTubeLink(track);
+            var ytlink = await Settings.YouTubeClient.ToYouTubeLink(track);
 
             var streaminfo = await Settings.YouTubeClient.GetStreamInfo(ytlink);
             return streaminfo.Url;
-        }
-        private static async Task<string> ToYouTubeLink(SpotifyTrack Track)
-        {
-            string title = await Track.Title.Romanize();
-            string[] keywords = new string[2] { title, Track.Title };
-            int[] errormargins = new int[6] { 0, 1000, 2000, 4000, 8000, 12000 };
-            var i = 1;
-            foreach (var keyword in keywords)
-            {
-                foreach (var margin in errormargins)
-                {
-                    var result = await Settings.YouTubeClient.Search($"{title.ToLower()} {Track.Authors[0].ToLower()}", keyword, Track.Duration, margin);
-                    if (!string.IsNullOrWhiteSpace(result))
-                    {
-                        Settings.YouTubeClient.InitializeURL(result);
-                        return result;
-                    }
-                }
-            }
-            Debug.WriteLine($"{title.ToLower()} {Track.Authors[0].ToLower()} official");
-            var fuzzyresult = await Settings.YouTubeClient.FuzzySearch($"{title.ToLower()} {Track.Authors[0].ToLower()} official", Track.Duration);
-            Settings.YouTubeClient.InitializeURL(fuzzyresult);
-            return fuzzyresult;
         }
     }
 }
