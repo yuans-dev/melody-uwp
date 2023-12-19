@@ -72,7 +72,7 @@
                                     <DataTemplate>
                                         <Button Click="ST_Tag_Click" DataContext="{Binding}" Padding="8,8,8,8" CornerRadius="12,12,12,12">
                                             <Button.Background>
-                                                <SolidColorBrush Color="{ThemeResource DefaultForegroundColor}" Opacity="0.3"/>
+                                                <SolidColorBrush Color="{ThemeResource SystemAccentColorDark1}" Opacity="0.3"/>
                                             </Button.Background>
                                             <TextBlock FontSize="11" FontWeight="SemiBold" Text="{Binding  Converter={StaticResource StringToUpperCaseConverter}}"/>
                                         </Button>
@@ -97,7 +97,7 @@
                                 </Button.Flyout>
                                 <SymbolIcon Symbol="More"/>
                             </Button>
-                            <ProgressBar Foreground="{ThemeResource DefaultForeground}" ToolTipService.ToolTip="Popularity" Width="160" Maximum="100" Value="{Binding Popularity}"/>
+                            <ProgressBar Foreground="{ThemeResource SystemAccentColorLight2}" ToolTipService.ToolTip="Popularity" Width="160" Maximum="100" Value="{Binding Popularity}"/>
                         </StackPanel>
                     </Grid>
                     <MediaElement 
@@ -145,7 +145,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Width="120" HorizontalAlignment="Center" HorizontalTextAlignment="Center" Text="{x:Bind LoadingText,Mode=OneWay}" FontWeight="SemiBold" FontSize="16"/>
-                <ProgressBar Grid.Row="1" Width="160" Maximum="1" HorizontalAlignment="Center" Foreground="{ThemeResource DefaultForeground}" Value="{x:Bind LoadingProgress,Mode=OneWay}"/>
+                <ProgressBar Grid.Row="1" Width="160" Maximum="1" HorizontalAlignment="Center" Foreground="{ThemeResource SystemAccentColorLight2}" Value="{x:Bind LoadingProgress,Mode=OneWay}"/>
             </Grid>
         </controls:Loading>
         <m:InAppNotification Grid.RowSpan="2" VerticalAlignment="Bottom" CornerRadius="16,16,16,16" Width="AUTO" x:Name="InAppNotif" x:FieldModifier="public"/>

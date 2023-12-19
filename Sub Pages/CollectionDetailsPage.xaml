@@ -54,7 +54,7 @@
                             </MenuFlyout>
                         </Button.Flyout>
                     </Button>
-                    <ProgressBar Grid.Column="7" Foreground="{ThemeResource DefaultForeground}" ToolTipService.ToolTip="Popularity" HorizontalAlignment="Stretch" MaxWidth="160" Maximum="100" Value="{Binding Popularity}"/>
+                    <ProgressBar Grid.Column="7" Foreground="{ThemeResource SystemAccentColorLight2}" ToolTipService.ToolTip="Popularity" HorizontalAlignment="Stretch" MaxWidth="160" Maximum="100" Value="{Binding Popularity}"/>
                     <MediaElement 
                             Volume="0.12" Height="120" 
                             HorizontalAlignment="Stretch" Visibility="Collapsed" 
