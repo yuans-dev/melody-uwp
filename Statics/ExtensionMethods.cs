@@ -47,6 +47,26 @@ namespace Melody.Statics
             tmp = tmp.Replace('*', ' ');
             return tmp;
         }
+        public static string MakeSafeForSearch(this string input)
+        {
+            string tmp = input;
+            tmp = tmp.Replace('/', '-');
+            tmp = tmp.Replace('|', ' ');
+            tmp = tmp.Replace('\"', ' ');
+            tmp = tmp.Replace('[', ' ');
+            tmp = tmp.Replace(']', ' ');
+            tmp = tmp.Replace('{', ' ');
+            tmp = tmp.Replace('}', ' ');
+            tmp = tmp.Replace('\'', ' ');
+            tmp = tmp.Replace(',', ' ');
+            tmp = tmp.Replace('.', ' ');
+            tmp = tmp.Replace(':', ' ');
+            tmp = tmp.Replace('?', ' ');
+            tmp = tmp.Replace('*', ' ');
+            tmp = tmp.Replace(')', ' ');
+            tmp = tmp.Replace('(', ' ');
+            return tmp;
+        }
         public static string[] ToArray(this string str, string separator)
         {
             return str.Split(separator);
@@ -317,7 +337,8 @@ namespace Melody.Statics
                 
                 foreach (string item in array)
                 {
-                    if (str.Contains(item))
+                    //System.Diagnostics.Debug.WriteLine($"[CHECK] Comparing component \"{item}\" to string \"{str}\"");
+                    if (str.Contains(item)) 
                     {
                         doesContain = true;
                     }
@@ -329,6 +350,7 @@ namespace Melody.Statics
             {
                 foreach(var item in array)
                 {
+                    //System.Diagnostics.Debug.WriteLine($"[CHECK] Comparing component \"{item}\" to string \"{str}\"");
                     if (str.Contains(item))
                     {
                         doesContain = true;
