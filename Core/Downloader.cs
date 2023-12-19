@@ -56,7 +56,7 @@ namespace Melody.Core
         public string OutputPath { get; set; }
         public async Task<string> GetStream(SpotifyTrack track)
         {
-            var ytlink = await ToYouTubeLink(track);
+            var ytlink = await Settings.YouTubeClient.ToYouTubeLink(track);
             var streaminfo = await Settings.YouTubeClient.GetStreamInfo(ytlink);
             return streaminfo.Url;
         }
@@ -84,7 +84,8 @@ namespace Melody.Core
         public async Task DownloadMedia(SpotifyTrack track)
         {
             CurrentlyDownloading = track;
-            var ytlink = await ToYouTubeLink(track);
+            Status = "Searching";
+            var ytlink = await Settings.YouTubeClient.ToYouTubeLink(track);
             if (string.IsNullOrWhiteSpace(ytlink))
             {
                 OnDownloadCompleted(Result.NoMediaFound);
@@ -234,30 +235,7 @@ namespace Melody.Core
                 return;
             }
         }
-        private async Task<string> ToYouTubeLink(SpotifyTrack Track)
-        {
-            string title = await Track.Title.Romanize();
-            string[] keywords = new string[2] { title ,Track.Title };
-            int[] errormargins = new int[6] {  0, 1000, 2000, 4000, 8000, 12000 };
-            var i = 1;
-            foreach (var keyword in keywords)
-            {
-                foreach (var margin in errormargins)
-                {
-                    Status = $"Searching";
-                    var result = await Settings.YouTubeClient.Search($"{title.ToLower()} {Track.Authors[0].ToLower()}", keyword, Track.Duration, margin);
-                    if (!string.IsNullOrWhiteSpace(result))
-                    {
-                        Settings.YouTubeClient.InitializeURL(result);
-                        return result;
-                    }
-                }
-            }
-            Debug.WriteLine($"{title.ToLower()} {Track.Authors[0].ToLower()} official");
-            var fuzzyresult = await Settings.YouTubeClient.FuzzySearch($"{title.ToLower()} {Track.Authors[0].ToLower()} official", Track.Duration);
-            Settings.YouTubeClient.InitializeURL(fuzzyresult);
-            return fuzzyresult;
-        }
+        
         protected virtual void OnProgressChanged()
         {
             ProgressChanged?.Invoke(this,
