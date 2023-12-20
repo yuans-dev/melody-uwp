@@ -17,7 +17,7 @@
         <button class="menubutton" id="menu">
           <span class="material-symbols-outlined">menu</span>
         </button>
-        <ul id="navlinks">
+        <ul class="navlinks" id="navlinks">
           <li>
             <a class="selected" id="homelink"
               ><span id="homeicon" class="material-symbols-outlined">home</span>
@@ -66,15 +66,13 @@
       <div class="parallax">
         <div class="content">
           <div>
-            <img id="melodylogo" src="img/Melody Logo.svg" alt="melody" />
+            <img id="melodylogo" src="img/fulllogo.svg" alt="melody" />
             <h4>Sail the seven seas with style.</h4>
           </div>
           <br />
           <button class="pbutton" id="download-btn">
-            <div>
-              <span class="material-symbols-outlined">download</span>
-              <h2>Download</h2>
-            </div>
+            <span class="material-symbols-outlined">download</span>
+            <h2>Download</h2>
           </button>
         </div>
       </div>
@@ -82,7 +80,8 @@
 
     <section id="about" class="about">
       <div class="content">
-        <section>
+        <hr />
+        <div>
           <h2>what is Melody?</h2>
           <p>
             Melody is a
@@ -93,8 +92,9 @@
             >
             application that lets you pirate YouTube video and audio.
           </p>
-        </section>
-        <section>
+        </div>
+        <hr />
+        <div>
           <h2>how does it work?</h2>
           <p>
             Melody uses the
@@ -104,7 +104,7 @@
             which scrapes raw page data and intercepts internal endpoints to
             resolve download links.
           </p>
-        </section>
+        </div>
       </div>
     </section>
 

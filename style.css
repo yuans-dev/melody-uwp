@@ -25,18 +25,16 @@ body {
   background-blend-mode: color-dodge;
   background-attachment: fixed;
   height: 100vh;
-  overflow: hidden;
 }
 
 .navbar {
   display: flex;
-  vertical-align: middle;
+  flex-direction: row;
   align-items: center;
   justify-content: space-evenly;
   height: 12vh;
-  width: 100%;
-  padding-top: 1%;
-  padding-bottom: 1%;
+  width: 100vw;
+  padding: 1% 0;
   position: fixed;
 }
 .navbar div {
@@ -54,7 +52,7 @@ body {
 .navbar .selected {
   color: var(--accent);
 }
-.navbar .selected span {
+.navbar .selected #homeicon {
   color: var(--accent);
 }
 
@@ -79,7 +77,7 @@ body {
   color: var(--accent);
 }
 
-.navbar ul {
+.navbar .navlinks {
   opacity: 1;
   padding: 12px 12px;
   list-style: none;
@@ -88,10 +86,10 @@ body {
   display: inline-flex;
   transition: 0.3s ease;
 }
-.navbar ul li {
+.navbar .navlinks li {
   margin-right: 12px;
 }
-.navbar ul.collapsewidth {
+.navbar .navlinks.collapsewidth {
   width: 46px;
   opacity: 0.9;
   overflow: hidden;
@@ -218,42 +216,53 @@ button {
 .link {
   color: var(--accent);
   text-decoration: none;
-  border-radius: 3px;
+  margin: 0;
   transition: 0.3s ease;
 }
 .link:hover {
   font-size: large;
 }
-
+.herobanner {
+  width: 100%;
+  max-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.herobanner .content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 80vw;
+  max-height: 100vh;
+  background-color: transparent;
+}
 .herobanner .parallax {
   background-image: url("img/hero.jpg");
-  box-shadow: 0px 18px 36px var(--shadow);
-  height: 100vh;
-  width: 100%;
   overflow: hidden;
+  width: 100%;
   background-attachment: fixed;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
 }
-.herobanner .parallax .content {
-  overflow: hidden;
-  margin: 5%;
-}
 .herobanner .parallax img {
-  height: 48vh;
   width: 48vw;
   min-width: 320px;
-}
-.herobanner h1 {
-  font-size: 15vh;
-  text-shadow: 0.8vh 0px var(--darkaccent), 3px 3px 10px var(--shadow);
+  padding: 0;
 }
 
 .pbutton {
   border-radius: 32px;
   width: 60px;
   height: 60px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   overflow: hidden;
   border-color: hsla(290, 25%, 95%, 0.7);
   background: linear-gradient(
@@ -266,31 +275,48 @@ button {
   color: var(--text);
 }
 .pbutton:hover {
-  width: 170px;
+  width: 192px;
   color: var(--text);
 }
-.pbutton div {
-  width: 170px;
-  display: flex;
-  align-items: center;
+.pbutton * {
+  color: var(--text);
+  padding: 0 6px 0 6px;
+  font-size: 24px;
 }
 .pbutton span {
-  vertical-align: baseline;
-  color: var(--text);
-  font-size: 36px;
-  transform: translate(5px, 0px);
+  font-size: 33.5px;
 }
-.pbutton h2 {
-  transform: translate(16px, 0px);
-}
-
 .about {
-  height: 100vh;
+  width: 100%;
+  height: 50vh;
   overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  background-color: var(--primary);
 }
 .about .content {
-  display: inline-block;
-  height: 100vh;
-  margin: 12%;
-  justify-content: space-between;
+  width: 100%;
+  padding: 12px;
+  text-align: left;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+.about .content div {
+  width: 40%;
+}
+.about .content hr {
+  border: 1px solid rgb(255, 255, 255, 0.3);
+  -webkit-mask-image: linear-gradient(
+    to top,
+    rgba(229, 229, 229, 0) 0%,
+    rgba(44, 44, 44, 1) 81%,
+    rgba(0, 0, 0, 1) 100%
+  );
+  mask-image: linear-gradient(
+    to top,
+    rgba(229, 229, 229, 0) 0%,
+    rgba(44, 44, 44, 1) 81%,
+    rgba(0, 0, 0, 1) 100%
+  );
 }
